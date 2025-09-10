@@ -15,8 +15,6 @@ import Footer from '@/component/footer/Footer';
 import StoreProvider from '../store/StoreProvider';
 import { Toaster } from '@/components/ui/sonner';
 import { getLayoutData } from '@/lib/cms/getLayoutData';
-import { getMainPage } from '@/sanity/lib/page/getMainPage';
-import { getMainPageData } from '@/lib/cms/getMainPageData';
 import { getBannerBySlug } from '@/sanity/lib/banner/getBannerByTitle';
 import { urlFor } from '@/sanity/lib/image';
 import { getSocialMediaIcons } from '@/sanity/lib/sections/getSocialMediaIcons';
@@ -59,82 +57,66 @@ const comfortaa = Comfortaa({
   weight: ['400', '700'],
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getBannerBySlug('/');
-  return {
-    title: {
-      default: 'Невена Цонева',
-      template: '%s | Невена Цонева',
-    },
-    description: 'Официален сайт на Невена Цонева',
-    keywords: ['Невена Цонева', 'Баш Бенд', 'Без Граници', 'Гадателски карти'],
-    authors: [{ name: 'Невена Цонева' }],
-    creator: 'Невена Цонева',
-    openGraph: {
-      title: 'Невена Цонева',
-      description: 'Официален сайт на Невена Цонева',
-      url: process.env.NEXT_PUBLIC_SITE_URL,
-      siteName: 'Невена Цонева',
-      locale: 'bg-BG',
-      type: 'website',
-      images: [
-        {
-          url: urlFor(settings?.bannerImage?.[0]).width(1200).height(630).url(),
-          width: 1200,
-          height: 630,
-          alt: 'Невена Цонева',
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: 'Невена Цонева',
-      description: 'Официален сайт на Невена Цонева',
-      creator: '@nevenatsoneva',
-      images: [
-        {
-          url: urlFor(settings?.bannerImage?.[0]).width(1200).height(630).url(),
-          width: 1200,
-          height: 630,
-          alt: 'Невена Цонева',
-        },
-      ],
-    },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
-  };
-}
+// export async function generateMetadata(): Promise<Metadata> {
+//   const settings = await getBannerBySlug('/');
+//   return {
+//     title: {
+//       default: 'Невена Цонева',
+//       template: '%s | Невена Цонева',
+//     },
+//     description: 'Официален сайт на Невена Цонева',
+//     keywords: ['Невена Цонева', 'Баш Бенд', 'Без Граници', 'Гадателски карти'],
+//     authors: [{ name: 'Невена Цонева' }],
+//     creator: 'Невена Цонева',
+//     openGraph: {
+//       title: 'Невена Цонева',
+//       description: 'Официален сайт на Невена Цонева',
+//       url: process.env.NEXT_PUBLIC_SITE_URL,
+//       siteName: 'Невена Цонева',
+//       locale: 'bg-BG',
+//       type: 'website',
+//       images: [
+//         {
+//           url: urlFor(settings?.bannerImage?.[0]).width(1200).height(630).url() ,
+//           width: 1200,
+//           height: 630,
+//           alt: 'Невена Цонева',
+//         },
+//       ],
+//     },
+//     twitter: {
+//       card: 'summary_large_image',
+//       title: 'Невена Цонева',
+//       description: 'Официален сайт на Невена Цонева',
+//       creator: '@nevenatsoneva',
+//       images: [
+//         {
+//           url: urlFor(settings?.bannerImage?.[0]).width(1200).height(630).url(),
+//           width: 1200,
+//           height: 630,
+//           alt: 'Невена Цонева',
+//         },
+//       ],
+//     },
+//     robots: {
+//       index: true,
+//       follow: true,
+//       googleBot: {
+//         index: true,
+//         follow: true,
+//         'max-video-preview': -1,
+//         'max-image-preview': 'large',
+//         'max-snippet': -1,
+//       },
+//     },
+//   };
+// }
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { layoutData } = await getLayoutData();
-  const socialMediaIcons = await getSocialMediaIcons();
-  function findByTitleIncludes(data: any, searchTerm: any) {
-    return (
-      data?.find((item: any) =>
-        item?.title?.toLowerCase().includes(searchTerm.toLowerCase()),
-      ) || null
-    );
-  }
-
-  const data = {
-    navigation: findByTitleIncludes(layoutData, 'Навигация'),
-    headerAndFooter: findByTitleIncludes(layoutData, 'хедър'),
-    social: socialMediaIcons,
-  };
-
   return (
     <html lang="en">
       <body
@@ -142,17 +124,10 @@ export default async function RootLayout({
         <StoreProvider>
           <ClerkProvider dynamic>
             <main className="flex flex-col">
-              <Header data={data} />
-
               <div className="border-b-[1px] border-secondaryPurple ">
                 {children}
                 {/* <CookieConsentBanner /> */}
               </div>
-
-              <Footer
-                data={data?.headerAndFooter}
-                socialMediaIcons={socialMediaIcons}
-              />
             </main>
             <SanityLive />
             <Toaster />
