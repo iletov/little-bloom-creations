@@ -1,0 +1,15 @@
+name: Scheduled Cron job
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '* */6 * * *'
+    
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call API endpoint
+        run: |
+          curl -X GET https://vv-store.vercel.app/api/cron-init
+        

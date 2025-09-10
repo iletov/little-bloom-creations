@@ -1,0 +1,84 @@
+{
+  "label": {
+    "senderClient": {
+      "name": "Test Name",
+      "phones": [
+        "0878112233"
+      ]
+    },
+    "senderAddress": {
+      "city": {
+        "country": {
+          "code3": "BGR"
+        },
+        "name": "Плевен",
+        "postCode": "5800"
+      },
+      "street": "стара планина",
+      "num": "1",
+      "quarter": "",
+      "other": ""
+    },
+    "receiverClient": {
+      "name": "Ivan letov",
+      "phones": [
+        "0878118857"
+      ]
+    },
+    "receiverAddress": {
+      "city": {
+        "name": "",
+        "postCode": "",
+        "country": {
+          "code3": "BGR"
+        }
+      },
+      "street": "",
+      "num": "",
+      "quarter": "",
+      "other": ""
+    },
+    "senderDeliveryType": "office",
+    "senderOfficeCode": "5803",
+    "receiverOfficeCode": "5641",
+    "receiverDeliveryType": "office",
+    "payAfterAccept": "1",
+    "payAfterTest": "1",
+    "packCount": 1,
+    "shipmentType": "PACK",
+    "weight": 5,
+    "shipmentDescription": "Аксесоари",
+    "paymentSenderMethod": "",
+    "paymentSenderAmount": "",
+    "paymentReceiverMethod": "cash",
+    "paymentReceiverAmount": "",
+    "services": {
+      "cdType": "GET",
+      "cdAmount": 79.99,
+      "cdCurrency": "BGN",
+      "cdPayOptions": {
+        "client": {
+          "name": "Test Name",
+          "phones": [
+            "0878112233"
+          ]
+        },
+        "method": "Bank",
+        "BIC": "RNDMBGSF",
+        "IBAN": "BG88RNDM8888888888888",
+        "bankCurrency": "BGN",
+        "payDays": 3,
+        "officeCode": "5803"
+      }
+    },
+    "instructions": {
+      "returnInstructionParams": {
+        "type": "return",
+        "returnParcelDestination": "office",
+        "returnParcelPaymentSide": "receiver",
+        "returnParcelReceiverOfficeCode": ""
+      }
+    }
+  },
+  "mode": "validate"
+}

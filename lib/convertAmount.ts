@@ -1,0 +1,3 @@
+export const convertToSubCurrency = (amount: number) => {
+  return Math.round(amount * 100);
+};

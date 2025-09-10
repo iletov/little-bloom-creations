@@ -1,0 +1,19 @@
+.search-animated-input {
+  width: 50px;
+  height: 32px;
+  padding: 0 12px;
+  padding-right: 2.5rem; /* room for icon */
+  font-size: 0.75rem;
+  border-radius: 9999px;
+  border: none;
+  outline: none;
+  background-color: rgba(128, 90, 213, 1);
+  color: #e5e5e5;
+  transition:
+    transform 0.2s ease,
+    width 0.3s ease 0.2s,
+    height 0.3s ease 0.2s;
+  transform: scale(1.08);
+  width: 80%;
+  height: 42px;
+}

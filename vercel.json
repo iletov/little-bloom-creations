@@ -1,0 +1,19 @@
+{
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "feature/**": false,
+      "dev/**": false,
+      "stage": false,
+      "*": false
+    },
+    "autoDeployBranches": ["main"],
+    "pullRequestEnabled": true,
+    "pullRequestPreviewsEnabled": true,
+    "pullRequestPreviewsFromFork": false,
+    "deployOnPullRequest": {
+      "enabled": true,
+      "useBranchFromTarget": true
+    }
+  }
+}

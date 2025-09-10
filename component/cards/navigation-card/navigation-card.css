@@ -1,0 +1,17 @@
+.nav-card {
+  display: relative;
+  z-index: 1;
+}
+
+.nav-card::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -1px;
+  bottom: 0;
+  width: calc(100% + 3px);
+  height: calc(100% + 3px);
+  background: linear-gradient(to bottom, #d4a017, #6e530c);
+  z-index: -1;
+  border-radius: 999px;
+}
