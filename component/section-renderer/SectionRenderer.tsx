@@ -4,6 +4,7 @@ import {
   HeadingDescriptionSection,
   FullBackgroundSection,
   HeroBanner,
+  CategoryCards,
 } from '..';
 import { descriptionType, ImagesType } from '@/types';
 
@@ -32,6 +33,7 @@ const SectionRenderer = ({ sections }: SectionRendererProps) => {
     slideBanner: SlideBannerSection,
     headingDescription: HeadingDescriptionSection,
     fullBackground: FullBackgroundSection,
+    categoryCard: CategoryCards,
     // cta: CtaSection,
     // textBlock: TextBlockSection,
   };

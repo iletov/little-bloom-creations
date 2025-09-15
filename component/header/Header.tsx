@@ -94,7 +94,7 @@ const Header = () => {
   return (
     <nav className="bg-pink-1 text-green-dark grid justify-items-center text-[1.8rem] pt-4 pb-[4.8rem]">
       <div className="text-[2.4rem]">Main Text</div>
-      <section className="absolute cursor-pointer gap-2 flex top-[7.2rem] z-20 bg-white rounded-[1.6rem] overflow-clip border-[1px]">
+      <section className="absolute cursor-pointer gap-2 flex top-[7.2rem] z-20 bg-white rounded-[1.6rem] overflow-clip border-[1px] shadow-md">
         <Link
           href={'/'}
           className={cn(

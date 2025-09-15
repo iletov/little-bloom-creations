@@ -18,6 +18,7 @@ export const sectionType = defineType({
           { title: 'Text Block', value: 'textBlock' },
           { title: 'Image Gallery', value: 'imageGallery' },
           { title: 'Full Background', value: 'fullBackground' },
+          { title: 'Category Card', value: 'categoryCard' },
           { title: 'Contact Form', value: 'contactForm' },
         ],
       },
@@ -58,7 +59,8 @@ export const sectionType = defineType({
       title: 'Background Image',
       type: 'image',
       hidden: ({ parent }) =>
-        ['slideBanner'].includes(parent?.sectionType) || !parent?.sectionType,
+        ['slideBanner', 'categoryCard'].includes(parent?.sectionType) ||
+        !parent?.sectionType,
     }),
 
     //Mobile Image
@@ -67,7 +69,8 @@ export const sectionType = defineType({
       title: 'Mobile Image',
       type: 'image',
       hidden: ({ parent }) =>
-        ['slideBanner'].includes(parent?.sectionType) || !parent?.sectionType,
+        ['slideBanner', 'categoryCard'].includes(parent?.sectionType) ||
+        !parent?.sectionType,
     }),
 
     // backgroundImages
@@ -83,6 +86,11 @@ export const sectionType = defineType({
           },
           fields: [
             {
+              name: 'title',
+              title: 'title',
+              type: 'string',
+            },
+            {
               name: 'alt',
               title: 'Alt Text',
               type: 'string',
@@ -94,13 +102,21 @@ export const sectionType = defineType({
               type: 'string',
               description: 'Optional caption for the image',
             },
+            {
+              name: 'url',
+              title: 'URL',
+              type: 'string',
+            },
           ],
         },
       ],
       hidden: ({ parent }) =>
-        !['slideBanner', 'imageGallery', 'fullBackground'].includes(
-          parent?.sectionType,
-        ) || !parent?.sectionType,
+        ![
+          'slideBanner',
+          'imageGallery',
+          'fullBackground',
+          'categoryCard',
+        ].includes(parent?.sectionType) || !parent?.sectionType,
       options: {
         layout: 'grid',
       },

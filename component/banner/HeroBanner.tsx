@@ -35,18 +35,16 @@ const HeroBanner = ({ data }: HeroBannerProps) => {
 
         {/* <SocialMedComponent /> */}
 
-        <header className="absolute grid grid-cols-2 z-10 w-full h-full place-content-end pb-[10%] place-items-center">
+        <header className="absolute grid-section__hero  z-10 w-full h-full place-content-end pb-[5%] place-items-stretch max-w-[85%] inset-x-0 mx-auto">
           <h2 className=" text-pink-1 text-[4.8rem] font-bold leading-[1.2] ">
             {data?.title}
           </h2>
-          <div className="justify-self-center grid gap-4">
+          <div className="justify-self-center grid gap-8 ">
             <PortableTextContainer
               data={data?.description}
-              className="text-center text-white"
+              className="text-end text-pink-1"
             />
-            <Button className="justify-self-center">
-              {data?.button?.text}
-            </Button>
+            <Button className="justify-self-end">{data?.button?.text}</Button>
           </div>
         </header>
       </div>

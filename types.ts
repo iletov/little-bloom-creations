@@ -48,6 +48,8 @@ export type ImagesType = {
     [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
   };
   hotspot?: SanityImageHotspot;
+  title?: string;
+  alt?: string;
   crop?: SanityImageCrop;
   _type: 'image';
   _key: string;

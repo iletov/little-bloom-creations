@@ -211,7 +211,7 @@
 
 .grid-section {
   display: grid;
-  grid-template-columns: 2fr 3fr;
+  grid-template-columns: 1fr 2fr;
   margin: 0 auto;
 }
 
@@ -222,7 +222,7 @@
 }
 
 .slide-banner__title {
-  max-inline-size: 7ch;
+  max-inline-size: 65ch;
   color: var(--green-dark);
 }
 
@@ -248,18 +248,18 @@
   /* background-color: #000; */
   border-radius: 2rem;
   width: 100%;
-  height: 45rem;
+  height: 40rem;
   display: grid;
-  grid-template-columns: 4fr 1fr 1fr;
+  grid-template-columns: 3fr 1fr 1fr;
   transition: grid-template-columns 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .slide-container.hover-second {
-  grid-template-columns: 1fr 4fr 1fr;
+  grid-template-columns: 1fr 3fr 1fr;
 }
 
 .slide-container.hover-third {
-  grid-template-columns: 1fr 1fr 4fr;
+  grid-template-columns: 1fr 1fr 3fr;
 }
 
 .slide {
@@ -283,21 +283,21 @@
 .slide .slide-link {
   transform: scale(0);
   opacity: 0;
-  transition: 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition: 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
   transition-property: transform, opacity;
   font-size: 1.6rem;
   margin-bottom: 3rem;
   margin-left: 3rem;
 
-  border-radius: 0.8rem;
-  padding: 1.2rem 2rem;
+  /* border-radius: 0.8rem; */
+  padding: 1rem 0rem;
   text-decoration: none;
-  transform-origin: bottom left;
+  transform-origin: center left;
   /* transform-origin: center; */
-
+  text-align: left;
   outline: none;
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   position: absolute;
   place-self: end start;
   grid-area: 1/1;
@@ -332,29 +332,35 @@
   }
 }
 
+/* HERO */
+
+.grid-section__hero {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  margin: 0 auto;
+}
+
+@media screen and (max-width: 768px) {
+  .grid-section__herro {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Full Background Section */
 
 .max-size__fullBackground {
   max-inline-size: 10ch;
 }
 
-.svg-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 40rem;
+.max-size__herro {
+  max-inline-size: 40ch;
+}
 
-  background-size: cover;
-  background-position: center;
-  z-index: 100;
-
-  -webkit-mask-image: url('/wave.svg'); /* Chrome/Safari */
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  -webkit-mask-size: cover;
-
-  mask-image: url('/wave.svg'); /* Firefox */
-  mask-repeat: no-repeat;
+.mask-image {
+  mask-image: url('@/public/cloud-md.svg');
+  -webkit-mask-image: url('@/public/cloud-md.svg');
   mask-position: center;
-  mask-size: cover;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
 }
