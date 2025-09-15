@@ -1,15 +1,9 @@
 import { defineQuery } from 'next-sanity';
 import { sanityFetch } from '../live';
 import { unstable_cache } from 'next/cache';
-import { PaginationParams } from '@/lib/cms/getMainPageData';
-import { Params } from '../page/getMainPage';
-
-export const getDesignBySlug = (
-  slug: string,
-  pagination?: PaginationParams,
-) => {
+export const getDesignBySlug = (slug: string, pagination?: any) => {
   return unstable_cache(
-    async (slug: string, pagination?: PaginationParams) => {
+    async (slug: string, pagination?: any) => {
       const DESIGN_QUERY_BY_SLUG = defineQuery(`
     
     *[ _type == "designType" && slug.current == $slug] | order(_createdAt desc) [0] {
@@ -41,7 +35,7 @@ export const getDesignBySlug = (
     }
     `);
 
-      const params: Params = { slug };
+      const params: any = { slug };
       if (pagination) {
         params.start = pagination.start;
         params.end = pagination.end;

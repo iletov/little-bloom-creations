@@ -3,21 +3,17 @@ import {
   Comfortaa,
   Geist,
   Geist_Mono,
+  Monsieur_La_Doulaise,
   Montserrat_Alternates,
   Play,
 } from 'next/font/google';
 import './globals.css';
-import { ClerkProvider } from '@clerk/nextjs';
 // import Header from "@/Components/header/Header;
 import { SanityLive } from '@/sanity/lib/live';
-import Header from '@/component/header/Header';
-import Footer from '@/component/footer/Footer';
+
 import StoreProvider from '../store/StoreProvider';
 import { Toaster } from '@/components/ui/sonner';
-import { getLayoutData } from '@/lib/cms/getLayoutData';
-import { getBannerBySlug } from '@/sanity/lib/banner/getBannerByTitle';
-import { urlFor } from '@/sanity/lib/image';
-import { getSocialMediaIcons } from '@/sanity/lib/sections/getSocialMediaIcons';
+import Header from '@/component/header/Header';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -35,6 +31,14 @@ const montserrat = Montserrat_Alternates({
   display: 'swap',
   // You can also specify weight if needed
   weight: ['400', '500', '600', '700'],
+});
+
+const monsieurLa = Monsieur_La_Doulaise({
+  variable: '--font-monsieur-la-doulaise',
+  subsets: ['latin'],
+  display: 'swap',
+  // You can also specify weight if needed
+  weight: ['400'],
 });
 
 // const orbitron = Orbitron({
@@ -120,18 +124,17 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${play.variable} ${comfortaa.variable} ${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased tracking-tight font-sans flex flex-col min-h-screen dark `}>
+        className={`${monsieurLa.variable} ${play.variable} ${comfortaa.variable} ${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased tracking-tight font-sans flex flex-col min-h-screen light `}>
         <StoreProvider>
-          <ClerkProvider dynamic>
-            <main className="flex flex-col">
-              <div className="border-b-[1px] border-secondaryPurple ">
-                {children}
-                {/* <CookieConsentBanner /> */}
-              </div>
-            </main>
-            <SanityLive />
-            <Toaster />
-          </ClerkProvider>
+          <main className="flex flex-col">
+            <Header />
+            <div className="">
+              {children}
+              {/* <CookieConsentBanner /> */}
+            </div>
+          </main>
+          <SanityLive />
+          <Toaster />
         </StoreProvider>
       </body>
     </html>

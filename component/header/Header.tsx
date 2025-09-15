@@ -1,128 +1,119 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { SearchIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { SearchBarMotion } from '../search-bar/SearchBarMotion';
-import { AnimatePresence, motion } from 'motion/react';
-import { Sidebar } from '../sidebar-component/Sidebar';
-import SubHeadingMenu from './SubHeadingMenu';
 
-const Header = ({ data }: { data: any }) => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+interface HeaderProps {
+  label: string;
+  href: string;
+}
 
-  // const itemsCount = items.reduce((total, item) => total + item.quantity, 0);
+const Header = () => {
+  const [hoveredItem, setHoveredItem] = useState<number | null>(null);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
+  const navItems = [
+    { label: 'Categories', href: '/categories' },
+    { label: 'Pricing', href: '/pricing' },
+    { label: 'About', href: '/about' },
+    { label: 'Contact', href: '/contact' },
+    { label: 'Blog', href: '/blog' },
+  ];
 
-    window.addEventListener('scroll', handleScroll);
-    setIsClient(true);
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
+  const homeIcon = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className="size-8">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+      />
+    </svg>
+  );
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  const cartIcon = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className="size-8">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+      />
+    </svg>
+  );
 
-  if (!isClient) return null;
+  console.log('hoveredItem', hoveredItem);
 
-  console.log('Social Media', data?.social);
+  const navigationContainer = navItems.map(
+    (item: HeaderProps, index: number) => (
+      <motion.li
+        key={index + 'navmenu'}
+        className="px-6 py-2 relative"
+        onMouseEnter={() => setHoveredItem(index)}
+        onMouseLeave={() => setHoveredItem(null)}>
+        {hoveredItem === index && (
+          <motion.div
+            className="absolute inset-0 w-full h-full bg-green-5 rounded-[1rem] -z-10"
+            layoutId="navbar-hover-bg"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{
+              type: 'spring',
+              stiffness: 400,
+              damping: 25,
+              opacity: { duration: 0.3 },
+            }}
+          />
+        )}
+
+        <Link className="z-20" href={item?.href}>
+          <motion.p
+            className={cn(
+              'transition duration-200',
+              hoveredItem === index && 'text-white',
+            )}
+            whileHover={{ scale: 1.035 }}>
+            {item?.label}
+          </motion.p>
+        </Link>
+      </motion.li>
+    ),
+  );
 
   return (
-    <header className={cn('transition-colors duration-300 z-50 sticky top-0')}>
-      <div
-        className={cn(
-          ' gap-3 py-3 px-3 border-b-[1px] border-secondaryPurple shadow-sm transition-colors duration-300 z-50 sticky top-0',
-          isScrolled
-            ? 'bg-primaryPurple/90 backdrop-blur-md will-change-transform'
-            : 'bg-primaryPurple',
-        )}>
-        <div className="max-w-[1366px] mx-auto flex sm:flex-row items-center text-sm text-foreground">
-          <div className="flex w-auto relative p-1">
-            <Sidebar data={data?.navigation} socialMediaIcons={data?.social} />
-          </div>
-          <Link
-            href={'/'}
-            className=" flex justify-center md:justify-start w-full md:mx-[initial] md:ml-4 items-center text-[1.5rem] md:text-xl font-play font-bold uppercase order-2 md:order-1">
-            {data?.headerAndFooter?.header}
-          </Link>
-          <div ref={wrapperRef} className="order-2 ml-auto">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className={cn(' top-4 right-3 md:right-20')}>
-              <Button
-                variant={'outline'}
-                className={cn(
-                  'w-6 h-[32px] rounded-full bg-transparent border-secondaryPurple',
-                  isOpen ? 'opacity-0' : '',
-                )}
-                onClick={() => setIsOpen(!isOpen)}>
-                <SearchIcon size={20} className="text-foreground" />
-              </Button>
-            </motion.div>
+    <nav className="bg-pink-1 text-green-dark grid justify-items-center text-[1.8rem] pt-4 pb-[4.8rem]">
+      <div className="text-[2.4rem]">Main Text</div>
+      <section className="absolute cursor-pointer gap-2 flex top-[7.2rem] z-20 bg-white rounded-[1.6rem] overflow-clip border-[1px]">
+        <Link
+          href={'/'}
+          className={cn(
+            'grid bg-green-1 hover:bg-green-5 hover:text-white transition duration-200 ease-in-out place-items-center px-[10px] border-r-[1px]',
+          )}>
+          {homeIcon}
+        </Link>
 
-            {isOpen && (
-              <div className="absolute right-0 left-0 md:left-[unset] md:right-10 top-[0.625rem] md:top-2.5 z-50  md:w-[32rem]">
-                {/* <AnimatePresence> */}
-                <motion.div
-                  key="search-bar-1"
-                  initial={{ opacity: 0, x: 130, y: 0, width: '10%' }}
-                  animate={{
-                    opacity: 1,
-                    x: 0,
-                    y: 0,
-                    width: '72%',
-                  }}
-                  exit={{ opacity: 0, x: -10, y: -10 }}
-                  transition={{ duration: 0.15 }}
-                  className="md:hidden mx-auto">
-                  <SearchBarMotion setIsOpenAction={setIsOpen} />
-                </motion.div>
-                <motion.div
-                  key="search-bar-2"
-                  initial={{ opacity: 0, x: 260, y: 0, width: '50%' }}
-                  animate={{
-                    opacity: 1,
-                    x: -40,
-                    y: 0,
-                    width: '100%',
-                    // width: '80%',
-                  }}
-                  transition={{ duration: 0.15 }}
-                  className="hidden md:block">
-                  <SearchBarMotion setIsOpenAction={setIsOpen} />
-                </motion.div>
-                {/* </AnimatePresence> */}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-      {/* <SubHeadingMenu
-        className={
-          isScrolled
-            ? 'bg-darkGold/80 backdrop-blur-md will-change-transform'
-            : 'bg-darkGold'
-        }
-      /> */}
-    </header>
+        <ul className="flex  py-2  items-center justify-center min-w-max">
+          {navigationContainer}
+        </ul>
+
+        <Link
+          href="#"
+          className="grid text-green-dark hover:text-green-9/60 transition duration-200 ease-in-out place-items-center px-[10px] border-l-[1px]">
+          {cartIcon}
+        </Link>
+      </section>
+    </nav>
   );
 };
 

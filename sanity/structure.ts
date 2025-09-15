@@ -4,9 +4,9 @@ export const structure: StructureResolver = S =>
   S.list()
     .title('Little Bloom')
     .items([
-      S.documentTypeListItem('ekontSenderDetails').title(
-        'Еконт данни (подател)',
-      ),
+      S.documentTypeListItem('pageType').title('Pages'),
+      S.documentTypeListItem('productType').title('Products'),
+
       S.divider(),
       // ...S.documentTypeListItems().filter(
       //   item =>

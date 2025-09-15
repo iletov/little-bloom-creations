@@ -1,8 +1,6 @@
 import { sanityFetch } from '@/sanity/lib/live';
 import { defineQuery } from 'next-sanity';
 import { unstable_cache } from 'next/cache';
-import { PaginationParams } from './getMainPageData';
-import { Params } from '@/sanity/lib/page/getMainPage';
 
 export const getGallery = unstable_cache(
   async () => {
@@ -38,7 +36,7 @@ export const getGallery = unstable_cache(
 );
 
 export const getAlbumBySlug = unstable_cache(
-  async (slug: string, pagination?: PaginationParams) => {
+  async (slug: string, pagination?: any) => {
     const ALBUM_QUERY = defineQuery(`
       *[_type == "albumType" && slug.current == $slug && isPublished == true][0] {
         _id,
@@ -59,7 +57,7 @@ export const getAlbumBySlug = unstable_cache(
       }
     `);
 
-    const params: Params = { slug };
+    const params: any = { slug };
     if (pagination) {
       params.start = pagination.start;
       params.end = pagination.end;

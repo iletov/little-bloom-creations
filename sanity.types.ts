@@ -46,131 +46,6 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type SoundcloudType = {
-  _id: string;
-  _type: 'soundcloudType';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  trackId?: string;
-};
-
-export type ConcertType = {
-  _id: string;
-  _type: 'concertType';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  heading?: string;
-  slug?: Slug;
-  buyTicketLink?: string;
-  available?: boolean;
-  icon?: {
-    asset?: {
-      _ref: string;
-      _type: 'reference';
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-    };
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: 'image';
-  };
-  images?: Array<{
-    asset?: {
-      _ref: string;
-      _type: 'reference';
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-    };
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: 'image';
-    _key: string;
-  }>;
-  eventVideos?: Array<{
-    _ref: string;
-    _type: 'reference';
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: 'video';
-  }>;
-  date?: string;
-  subHeading?: string;
-  description?: string;
-  location?: string;
-};
-
-export type EventsType = {
-  _id: string;
-  _type: 'eventsType';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  heading?: string;
-  slug?: Slug;
-  available?: boolean;
-  icon?: {
-    asset?: {
-      _ref: string;
-      _type: 'reference';
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-    };
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: 'image';
-  };
-  bannerImage?: Array<{
-    asset?: {
-      _ref: string;
-      _type: 'reference';
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-    };
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: 'image';
-    _key: string;
-  }>;
-  images?: Array<{
-    asset?: {
-      _ref: string;
-      _type: 'reference';
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-    };
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: 'image';
-    _key: string;
-  }>;
-  eventVideos?: Array<{
-    _ref: string;
-    _type: 'reference';
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: 'video';
-  }>;
-  date?: string;
-  subHeading?: string;
-  description?: string;
-  location?: string;
-  contactFormHeading?: string;
-  messages?: Array<{
-    name?: string;
-    email?: string;
-    phone?: string;
-    message?: string;
-    createdAt?: string;
-    _type: 'message';
-    _key: string;
-  }>;
-};
-
 export type TitleDescriptionType = {
   _id: string;
   _type: 'titleDescriptionType';
@@ -383,17 +258,6 @@ export type EkontSenderDetails = {
   };
 };
 
-export type YoutubeVideos = {
-  _id: string;
-  _type: 'youtubeVideos';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  category?: 'music' | 'esoterica';
-  videoTitle?: string;
-  url?: string;
-};
-
 export type CardsType = {
   _id: string;
   _type: 'cardsType';
@@ -455,73 +319,6 @@ export type CardsType = {
   }>;
 };
 
-export type Design = {
-  _id: string;
-  _type: 'design';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  slug?: Slug;
-  description?: string;
-  presentation?: Array<
-    | {
-        children?: Array<{
-          marks?: Array<string>;
-          text?: string;
-          _type: 'span';
-          _key: string;
-        }>;
-        style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'blockquote';
-        listItem?: 'bullet';
-        markDefs?: Array<{
-          href?: string;
-          _type: 'link';
-          _key: string;
-        }>;
-        level?: number;
-        _type: 'block';
-        _key: string;
-      }
-    | {
-        asset?: {
-          _ref: string;
-          _type: 'reference';
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-        };
-        hotspot?: SanityImageHotspot;
-        crop?: SanityImageCrop;
-        alt?: string;
-        _type: 'image';
-        _key: string;
-      }
-  >;
-  thumbnail?: {
-    asset?: {
-      _ref: string;
-      _type: 'reference';
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-    };
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: 'image';
-  };
-  images?: Array<{
-    asset?: {
-      _ref: string;
-      _type: 'reference';
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-    };
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: 'image';
-    _key: string;
-  }>;
-};
-
 export type ContactForm = {
   _id: string;
   _type: 'contactForm';
@@ -536,30 +333,6 @@ export type ContactForm = {
   email?: string;
   phoneNumber?: string;
   message?: string;
-};
-
-export type Tag = {
-  _id: string;
-  _type: 'tag';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-};
-
-export type SalesType = {
-  _id: string;
-  _type: 'salesType';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  description?: string;
-  discountAmount?: number;
-  couponCode?: string;
-  validFrom?: string;
-  validUntil?: string;
-  isActive?: boolean;
 };
 
 export type ContactInfo = {
@@ -649,168 +422,6 @@ export type Order = {
   orderDate?: string;
 };
 
-export type EsotericaStore = {
-  _id: string;
-  _type: 'esotericaStore';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  Name?: string;
-  slug?: Slug;
-  type?: Array<{
-    _ref: string;
-    _type: 'reference';
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: 'tag';
-  }>;
-  images?: Array<{
-    asset?: {
-      _ref: string;
-      _type: 'reference';
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-    };
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: 'image';
-    _key: string;
-  }>;
-  productVideo?: {
-    _ref: string;
-    _type: 'reference';
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: 'video';
-  };
-  description?: Array<
-    | {
-        children?: Array<{
-          marks?: Array<string>;
-          text?: string;
-          _type: 'span';
-          _key: string;
-        }>;
-        style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'blockquote';
-        listItem?: 'bullet';
-        markDefs?: Array<{
-          href?: string;
-          _type: 'link';
-          _key: string;
-        }>;
-        level?: number;
-        _type: 'block';
-        _key: string;
-      }
-    | {
-        asset?: {
-          _ref: string;
-          _type: 'reference';
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-        };
-        hotspot?: SanityImageHotspot;
-        crop?: SanityImageCrop;
-        alt?: string;
-        _type: 'image';
-        _key: string;
-      }
-  >;
-  price?: number;
-  discount?: number;
-  category?: Array<{
-    _ref: string;
-    _type: 'reference';
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: 'category';
-  }>;
-  stock?: number;
-  showSizes?: boolean;
-  sizes?: Array<string>;
-  date?: string;
-};
-
-export type MusicStore = {
-  _id: string;
-  _type: 'musicStore';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  Name?: string;
-  type?: Array<{
-    _ref: string;
-    _type: 'reference';
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: 'tag';
-  }>;
-  slug?: Slug;
-  images?: Array<{
-    asset?: {
-      _ref: string;
-      _type: 'reference';
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-    };
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: 'image';
-    _key: string;
-  }>;
-  productVideo?: {
-    _ref: string;
-    _type: 'reference';
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: 'video';
-  };
-  description?: Array<
-    | {
-        children?: Array<{
-          marks?: Array<string>;
-          text?: string;
-          _type: 'span';
-          _key: string;
-        }>;
-        style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'blockquote';
-        listItem?: 'bullet';
-        markDefs?: Array<{
-          href?: string;
-          _type: 'link';
-          _key: string;
-        }>;
-        level?: number;
-        _type: 'block';
-        _key: string;
-      }
-    | {
-        asset?: {
-          _ref: string;
-          _type: 'reference';
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-        };
-        hotspot?: SanityImageHotspot;
-        crop?: SanityImageCrop;
-        alt?: string;
-        _type: 'image';
-        _key: string;
-      }
-  >;
-  price?: number;
-  discount?: number;
-  category?: Array<{
-    _ref: string;
-    _type: 'reference';
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: 'category';
-  }>;
-  stock?: number;
-  showSizes?: boolean;
-  sizes?: Array<string>;
-  date?: string;
-};
-
 export type Video = {
   _id: string;
   _type: 'video';
@@ -862,24 +473,6 @@ export type SanityFileAsset = {
   path?: string;
   url?: string;
   source?: SanityAssetSourceData;
-};
-
-export type Category = {
-  _id: string;
-  _type: 'category';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  type?: Array<{
-    _ref: string;
-    _type: 'reference';
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: 'tag';
-  }>;
-  slug?: Slug;
-  description?: string;
 };
 
 export type Slug = {
@@ -1070,25 +663,15 @@ export type AllSanitySchemaTypes =
   | SanityImagePalette
   | SanityImageDimensions
   | Geopoint
-  | SoundcloudType
-  | ConcertType
-  | EventsType
   | TitleDescriptionType
   | BannerType
   | EkontSenderDetails
-  | YoutubeVideos
   | CardsType
-  | Design
   | ContactForm
-  | Tag
-  | SalesType
   | ContactInfo
   | Order
-  | EsotericaStore
-  | MusicStore
   | Video
   | SanityFileAsset
-  | Category
   | Slug
   | BlockContent
   | SanityImageCrop
