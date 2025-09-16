@@ -75,9 +75,6 @@ export default {
         mono: ['var(--font-geist-mono)'],
         montserrat: ['var(--font-montserrat-alternates)'],
         monsieurLa: ['var(--font-monsieur-la-doulaise)'],
-        orbitron: ['var(--font-orbitron)'],
-        play: ['var(--font-play)'],
-        comfortaa: ['var(--font-comfortaa)'],
       },
       screens: {
         xsm: '375px',

@@ -1,8 +1,9 @@
 'use client';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useMotionValueEvent, useScroll } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 interface HeaderProps {
   label: string;
@@ -11,6 +12,17 @@ interface HeaderProps {
 
 const Header = () => {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
+  const [isSticky, setIsSticky] = useState(false);
+
+  const { scrollY } = useScroll();
+
+  useMotionValueEvent(scrollY, 'change', latest => {
+    if (latest > 220) {
+      setIsSticky(true);
+    } else if (latest < 80) {
+      setIsSticky(false);
+    }
+  });
 
   const navItems = [
     { label: 'Categories', href: '/categories' },
@@ -52,8 +64,6 @@ const Header = () => {
     </svg>
   );
 
-  console.log('hoveredItem', hoveredItem);
-
   const navigationContainer = navItems.map(
     (item: HeaderProps, index: number) => (
       <motion.li
@@ -83,7 +93,8 @@ const Header = () => {
               'transition duration-200',
               hoveredItem === index && 'text-white',
             )}
-            whileHover={{ scale: 1.035 }}>
+            // whileHover={{ scale: 1.035 }}
+          >
             {item?.label}
           </motion.p>
         </Link>
@@ -92,9 +103,35 @@ const Header = () => {
   );
 
   return (
-    <nav className="bg-pink-1 text-green-dark grid justify-items-center text-[1.8rem] pt-4 pb-[4.8rem]">
-      <div className="text-[2.4rem]">Main Text</div>
-      <section className="absolute cursor-pointer gap-2 flex top-[7.2rem] z-20 bg-white rounded-[1.6rem] overflow-clip border-[1px] shadow-md">
+    <motion.nav
+      // layout
+      // transition={{
+      //   type: 'spring',
+      //   stiffness: 400,
+      //   damping: 25,
+      //   duration: 0.6,
+      // }}
+      className="bg-pink-1 text-green-dark grid justify-items-center text-[1.8rem] pt-[3rem] pb-[3.5rem]">
+      <div className="text-[2.4rem] md:text-[4.2rem]">
+        <Link href={'/'}>
+          <Image src={'/logo-ctr.svg'} alt="logo" width={250} height={70} />
+        </Link>
+      </div>
+      <motion.section
+        className={cn(
+          ' cursor-pointer gap-2 flex z-20 bg-white rounded-[1.6rem] overflow-clip border-[1px] ',
+          isSticky
+            ? 'fixed top-[1rem] shadow-xl'
+            : 'absolute top-[9.5rem] shadow-lg',
+        )}
+        layout
+        animate={{ scale: isSticky ? 1.03 : 1 }}
+        transition={{
+          type: 'spring',
+          stiffness: 300,
+          damping: 30,
+          duration: 0.5,
+        }}>
         <Link
           href={'/'}
           className={cn(
@@ -112,8 +149,8 @@ const Header = () => {
           className="grid text-green-dark hover:text-green-9/60 transition duration-200 ease-in-out place-items-center px-[10px] border-l-[1px]">
           {cartIcon}
         </Link>
-      </section>
-    </nav>
+      </motion.section>
+    </motion.nav>
   );
 };
 

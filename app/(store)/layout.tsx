@@ -1,11 +1,9 @@
 import type { Metadata } from 'next';
 import {
-  Comfortaa,
   Geist,
   Geist_Mono,
   Monsieur_La_Doulaise,
   Montserrat_Alternates,
-  Play,
 } from 'next/font/google';
 import './globals.css';
 // import Header from "@/Components/header/Header;
@@ -39,26 +37,6 @@ const monsieurLa = Monsieur_La_Doulaise({
   display: 'swap',
   // You can also specify weight if needed
   weight: ['400'],
-});
-
-// const orbitron = Orbitron({
-//   variable: '--font-orbitron',
-//   subsets: ['latin'],
-//   display: 'swap',
-//   // You can also specify weight if needed
-//   weight: ['400', '500', '600', '700'],
-// });
-const play = Play({
-  variable: '--font-play',
-  subsets: ['latin'],
-  display: 'swap',
-  weight: ['400', '700'],
-});
-const comfortaa = Comfortaa({
-  variable: '--font-comfortaa',
-  subsets: ['latin'],
-  display: 'swap',
-  weight: ['400', '700'],
 });
 
 // export async function generateMetadata(): Promise<Metadata> {
@@ -124,7 +102,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${monsieurLa.variable} ${play.variable} ${comfortaa.variable} ${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased tracking-tight font-sans flex flex-col min-h-screen light `}>
+        className={`${monsieurLa.variable}  ${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased tracking-tight font-sans flex flex-col min-h-screen light `}>
         <StoreProvider>
           <main className="flex flex-col">
             <Header />

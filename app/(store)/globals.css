@@ -40,14 +40,14 @@
     /* ---- */
     --initial-x: 40;
     --initial-y: 0;
-    --pink-1: #f7f3ed;
-    --pink-5: #f9d0ce;
-    --pink-9: #f297a0;
-    --pink-dark: #42272a;
-    --green-1: #f2ecd6;
-    --green-5: #b6bb79;
-    --green-9: #516345;
-    --green-dark: #232d1c;
+    --pink-1: rgb(247 243 237);
+    --pink-5: rgb(249 208 206);
+    --pink-9: rgb(242 151 160);
+    --pink-dark: rgb(66 39 42);
+    --green-1: rgb(242 236 214);
+    --green-5: rgb(182 187 121);
+    --green-9: rgb(81 99 69);
+    --green-dark: rgb(35 45 28);
 
     font-size: 10px;
   }
@@ -111,7 +111,7 @@
 
 @layer utilities {
   .section-y-padding {
-    @apply py-8 md:py-20;
+    @apply py-8 md:py-[6rem];
   }
 
   .banner-y-padding {
@@ -186,17 +186,16 @@
     grid-row: span 3;
   }
 }
+/* Layout */
 
 /* .svg-image {
   mask: linear-gradient(0deg, transparent, #000 25%) no-repeat;
 } */
 
 .svg-image {
-  mask: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent)
+  mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)
     no-repeat;
 }
-
-/* Layout */
 
 .section_wrapper {
   width: 100%;
@@ -239,6 +238,15 @@
     var(--pink-1) 15px,
     white 15px,
     white 30px
+  );
+}
+
+.pink-gradient {
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--pink-5) 70%, transparent) 0%,
+    color-mix(in srgb, var(--pink-5) 50%, transparent) 40%,
+    color-mix(in srgb, var(--pink-5) 40%, transparent) 70%
   );
 }
 
@@ -359,6 +367,15 @@
 .mask-image {
   mask-image: url('@/public/cloud-md.svg');
   -webkit-mask-image: url('@/public/cloud-md.svg');
+  mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.mask-image-transparent {
+  mask-image: url('@/public/cloud-fill.svg');
+  -webkit-mask-image: url('@/public/cloud-fill.svg');
   mask-position: center;
   mask-repeat: no-repeat;
   -webkit-mask-position: center;

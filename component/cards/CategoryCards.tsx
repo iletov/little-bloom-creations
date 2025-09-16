@@ -22,7 +22,7 @@ const CategoryCards = ({ data }: CategoryCardsProps) => {
               href={'#'}
               key={index}
               className="aspect-square relative mask-image">
-              <div className="absolute text-[2.4rem] py-[1.2rem] top-1/2 -translate-y-[50%] left-1/2 -translate-x-1/2 w-full z-10 border-y-[1px] bg-pink-9 text-center">
+              <div className="absolute font-monsieurLa text-[3.8rem] py-[rem] top-1/2 -translate-y-[50%] left-1/2 -translate-x-1/2 w-full z-10 border-y-[1px] bg-pink-9 text-center">
                 {image?.title}
               </div>
               <Image

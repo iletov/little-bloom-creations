@@ -3,3 +3,5 @@ export { default as HeadingDescriptionSection } from './heading-description/Head
 export { default as FullBackgroundSection } from './full-background/FullBackgroundSection';
 export { default as HeroBanner } from './banner/HeroBanner';
 export { default as CategoryCards } from './cards/CategoryCards';
+export { default as Testimonials } from './testimonials/Testimonials';
+export { default as Newsletter } from './newsletter/Newsletter';

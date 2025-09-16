@@ -15,11 +15,12 @@ export const sectionType = defineType({
           { title: 'Hero Banner', value: 'hero' },
           { title: 'Heading + Description', value: 'headingDescription' },
           { title: 'Call to Action', value: 'cta' },
-          { title: 'Text Block', value: 'textBlock' },
+          { title: 'Testimonials', value: 'testimonials' },
           { title: 'Image Gallery', value: 'imageGallery' },
           { title: 'Full Background', value: 'fullBackground' },
           { title: 'Category Card', value: 'categoryCard' },
           { title: 'Contact Form', value: 'contactForm' },
+          { title: 'Newsletter', value: 'newsletter' },
         ],
       },
       validation: rule => rule.required(),
@@ -59,8 +60,9 @@ export const sectionType = defineType({
       title: 'Background Image',
       type: 'image',
       hidden: ({ parent }) =>
-        ['slideBanner', 'categoryCard'].includes(parent?.sectionType) ||
-        !parent?.sectionType,
+        ['slideBanner', 'categoryCard', 'testimonials'].includes(
+          parent?.sectionType,
+        ) || !parent?.sectionType,
     }),
 
     //Mobile Image
@@ -69,8 +71,9 @@ export const sectionType = defineType({
       title: 'Mobile Image',
       type: 'image',
       hidden: ({ parent }) =>
-        ['slideBanner', 'categoryCard'].includes(parent?.sectionType) ||
-        !parent?.sectionType,
+        ['slideBanner', 'categoryCard', 'testimonials'].includes(
+          parent?.sectionType,
+        ) || !parent?.sectionType,
     }),
 
     // backgroundImages
@@ -126,8 +129,6 @@ export const sectionType = defineType({
           .warning('Consider using fewer images for better performance'),
     }),
 
-    // ---- Heading + Description fields ----
-
     //---- List fields ----
 
     // List Items
@@ -140,7 +141,8 @@ export const sectionType = defineType({
           type: 'object',
           fields: [
             { name: 'title', title: 'Title', type: 'string' },
-            { name: 'description', title: 'Description', type: 'string' },
+            { name: 'subTitle', title: 'Sub Title', type: 'string' },
+            { name: 'description', title: 'Description', type: 'text' },
             {
               name: 'image',
               title: 'Image',
@@ -149,7 +151,7 @@ export const sectionType = defineType({
           ],
         },
       ],
-      hidden: ({ parent }) => !['textBlock'].includes(parent?.sectionType),
+      hidden: ({ parent }) => !['testimonials'].includes(parent?.sectionType),
     }),
 
     // CTA Button
@@ -161,7 +163,8 @@ export const sectionType = defineType({
         { name: 'text', title: 'Button Text', type: 'string' },
         { name: 'url', title: 'Button URL', type: 'string' },
       ],
-      hidden: ({ parent }) => !parent?.sectionType,
+      hidden: ({ parent }) =>
+        ['testimonials'].includes(parent?.sectionType) || !parent?.sectionType,
     }),
   ],
 

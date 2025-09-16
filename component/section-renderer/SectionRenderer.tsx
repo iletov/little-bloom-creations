@@ -5,6 +5,8 @@ import {
   FullBackgroundSection,
   HeroBanner,
   CategoryCards,
+  Testimonials,
+  Newsletter,
 } from '..';
 import { descriptionType, ImagesType } from '@/types';
 
@@ -18,6 +20,12 @@ interface Section {
   backgroundImage: ImagesType;
   mobileImage: ImagesType;
   backgroundImages?: ImagesType[];
+  listItems: Array<{
+    title: string;
+    subTitle?: string;
+    description: string;
+    image?: ImagesType;
+  }>;
   [key: string]: any;
 }
 
@@ -34,8 +42,8 @@ const SectionRenderer = ({ sections }: SectionRendererProps) => {
     headingDescription: HeadingDescriptionSection,
     fullBackground: FullBackgroundSection,
     categoryCard: CategoryCards,
-    // cta: CtaSection,
-    // textBlock: TextBlockSection,
+    testimonials: Testimonials,
+    newsletter: Newsletter,
   };
 
   return (

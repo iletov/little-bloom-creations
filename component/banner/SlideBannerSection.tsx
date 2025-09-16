@@ -28,7 +28,7 @@ const SlideBannerSection = ({ data }: SlideBannerSectionProps) => {
   };
 
   return (
-    <section className=" bg-pink-1 section-y-padding">
+    <section className=" bg-green-1/70 section-y-padding">
       <div className="grid-section gap-[2rem] md:gap-[6rem] section_wrapper">
         <div className="flex flex-col justify-center  text-center md:text-left order-2 md:order-1 gap-4 md:gap-16">
           <header className="space-y-4 slide-banner__title">
@@ -36,7 +36,7 @@ const SlideBannerSection = ({ data }: SlideBannerSectionProps) => {
               {data?.title}
             </h1>
             <PortableTextContainer data={data?.description} />
-            <Button>
+            <Button className="bg-green-5 text-green-1">
               <Link href={data?.button?.link ?? ''}>{data?.button?.text}</Link>
             </Button>
           </header>

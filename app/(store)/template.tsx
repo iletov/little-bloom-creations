@@ -19,27 +19,30 @@ export default function Template({ children }: { children: React.ReactNode }) {
     };
   };
 
-  const opacity: Variants = {
-    initial: { opacity: 0 },
-    enter: { opacity: 1, transition: { duration: 0.5 } },
-    exit: { opacity: 1 },
+  const slide: Variants = {
+    initial: { x: 25, opacity: 1 },
+    enter: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        x: {
+          type: 'tween',
+          stiffness: 300,
+          damping: 25,
+          duration: 0.8,
+        },
+        opacity: {
+          type: 'tween',
+          ease: 'easeOut',
+          duration: 0.15,
+        },
+      },
+    },
   };
-
-  // const slide: Variants = {
-  //   initial: { top: '100vh' },
-  //   enter: { top: '100vh' },
-  //   exit: { top: '0', transition: { duration: 0.8, ease: 'easeInOut' } },
-  // };
-
-  // const slide: Variants = {
-  //   initial: { y: '100vh' },
-  //   enter: { y: '95vh' },
-  //   exit: { y: '10vh', transition: { duration: 1 } },
-  // };
 
   return (
     <>
-      <motion.div {...anim(opacity)}>{children}</motion.div>
+      <motion.div {...anim(slide)}>{children}</motion.div>
     </>
   );
 }
