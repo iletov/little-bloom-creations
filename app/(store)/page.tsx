@@ -1,4 +1,3 @@
-import { urlFor } from '@/sanity/lib/image';
 import StructuredData from '@/component/Seo/StructuredData';
 import { Metadata } from 'next';
 import { getPageData } from '@/sanity/lib/fetch/fetchData';

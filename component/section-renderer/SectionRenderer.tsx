@@ -7,25 +7,21 @@ import {
   CategoryCards,
   Testimonials,
   Newsletter,
+  MultiSection,
 } from '..';
-import { descriptionType, ImagesType } from '@/types';
+import { descriptionType, ImagesType, ListItems } from '@/types';
 
 interface Section {
   _type: 'section';
   _key: string;
   sectionType: string;
   title: string;
-  description: descriptionType;
+  description: descriptionType | string;
   pharase?: string;
   backgroundImage: ImagesType;
   mobileImage: ImagesType;
   backgroundImages?: ImagesType[];
-  listItems: Array<{
-    title: string;
-    subTitle?: string;
-    description: string;
-    image?: ImagesType;
-  }>;
+  listItems: Array<ListItems>;
   [key: string]: any;
 }
 
@@ -44,6 +40,7 @@ const SectionRenderer = ({ sections }: SectionRendererProps) => {
     categoryCard: CategoryCards,
     testimonials: Testimonials,
     newsletter: Newsletter,
+    multisection: MultiSection,
   };
 
   return (

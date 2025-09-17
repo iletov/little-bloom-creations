@@ -54,3 +54,15 @@ export type ImagesType = {
   _type: 'image';
   _key: string;
 };
+
+export type ListItems = {
+  _key: string;
+  title: string;
+  subTitle?: string;
+  description: string;
+  image?: ImagesType;
+  button?: {
+    text: string;
+    url: string;
+  };
+};

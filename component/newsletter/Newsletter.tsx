@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { urlFor } from '@/sanity/lib/image';
 import { Input } from '@/components/ui/input';
 import NewsletterInput from './NewsletterInput';
+import { cn } from '@/lib/utils';
 
 type NewsletterProps = {
   data: {
@@ -16,12 +17,25 @@ type NewsletterProps = {
       text?: string;
       url?: string;
     };
+    backgroundColor?: string | undefined;
   };
 };
 
 export default function Newsletter({ data }: NewsletterProps) {
+  const bgColor = (value: string) => {
+    if (value === 'green') {
+      return 'bg-green-1';
+    } else {
+      return 'bg-pink-5/60';
+    }
+  };
+
   return (
-    <section className="bg-pink-5/60 py-[1.2rem]">
+    <section
+      className={cn(
+        'bg-pink-5/60 py-[1.2rem]',
+        bgColor(data?.backgroundColor ?? ''),
+      )}>
       <div className="section_wrapper grid grid-cols-[2fr_1fr] items-center">
         <header className="  text-center space-y-8 ">
           <h2 className="text-[2.4rem] md:text-[4.8rem] font-semibold leading-[1.3] font-orbitron text-green-dark">

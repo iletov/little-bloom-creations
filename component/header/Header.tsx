@@ -17,7 +17,7 @@ const Header = () => {
   const { scrollY } = useScroll();
 
   useMotionValueEvent(scrollY, 'change', latest => {
-    if (latest > 220) {
+    if (latest > 200) {
       setIsSticky(true);
     } else if (latest < 80) {
       setIsSticky(false);
@@ -25,7 +25,7 @@ const Header = () => {
   });
 
   const navItems = [
-    { label: 'Categories', href: '/categories' },
+    { label: 'Categories', href: '/products' },
     { label: 'Pricing', href: '/pricing' },
     { label: 'About', href: '/about' },
     { label: 'Contact', href: '/contact' },
@@ -111,10 +111,10 @@ const Header = () => {
       //   damping: 25,
       //   duration: 0.6,
       // }}
-      className="bg-pink-1 text-green-dark grid justify-items-center text-[1.8rem] pt-[3rem] pb-[3.5rem]">
+      className="bg-pink-1 text-green-dark grid justify-items-center text-[1.8rem] pt-[3.5rem] pb-[4rem]">
       <div className="text-[2.4rem] md:text-[4.2rem]">
         <Link href={'/'}>
-          <Image src={'/logo-ctr.svg'} alt="logo" width={250} height={70} />
+          <Image src={'/logo-ctr.svg'} alt="logo" width={200} height={50} />
         </Link>
       </div>
       <motion.section

@@ -2,6 +2,9 @@ import { urlFor } from '@/sanity/lib/image';
 import { descriptionType, ImagesType } from '@/types';
 import Image from 'next/image';
 import React from 'react';
+import { PortableTextContainer } from '../portabletext-container/PortableTextContainer';
+import { Button } from '@/components/ui/button';
+import SocialMedComponent from '../social-media/SocialMedComponent';
 
 interface FullBackgroundProps {
   data: {
@@ -9,26 +12,40 @@ interface FullBackgroundProps {
     description?: descriptionType | null | undefined;
     backgroundImage: ImagesType;
     backgroundImages?: ImagesType[];
+    button?: {
+      text?: string;
+      url?: string;
+    };
   };
 }
 
 const FullBackgroundSection = ({ data }: FullBackgroundProps) => {
   return (
-    <section className="relative">
-      <div className="relative w-full h-[60dvh] ">
+    <section className="relative full-background__clip">
+      <div className="relative w-full min-h-[45dvh] ">
+        <div className="absolute inset-0 z-10 bg-green-dark bg-opacity-40" />
         <Image
           src={urlFor(data?.backgroundImage).url()}
           alt={data?.title ?? 'background-image'}
           fill={true}
           sizes="100vw"
-          className="object-cover mask-image"
+          className="object-cover"
         />
 
-        <header className="section_wrapper">
-          <h2 className="absolute top-1/2 translate-y-[11%] right-0 text-pink-9 text-[8rem] font-bold leading-[1.2] max-size__fullBackground z-10">
-            {data?.title}
-          </h2>
-        </header>
+        <SocialMedComponent />
+
+        <div className="section_wrapper absolute inset-0 flex flex-col gap-[4rem] items-center justify-center z-10">
+          <header className="space-y-[2rem] text-pink-1 text-center">
+            <h2 className="  text-[5.6rem] font-semibold leading-[1.2] max-size__fullBackgroun z-10">
+              {data?.title}
+            </h2>
+            <PortableTextContainer
+              data={data?.description}
+              className="text-inherit "
+            />
+          </header>
+          <Button className="z-10">{data?.button?.text}</Button>
+        </div>
       </div>
     </section>
   );

@@ -5,7 +5,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import { descriptionType, ImagesType } from '@/types';
+import { descriptionType, ImagesType, ListItems } from '@/types';
 import React from 'react';
 import VerticalLine from '../separator/VerticalLine';
 import { PortableTextContainer } from '../portabletext-container/PortableTextContainer';
@@ -15,12 +15,7 @@ type TestimonialsProps = {
   data: {
     title: string;
     description?: descriptionType;
-    listItems: Array<{
-      title: string;
-      subTitle?: string;
-      description: string;
-      image?: ImagesType;
-    }>;
+    listItems: Array<ListItems>;
   };
 };
 
@@ -41,7 +36,7 @@ export default function Testimonials({ data }: TestimonialsProps) {
             <CarouselItem
               key={index}
               className=" basis-1/3 pl-8 text-green-dark">
-              <div className="border-[8px] rounded-[1.6rem] border-double border-green-9/50 text-center gap-[1.5rem] p-[2rem] grid grid-rows-[auto_auto_1fr] h-full">
+              <div className="rounded-[1.6rem] border-card text-center gap-[1.5rem] p-[2rem] grid grid-rows-[auto_auto_1fr] h-full">
                 <h3 className="text-[3.2rem] leading-[1.4] font-semibold ">
                   "{item?.title}"
                 </h3>

@@ -5,9 +5,9 @@ import React from 'react';
 import VerticalLine from '../separator/VerticalLine';
 
 const socialMediaItems = [
-  { icon: <Aperture stroke="#fff" />, link: '#' },
-  { icon: <Aperture stroke="#fff" />, link: '#' },
-  { icon: <Aperture stroke="#fff" />, link: '#' },
+  { icon: <Aperture size={20} stroke="#fff" />, link: '#' },
+  { icon: <Aperture size={20} stroke="#fff" />, link: '#' },
+  { icon: <Aperture size={20} stroke="#fff" />, link: '#' },
 ];
 
 const SocialMedComponent = ({ className }: { className?: string }) => {
@@ -21,14 +21,12 @@ const SocialMedComponent = ({ className }: { className?: string }) => {
             </Link>
           </div>
         ))}
-        <VerticalLine className="md:min-h-[45vh]" />
+        <VerticalLine className="md:min-h-[20vh]" />
       </div>
 
-      <div className="translate-x-[8rem] origin-center">
-        <p className="text-white text-[1.2rem] font-light tracking-wider whitespace-nowrap">
-          FOLLOW US ON
-          <br />
-          OUR SOCIAL MEDIA
+      <div className="translate-x-[4rem] origin-center">
+        <p className="text-pink-1 text-[1.4rem] font-light tracking-wider whitespace-nowrap">
+          Follow us
         </p>
       </div>
     </div>

@@ -113,6 +113,9 @@
   .section-y-padding {
     @apply py-8 md:py-[6rem];
   }
+  .section-y-padding-xl {
+    @apply py-8 md:py-[10rem];
+  }
 
   .banner-y-padding {
     /* @apply py-8 md:pt-12 pb-20; */
@@ -187,13 +190,23 @@
   }
 }
 /* Layout */
-
 /* .svg-image {
   mask: linear-gradient(0deg, transparent, #000 25%) no-repeat;
 } */
 
+.border-card {
+  border: 8px double color-mix(in srgb, var(--green-9) 30%, transparent);
+}
+
 .svg-image {
-  mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)
+  mask: linear-gradient(90deg, #000, transparent 40%, transparent 60%, #000);
+  -webkit-mask: linear-gradient(
+      90deg,
+      #000,
+      transparent 20%,
+      transparent 80%,
+      #000
+    )
     no-repeat;
 }
 
@@ -376,6 +389,7 @@
 .mask-image-transparent {
   mask-image: url('@/public/cloud-fill.svg');
   -webkit-mask-image: url('@/public/cloud-fill.svg');
+  width: 51rem;
   mask-position: center;
   mask-repeat: no-repeat;
   -webkit-mask-position: center;

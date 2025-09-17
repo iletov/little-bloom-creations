@@ -21,9 +21,26 @@ export const sectionType = defineType({
           { title: 'Category Card', value: 'categoryCard' },
           { title: 'Contact Form', value: 'contactForm' },
           { title: 'Newsletter', value: 'newsletter' },
+          { title: 'Multisection', value: 'multisection' },
         ],
       },
       validation: rule => rule.required(),
+    }),
+
+    //Background collor
+    defineField({
+      name: 'backgroundColor',
+      title: 'Background Color',
+      type: 'string',
+      initialValue: 'pink',
+      options: {
+        list: [
+          { title: 'Pink', value: 'pink' },
+          { title: 'Green', value: 'green' },
+        ],
+      },
+      hidden: ({ parent }) =>
+        !['newsletter'].includes(parent?.sectionType) || !parent?.sectionType,
     }),
 
     // ---- Hero and Slide Banner fields ----
@@ -60,9 +77,12 @@ export const sectionType = defineType({
       title: 'Background Image',
       type: 'image',
       hidden: ({ parent }) =>
-        ['slideBanner', 'categoryCard', 'testimonials'].includes(
-          parent?.sectionType,
-        ) || !parent?.sectionType,
+        [
+          'slideBanner',
+          'categoryCard',
+          'testimonials',
+          'multisection',
+        ].includes(parent?.sectionType) || !parent?.sectionType,
     }),
 
     //Mobile Image
@@ -71,9 +91,12 @@ export const sectionType = defineType({
       title: 'Mobile Image',
       type: 'image',
       hidden: ({ parent }) =>
-        ['slideBanner', 'categoryCard', 'testimonials'].includes(
-          parent?.sectionType,
-        ) || !parent?.sectionType,
+        [
+          'slideBanner',
+          'categoryCard',
+          'testimonials',
+          'multisection',
+        ].includes(parent?.sectionType) || !parent?.sectionType,
     }),
 
     // backgroundImages
@@ -142,16 +165,26 @@ export const sectionType = defineType({
           fields: [
             { name: 'title', title: 'Title', type: 'string' },
             { name: 'subTitle', title: 'Sub Title', type: 'string' },
-            { name: 'description', title: 'Description', type: 'text' },
+            { name: 'description', title: 'Description', type: 'blockContent' },
             {
               name: 'image',
               title: 'Image',
               type: 'image',
             },
+            {
+              name: 'button',
+              title: 'Button',
+              type: 'object',
+              fields: [
+                { name: 'text', title: 'Button Text', type: 'string' },
+                { name: 'url', title: 'Button URL', type: 'string' },
+              ],
+            },
           ],
         },
       ],
-      hidden: ({ parent }) => !['testimonials'].includes(parent?.sectionType),
+      hidden: ({ parent }) =>
+        !['testimonials', 'multisection'].includes(parent?.sectionType),
     }),
 
     // CTA Button
@@ -164,7 +197,8 @@ export const sectionType = defineType({
         { name: 'url', title: 'Button URL', type: 'string' },
       ],
       hidden: ({ parent }) =>
-        ['testimonials'].includes(parent?.sectionType) || !parent?.sectionType,
+        ['testimonials', 'multisection'].includes(parent?.sectionType) ||
+        !parent?.sectionType,
     }),
   ],
 

@@ -22,21 +22,23 @@ interface HeroBannerProps {
 const HeroBanner = ({ data }: HeroBannerProps) => {
   console.log('data', data);
   return (
-    <section className="bg-pink-1 banner-y-padding max-w-[1920px] mx-auto">
-      <div className="relative w-full h-full min-h-[75dvh]  rounded-[1.6rem] overflow-clip">
-        <div className="absolute inset-0 z-10 bg-black bg-opacity-30" />
+    <section className="bg-pink-1 ">
+      <div className="relative w-full h-[58rem]">
+        <div className="absolute inset-0 z-10 bg-green-dark svg-imag bg-opacity-30" />
         <Image
           src={urlFor(data?.backgroundImage).url()}
           alt={data?.title ?? 'background-image'}
           fill={true}
+          fetchPriority="high"
+          priority
           sizes="100vw"
-          className="object-cover "
+          className="object-cover w-full h-full"
         />
 
         {/* <SocialMedComponent /> */}
 
-        <header className="absolute grid-section__hero  z-10 w-full h-full place-content-end pb-[5%] place-items-stretch max-w-[85%] inset-x-0 mx-auto">
-          <h2 className=" text-pink-1 text-[4.8rem] font-bold leading-[1.2] ">
+        <header className="absolute grid-section__hero  z-10 w-full h-full place-content-end pb-[8%] place-items-stretch max-w-[85%] inset-x-0 mx-auto">
+          <h2 className=" text-pink-1 text-[7.2rem] font-bold leading-[1.2] max-w-[10ch]">
             {data?.title}
           </h2>
           <div className="justify-self-center grid gap-8 ">
@@ -44,7 +46,7 @@ const HeroBanner = ({ data }: HeroBannerProps) => {
               data={data?.description}
               className="text-end text-pink-1"
             />
-            <Button className="justify-self-end">{data?.button?.text}</Button>
+            <Button className="justify-self-end ">{data?.button?.text}</Button>
           </div>
         </header>
       </div>
