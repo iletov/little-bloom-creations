@@ -8,6 +8,7 @@ import {
   Testimonials,
   Newsletter,
   MultiSection,
+  ProductPreview,
 } from '..';
 import { descriptionType, ImagesType, ListItems } from '@/types';
 
@@ -41,6 +42,7 @@ const SectionRenderer = ({ sections }: SectionRendererProps) => {
     testimonials: Testimonials,
     newsletter: Newsletter,
     multisection: MultiSection,
+    productPreview: ProductPreview,
   };
 
   return (

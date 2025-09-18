@@ -271,17 +271,17 @@
   width: 100%;
   height: 40rem;
   display: grid;
-  grid-template-columns: 3fr 1fr 1fr;
+  /* grid-template-columns: 3fr 1fr 1fr; */
   transition: grid-template-columns 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
-
+/* 
 .slide-container.hover-second {
   grid-template-columns: 1fr 3fr 1fr;
 }
 
 .slide-container.hover-third {
   grid-template-columns: 1fr 1fr 3fr;
-}
+} */
 
 .slide {
   padding: 0 1rem;

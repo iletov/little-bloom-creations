@@ -6,3 +6,4 @@ export { default as CategoryCards } from './cards/CategoryCards';
 export { default as Testimonials } from './testimonials/Testimonials';
 export { default as Newsletter } from './newsletter/Newsletter';
 export { default as MultiSection } from './multisection/MultiSection';
+export { default as ProductPreview } from './product-sections/ProductPreview';

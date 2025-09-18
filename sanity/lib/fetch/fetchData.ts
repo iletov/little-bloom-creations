@@ -37,3 +37,40 @@ export const getPageData = unstable_cache(
     revalidate: 900,
   },
 );
+
+export const getAllCategories = unstable_cache(
+  async () => {
+    const CATEGORIES_QUERY = defineQuery(`
+    *[_type == "category"] {
+      ..., 
+      name, 
+      slug, 
+      description, 
+      image{ 
+        asset-> {
+          _ref,
+          url
+        },
+        hotspot,
+        ...
+      },
+      skuPrefix,
+    }
+      `);
+
+    try {
+      const res = await sanityFetch({
+        query: CATEGORIES_QUERY,
+      });
+      return res?.data || [];
+    } catch (error) {
+      console.error('Error fetching categories', error);
+      return [];
+    }
+  },
+  ['categories'],
+  {
+    tags: ['categories'],
+    revalidate: 900,
+  },
+);

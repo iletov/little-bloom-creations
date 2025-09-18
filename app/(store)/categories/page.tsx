@@ -4,12 +4,12 @@ import React from 'react';
 
 export const dynamic = 'force-static';
 export const revalidate = 3600;
-export default async function ProductsPage() {
-  const pageId = 'products';
+export default async function Categories() {
+  const pageId = 'categories';
 
   const page = await getPageData(pageId);
 
-  console.log('products page->', page.sections);
+  console.log('categories page->', page.sections);
 
   return (
     <>

@@ -32,10 +32,7 @@ export default function Newsletter({ data }: NewsletterProps) {
 
   return (
     <section
-      className={cn(
-        'bg-pink-5/60 py-[1.2rem]',
-        bgColor(data?.backgroundColor ?? ''),
-      )}>
+      className={cn('py-[1.2rem]', bgColor(data?.backgroundColor ?? ''))}>
       <div className="section_wrapper grid grid-cols-[2fr_1fr] items-center">
         <header className="  text-center space-y-8 ">
           <h2 className="text-[2.4rem] md:text-[4.8rem] font-semibold leading-[1.3] font-orbitron text-green-dark">

@@ -22,6 +22,7 @@ export const sectionType = defineType({
           { title: 'Contact Form', value: 'contactForm' },
           { title: 'Newsletter', value: 'newsletter' },
           { title: 'Multisection', value: 'multisection' },
+          { title: 'Product Preview', value: 'productPreview' },
         ],
       },
       validation: rule => rule.required(),
@@ -40,7 +41,26 @@ export const sectionType = defineType({
         ],
       },
       hidden: ({ parent }) =>
-        !['newsletter'].includes(parent?.sectionType) || !parent?.sectionType,
+        !['newsletter', 'productPreview'].includes(parent?.sectionType) ||
+        !parent?.sectionType,
+    }),
+
+    // Position
+    defineField({
+      name: 'position',
+      title: 'Position',
+      type: 'string',
+      initialValue: 'left',
+      options: {
+        list: [
+          { title: 'Left', value: 'left' },
+          { title: 'Right', value: 'right' },
+        ],
+        layout: 'radio',
+      },
+      hidden: ({ parent }) =>
+        !parent?.sectionType ||
+        !['productPreview'].includes(parent?.sectionType),
     }),
 
     // ---- Hero and Slide Banner fields ----
@@ -82,6 +102,7 @@ export const sectionType = defineType({
           'categoryCard',
           'testimonials',
           'multisection',
+          'productPreview',
         ].includes(parent?.sectionType) || !parent?.sectionType,
     }),
 
@@ -96,6 +117,7 @@ export const sectionType = defineType({
           'categoryCard',
           'testimonials',
           'multisection',
+          'productPreview',
         ].includes(parent?.sectionType) || !parent?.sectionType,
     }),
 
@@ -142,6 +164,7 @@ export const sectionType = defineType({
           'imageGallery',
           'fullBackground',
           'categoryCard',
+          'productPreview',
         ].includes(parent?.sectionType) || !parent?.sectionType,
       options: {
         layout: 'grid',

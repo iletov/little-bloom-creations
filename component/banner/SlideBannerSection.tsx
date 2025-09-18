@@ -15,35 +15,56 @@ interface SlideBannerSectionProps {
 const SlideBannerSection = ({ data }: SlideBannerSectionProps) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  const getContainerClasses = () => {
-    let baseClasses = 'slide-container';
+  // const getContainerClasses = () => {
+  //   let baseClasses = 'slide-container';
 
-    if (hoveredIndex === 1) {
-      baseClasses += ' hover-second';
-    } else if (hoveredIndex === 2) {
-      baseClasses += ' hover-third';
-    }
+  //   if (hoveredIndex === 1) {
+  //     baseClasses += ' hover-second';
+  //   } else if (hoveredIndex === 2) {
+  //     baseClasses += ' hover-third';
+  //   }
 
-    return baseClasses;
+  //   return baseClasses;
+  // };
+
+  const getGridTemplateColumns = () => {
+    const columns = data?.backgroundImages.map((_: any, index: number) => {
+      if (hoveredIndex !== null) {
+        return hoveredIndex === index ? '3fr' : '1fr';
+      }
+
+      return index === 0 ? '3fr' : '1fr';
+    });
+
+    return columns.join(' ');
   };
 
   return (
-    <section className=" bg-green-1/70 section-y-padding">
-      <div className="grid-section gap-[2rem] md:gap-[6rem] section_wrapper">
+    <section className=" bg-green-1/40 section-y-padding">
+      <div className="grid-section gap-[2rem] md:gap-[4rem] section_wrapper">
         <div className="flex flex-col justify-center  text-center md:text-left order-2 md:order-1 gap-4 md:gap-16">
           <header className="space-y-4 slide-banner__title">
             <h1 className="text-[3.2rem] md:text-[4.2rem] font-semibold leading-[1.2]  font-play">
               {data?.title}
             </h1>
             <PortableTextContainer data={data?.description} />
-            <Button className="bg-green-5 text-green-1">
-              <Link href={data?.button?.link ?? ''}>{data?.button?.text}</Link>
-            </Button>
+            {data?.button?.text || data?.button?.link ? (
+              <Button className="bg-green-5 text-green-1">
+                <Link href={data?.button?.link ?? ''}>
+                  {data?.button?.text}
+                </Link>
+              </Button>
+            ) : null}
           </header>
           {/* <SearchBar /> */}
         </div>
 
-        <div className={cn('order-2 md:order-1', getContainerClasses())}>
+        <div
+          className={cn('order-2 md:order-1 slide-container')}
+          style={{
+            gridTemplateColumns: getGridTemplateColumns(),
+            gridTemplateRows: '1fr',
+          }}>
           {data?.backgroundImages &&
             data?.backgroundImages.length > 0 &&
             data?.backgroundImages.map((image: any, index: number) => (
@@ -60,7 +81,7 @@ const SlideBannerSection = ({ data }: SlideBannerSectionProps) => {
                   height={600}
                   src={urlFor(image).url()}
                   alt={image?.alt ?? ''}
-                  className="slide-image  rounded-[2rem] "
+                  className="slide-image  rounded-[1rem] "
                 />
                 {/* <p className="slide-title text-[2.2rem] md:text-[3.2rem] vertical-text">
                 {image?.alt}

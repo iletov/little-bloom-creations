@@ -20,17 +20,17 @@ export default function Template({ children }: { children: React.ReactNode }) {
   };
 
   const slide: Variants = {
-    initial: { y: 25, opacity: 0.5 },
+    initial: { opacity: 0.5 },
     enter: {
-      y: 0,
+      // y: 0,
       opacity: 1,
       transition: {
-        y: {
-          type: 'tween',
-          stiffness: 300,
-          damping: 25,
-          duration: 0.8,
-        },
+        // y: {
+        //   type: 'tween',
+        //   stiffness: 300,
+        //   damping: 25,
+        //   duration: 0.8,
+        // },
         opacity: {
           type: 'tween',
           ease: 'easeOut',

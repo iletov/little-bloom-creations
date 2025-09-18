@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { PortableTextContainer } from '../portabletext-container/PortableTextContainer';
-import { PortableTextBlockStyle } from '@portabletext/types';
 import Image from 'next/image';
 import { urlFor } from '@/sanity/lib/image';
 import { motion } from 'framer-motion';
@@ -73,7 +72,11 @@ const MultiSection = ({ data }: MultiSectionProps) => {
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: '0px 0px -50px 0px' }}>
+        viewport={{
+          amount: 0.2,
+          once: true,
+          // margin: '0px 0px -50px 0px'
+        }}>
         <div
           className={cn(
             `grid grid-cols-1 lg:grid-cols-2  min-h-[25rem]`,
@@ -98,7 +101,7 @@ const MultiSection = ({ data }: MultiSectionProps) => {
               className="mt-[2rem] text-[1.6rem] leading-[1.4] text-inherit"
             />
             <Link
-              href={`/products/${item?.button?.url}`}
+              href={`/categories/${item?.button?.url}`}
               className={cn('w-full   mt-[3rem] ')}>
               <Button variant={'ghost'} className="">
                 {item.button?.text}

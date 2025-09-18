@@ -42,7 +42,7 @@ export default function Testimonials({ data }: TestimonialsProps) {
                 </h3>
                 <div className="w-[10%] h-px bg-green-5 mx-auto" />
                 <em className="text-[1.6rem]  leading-[1.5] ">
-                  {item?.description}
+                  <PortableTextContainer data={item?.description} />
                 </em>
                 <p className="font-monsieurLa text-[2.2rem]">
                   {item?.subTitle}
