@@ -1,10 +1,11 @@
-import { descriptionType } from '@/types';
+import { descriptionType, Title } from '@/types';
 import React from 'react';
 import { PortableTextContainer } from '../portabletext-container/PortableTextContainer';
+import HighlightedHeading from './HighlightedHeading';
 
 interface HeadingDescriptionSectionProps {
   data: {
-    title: string;
+    heading: Title;
     description: descriptionType;
     phrase?: string;
   };
@@ -16,9 +17,12 @@ const HeadingDescriptionSection = ({
   return (
     <section className="pink-gradient section-y-padding">
       <div className="section_wrapper text-center space-y-6">
-        <h2 className="text-[3.2rem] md:text-[4.8rem] font-semibold leading-[1.3] font-orbitron text-green-dark">
-          {data?.title}
-        </h2>
+        <HighlightedHeading
+          text={data?.heading?.title}
+          word={data?.heading?.highlightedWord}
+          color={data?.heading?.highlightedColor}
+          tag="h2"
+        />
         <div className="space-y-4 grid justify-center items-center">
           <PortableTextContainer data={data?.description} />
           {data?.phrase ? (

@@ -23,6 +23,7 @@ export const sectionType = defineType({
           { title: 'Newsletter', value: 'newsletter' },
           { title: 'Multisection', value: 'multisection' },
           { title: 'Product Preview', value: 'productPreview' },
+          { title: 'Tab Section', value: 'tabSection' },
         ],
       },
       validation: rule => rule.required(),
@@ -63,8 +64,75 @@ export const sectionType = defineType({
         !['productPreview'].includes(parent?.sectionType),
     }),
 
+    // Banner Size
+    defineField({
+      name: 'size',
+      title: 'Size',
+      type: 'string',
+      initialValue: 'large',
+      options: {
+        list: [
+          { title: 'Small', value: 'small' },
+          { title: 'Large', value: 'large' },
+        ],
+        layout: 'radio',
+      },
+      hidden: ({ parent }) =>
+        !parent?.sectionType || !['hero'].includes(parent?.sectionType),
+    }),
+
     // ---- Hero and Slide Banner fields ----
+
     // Title
+    defineField({
+      name: 'heading',
+      title: 'Heading',
+      type: 'object',
+      hidden: ({ parent }) => !parent?.sectionType,
+      fields: [
+        {
+          name: 'title',
+          title: 'Full Title',
+          type: 'string',
+          validation: Rule => Rule.required(),
+        },
+        {
+          name: 'highlightedWord',
+          title: 'Word to Highlight',
+          type: 'string',
+          description: 'Enter the exact word from the title to highlight',
+        },
+        {
+          name: 'highlightedColor',
+          title: 'Highlight Color',
+          type: 'string',
+          initialValue: 'var(--pink-1)',
+          options: {
+            list: [
+              { title: 'Pink-1', value: 'var(--pink-1)' },
+              { title: 'Green-1', value: 'var(--green-1)' },
+              { title: 'Pink-5', value: 'var(--pink-5)' },
+              { title: 'Green-5', value: 'var(--green-5)' },
+              { title: 'Pink-9', value: 'var(--pink-9)' },
+              { title: 'Green-9', value: 'var(--green-9)' },
+              { title: 'Dark Green', value: 'var(--green-dark)' },
+              { title: 'Dark Pink', value: 'var(--pink-dark)' },
+            ],
+          },
+        },
+      ],
+      preview: {
+        select: {
+          title: 'title',
+        },
+        prepare({ title }) {
+          return {
+            title: title,
+          };
+        },
+      },
+    }),
+
     defineField({
       name: 'title',
       title: 'Title',
@@ -97,12 +165,14 @@ export const sectionType = defineType({
       title: 'Background Image',
       type: 'image',
       hidden: ({ parent }) =>
-        [
-          'slideBanner',
-          'categoryCard',
-          'testimonials',
-          'multisection',
-          'productPreview',
+        ![
+          'hero',
+          'headingDescription',
+          'cta',
+          'imageGallery',
+          'fullBackground',
+          'contactForm',
+          'newsletter',
         ].includes(parent?.sectionType) || !parent?.sectionType,
     }),
 
@@ -112,12 +182,14 @@ export const sectionType = defineType({
       title: 'Mobile Image',
       type: 'image',
       hidden: ({ parent }) =>
-        [
-          'slideBanner',
-          'categoryCard',
-          'testimonials',
-          'multisection',
-          'productPreview',
+        ![
+          'hero',
+          'headingDescription',
+          'cta',
+          'imageGallery',
+          'fullBackground',
+          'contactForm',
+          'newsletter',
         ].includes(parent?.sectionType) || !parent?.sectionType,
     }),
 
@@ -207,7 +279,9 @@ export const sectionType = defineType({
         },
       ],
       hidden: ({ parent }) =>
-        !['testimonials', 'multisection'].includes(parent?.sectionType),
+        !['testimonials', 'multisection', 'tabSection'].includes(
+          parent?.sectionType,
+        ),
     }),
 
     // CTA Button
@@ -220,15 +294,25 @@ export const sectionType = defineType({
         { name: 'url', title: 'Button URL', type: 'string' },
       ],
       hidden: ({ parent }) =>
-        ['testimonials', 'multisection'].includes(parent?.sectionType) ||
-        !parent?.sectionType,
+        ![
+          'productPreview',
+          'newsletter',
+          'contactForm',
+          'categoryCard',
+          'fullBackground',
+          'imageGallery',
+          'slideBanner',
+          'hero',
+          'headingDescription',
+          'cta',
+        ].includes(parent?.sectionType) || !parent?.sectionType,
     }),
   ],
 
   preview: {
     select: {
       type: 'sectionType',
-      title: 'title',
+      title: 'heading.title',
       heading: 'heading',
     },
     prepare({ type, title, heading }) {

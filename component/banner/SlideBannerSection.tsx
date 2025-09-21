@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { PortableTextContainer } from '../portabletext-container/PortableTextContainer';
 import { SearchBar } from '../search/SearchBar';
 import { Button } from '@/components/ui/button';
+import HighlightedHeading from '../heading-description/HighlightedHeading';
 
 interface SlideBannerSectionProps {
   data: any;
@@ -15,25 +16,13 @@ interface SlideBannerSectionProps {
 const SlideBannerSection = ({ data }: SlideBannerSectionProps) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  // const getContainerClasses = () => {
-  //   let baseClasses = 'slide-container';
-
-  //   if (hoveredIndex === 1) {
-  //     baseClasses += ' hover-second';
-  //   } else if (hoveredIndex === 2) {
-  //     baseClasses += ' hover-third';
-  //   }
-
-  //   return baseClasses;
-  // };
-
   const getGridTemplateColumns = () => {
     const columns = data?.backgroundImages.map((_: any, index: number) => {
       if (hoveredIndex !== null) {
-        return hoveredIndex === index ? '3fr' : '1fr';
+        return hoveredIndex === index ? '4fr' : '1fr';
       }
 
-      return index === 0 ? '3fr' : '1fr';
+      return index === 0 ? '4fr' : '1fr';
     });
 
     return columns.join(' ');
@@ -44,15 +33,16 @@ const SlideBannerSection = ({ data }: SlideBannerSectionProps) => {
       <div className="grid-section gap-[2rem] md:gap-[4rem] section_wrapper">
         <div className="flex flex-col justify-center  text-center md:text-left order-2 md:order-1 gap-4 md:gap-16">
           <header className="space-y-4 slide-banner__title">
-            <h1 className="text-[3.2rem] md:text-[4.2rem] font-semibold leading-[1.2]  font-play">
-              {data?.title}
-            </h1>
+            <HighlightedHeading
+              text={data?.heading?.title}
+              word={data?.heading?.highlightedWord}
+              color={data?.heading?.highlightedColor}
+              tag="h2"
+            />
             <PortableTextContainer data={data?.description} />
-            {data?.button?.text || data?.button?.link ? (
+            {data?.button?.text || data?.button?.url ? (
               <Button className="bg-green-5 text-green-1">
-                <Link href={data?.button?.link ?? ''}>
-                  {data?.button?.text}
-                </Link>
+                <Link href={data?.button?.url ?? ''}>{data?.button?.text}</Link>
               </Button>
             ) : null}
           </header>

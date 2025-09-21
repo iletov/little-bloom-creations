@@ -5,14 +5,15 @@ import { PortableTextContainer } from '../portabletext-container/PortableTextCon
 import Image from 'next/image';
 import { urlFor } from '@/sanity/lib/image';
 import { motion } from 'framer-motion';
-import { descriptionType, ImagesType, ListItems } from '@/types';
+import { descriptionType, ImagesType, ListItems, Title } from '@/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import HighlightedHeading from '../heading-description/HighlightedHeading';
 
 interface MultiSectionProps {
   data: {
-    title?: string | undefined;
+    heading?: Title | undefined;
     description?: string | descriptionType;
     listItems: Array<ListItems>;
   };
@@ -29,7 +30,7 @@ const MultiSection = ({ data }: MultiSectionProps) => {
         opacity: 1,
         transition: {
           staggerChildren: 0.2,
-          delayChildren: 0.1,
+          delayChildren: 0.2,
         },
       },
     };
@@ -38,13 +39,13 @@ const MultiSection = ({ data }: MultiSectionProps) => {
     const childVariants = {
       hidden: {
         opacity: 0,
-        y: 30,
+        y: 20,
       },
       visible: {
         opacity: 1,
         y: 0,
         transition: {
-          duration: 0.6,
+          duration: 0.4,
           ease: 'easeOut',
         },
       },
@@ -53,13 +54,13 @@ const MultiSection = ({ data }: MultiSectionProps) => {
     const imageVariants = {
       hidden: {
         opacity: 0,
-        x: isOdd ? 40 : -40,
+        x: isOdd ? 20 : -20,
       },
       visible: {
         opacity: 1,
         x: 0,
         transition: {
-          duration: 0.8,
+          duration: 0.5,
           ease: 'easeOut',
         },
       },
@@ -71,12 +72,7 @@ const MultiSection = ({ data }: MultiSectionProps) => {
         key={item?.title + index}
         variants={containerVariants}
         initial="hidden"
-        whileInView="visible"
-        viewport={{
-          amount: 0.2,
-          once: true,
-          // margin: '0px 0px -50px 0px'
-        }}>
+        animate="visible">
         <div
           className={cn(
             `grid grid-cols-1 lg:grid-cols-2  min-h-[25rem]`,
@@ -88,9 +84,13 @@ const MultiSection = ({ data }: MultiSectionProps) => {
               isOdd ? 'lg:order-1' : 'lg:order-2 bg-white border-card h-fit',
             )}
             variants={childVariants}>
-            <h2 className="text-[4.8rem] font-semibold uppercase">
-              {item?.title}
-            </h2>
+            <HighlightedHeading
+              text={data?.heading?.title ?? ''}
+              word={data?.heading?.highlightedWord}
+              color={data?.heading?.highlightedColor}
+              tag="h2"
+              className="uppercase"
+            />
 
             <p className="text-[3.2rem] w-full uppercase text-green-dark/40">
               {item?.subTitle}
@@ -101,7 +101,7 @@ const MultiSection = ({ data }: MultiSectionProps) => {
               className="mt-[2rem] text-[1.6rem] leading-[1.4] text-inherit"
             />
             <Link
-              href={`/categories/${item?.button?.url}`}
+              href={`/${item?.button?.url}`}
               className={cn('w-full   mt-[3rem] ')}>
               <Button variant={'ghost'} className="">
                 {item.button?.text}

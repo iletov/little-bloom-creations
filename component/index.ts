@@ -7,3 +7,4 @@ export { default as Testimonials } from './testimonials/Testimonials';
 export { default as Newsletter } from './newsletter/Newsletter';
 export { default as MultiSection } from './multisection/MultiSection';
 export { default as ProductPreview } from './product-sections/ProductPreview';
+export { default as TabSection } from './tab-section/TabSection';

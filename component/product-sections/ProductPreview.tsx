@@ -1,17 +1,19 @@
 'use client';
 import { urlFor } from '@/sanity/lib/image';
-import { descriptionType, ImagesType } from '@/types';
+import { descriptionType, ImagesType, Title } from '@/types';
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { PortableTextContainer } from '../portabletext-container/PortableTextContainer';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import HighlightedHeading from '../heading-description/HighlightedHeading';
 
 type ProductPreviewProps = {
   data: {
     backgroundImages?: ImagesType[];
     backgroundColor?: string;
-    title: string;
+    heading: Title;
+    position: string;
     description: descriptionType;
     button?: {
       text?: string;
@@ -46,7 +48,7 @@ const ProductPreview = ({ data }: ProductPreviewProps) => {
           loading="lazy"
           placeholder="blur"
           blurDataURL={'/placeholder.svg'}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 75vw, 100vw"
           className="w-full h-full object-cover"
         />
       </div>
@@ -60,11 +62,24 @@ const ProductPreview = ({ data }: ProductPreviewProps) => {
         bgColor(data?.backgroundColor ?? ''),
       )}>
       <div className="section_wrapper md:px-[10rem] space-y-[2rem]">
-        <div className="grid grid-cols-1 md:grid-cols-[4fr_5fr] gap-[1rem]">
-          <header className="text-green-dark flex flex-col justify-center">
-            <h2 className="text-[4.8rem] leading-[1.2] font-semibold">
-              {data?.title}
-            </h2>
+        <div
+          className={cn(
+            'grid grid-cols-1  md:gap-[6rem]',
+            data?.position === 'left'
+              ? 'md:grid-cols-[4fr_5fr]'
+              : 'md:grid-cols-[5fr_4fr]',
+          )}>
+          <header
+            className={cn(
+              'text-green-dark flex flex-col justify-center',
+              data?.position === 'left' ? 'order-1' : 'order-2',
+            )}>
+            <HighlightedHeading
+              text={data?.heading?.title}
+              word={data?.heading?.highlightedWord}
+              color={data?.heading?.highlightedColor}
+              tag="h2"
+            />
             <PortableTextContainer
               data={data?.description}
               className="text-inherit mt-[2rem] max-w-[40ch]"
@@ -75,7 +90,11 @@ const ProductPreview = ({ data }: ProductPreviewProps) => {
               </Button>
             </div>
           </header>
-          <figure className="relative w-full rounded-[0.6rem] overflow-clip  aspect-[1/0.7] mx-auto flex justify-center items-center">
+          <figure
+            className={cn(
+              'relative w-full rounded-[0.6rem] overflow-clip  aspect-[1/0.7] mx-auto flex justify-center items-center',
+              data?.position === 'left' ? 'order-2' : 'order-1',
+            )}>
             <Image
               src={
                 urlFor(data?.backgroundImages?.[selectedImage] ?? {}).url() ??
@@ -87,10 +106,12 @@ const ProductPreview = ({ data }: ProductPreviewProps) => {
               placeholder="blur"
               blurDataURL={'/placeholder.svg'}
               alt={data?.backgroundImages?.[selectedImage]?.alt || ''}
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 75vw, 100vw"
               className="w-full h-full  object-cover"
             />
           </figure>
         </div>
+
         <div className="flex gap-[2rem]">{additionalImages}</div>
       </div>
     </section>

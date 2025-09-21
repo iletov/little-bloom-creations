@@ -1,4 +1,4 @@
-import { descriptionType, ImagesType } from '@/types';
+import { descriptionType, ImagesType, Title } from '@/types';
 import React from 'react';
 import { PortableTextContainer } from '../portabletext-container/PortableTextContainer';
 import Image from 'next/image';
@@ -6,10 +6,11 @@ import { urlFor } from '@/sanity/lib/image';
 import { Input } from '@/components/ui/input';
 import NewsletterInput from './NewsletterInput';
 import { cn } from '@/lib/utils';
+import HighlightedHeading from '../heading-description/HighlightedHeading';
 
 type NewsletterProps = {
   data: {
-    title: string;
+    heading: Title;
     description: descriptionType;
     backgroundImage: ImagesType;
     mobileImage: ImagesType;
@@ -35,9 +36,12 @@ export default function Newsletter({ data }: NewsletterProps) {
       className={cn('py-[1.2rem]', bgColor(data?.backgroundColor ?? ''))}>
       <div className="section_wrapper grid grid-cols-[2fr_1fr] items-center">
         <header className="  text-center space-y-8 ">
-          <h2 className="text-[2.4rem] md:text-[4.8rem] font-semibold leading-[1.3] font-orbitron text-green-dark">
-            {data?.title}
-          </h2>
+          <HighlightedHeading
+            text={data?.heading?.title}
+            word={data?.heading?.highlightedWord}
+            color={data?.heading?.highlightedColor}
+            tag="h2"
+          />
           <div className="space-y-4 grid justify-center items-center">
             <PortableTextContainer data={data?.description} />
           </div>
@@ -45,10 +49,10 @@ export default function Newsletter({ data }: NewsletterProps) {
           <NewsletterInput />
         </header>
 
-        <div className=" mask-image-transparent z-50">
+        <div className=" mask-image-transparent ">
           <Image
             src={urlFor(data?.backgroundImage).url()}
-            alt={data?.title}
+            alt={data?.heading?.title}
             width={100}
             height={100}
             sizes="50vw"

@@ -9,14 +9,18 @@ import {
   Newsletter,
   MultiSection,
   ProductPreview,
+  TabSection,
 } from '..';
-import { descriptionType, ImagesType, ListItems } from '@/types';
+import { descriptionType, ImagesType, ListItems, Title } from '@/types';
 
 interface Section {
   _type: 'section';
   _key: string;
   sectionType: string;
   title: string;
+  heading: Title;
+  size?: string;
+  position: string;
   description: descriptionType | string;
   pharase?: string;
   backgroundImage: ImagesType;
@@ -43,6 +47,7 @@ const SectionRenderer = ({ sections }: SectionRendererProps) => {
     newsletter: Newsletter,
     multisection: MultiSection,
     productPreview: ProductPreview,
+    tabSection: TabSection,
   };
 
   return (
@@ -55,7 +60,9 @@ const SectionRenderer = ({ sections }: SectionRendererProps) => {
         if (!SectionComponent) {
           console.warn(`No component found for section type: ${sectionType}`);
           return (
-            <div key={_key} className="py-16 text-center text-red-500">
+            <div
+              key={_key}
+              className="py-16 text-[1.6rem] text-center text-red-500">
               Section type "{sectionType}" not implemented
             </div>
           );

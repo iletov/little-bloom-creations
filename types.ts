@@ -50,6 +50,7 @@ export type ImagesType = {
   hotspot?: SanityImageHotspot;
   title?: string;
   alt?: string;
+  url?: string;
   crop?: SanityImageCrop;
   _type: 'image';
   _key: string;
@@ -65,4 +66,10 @@ export type ListItems = {
     text: string;
     url: string;
   };
+};
+
+export type Title = {
+  title: string;
+  highlightedWord?: string;
+  highlightedColor?: string;
 };

@@ -6,7 +6,7 @@ type Props = {};
 
 export default function NewsletterInput({}: Props) {
   return (
-    <div className="relative w-full max-w-[28rem] md:max-w-[60rem] mx-auto rounded-[1rem] overflow-hidden z-20">
+    <div className="relative w-full max-w-[28rem] md:max-w-[60rem] mx-auto rounded-[1rem] overflow-hidden">
       <input
         type="email"
         className="bg-white w-full min-h-[5rem] py-1 md:py-3 text-[1.4rem] md:text-[2.4rem]

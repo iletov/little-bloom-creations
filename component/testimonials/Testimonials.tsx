@@ -5,15 +5,16 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import { descriptionType, ImagesType, ListItems } from '@/types';
+import { descriptionType, ImagesType, ListItems, Title } from '@/types';
 import React from 'react';
 import VerticalLine from '../separator/VerticalLine';
 import { PortableTextContainer } from '../portabletext-container/PortableTextContainer';
 import { QuotesIcon, QuotesIcon2 } from '../icons/icons';
+import HighlightedHeading from '../heading-description/HighlightedHeading';
 
 type TestimonialsProps = {
   data: {
-    title: string;
+    heading: Title;
     description?: descriptionType;
     listItems: Array<ListItems>;
   };
@@ -24,7 +25,12 @@ export default function Testimonials({ data }: TestimonialsProps) {
     <section className="w-full bg-pink-1 section-y-padding !pb-[10rem] space-y-[2rem] relative">
       <QuotesIcon2 className="absolute top-[1rem] left-[4rem] w-[26rem] h-[26rem] opacity-10" />
       <header className="grid justify-items-center">
-        <h2 className="text-[4rem]">{data?.title}</h2>
+        <HighlightedHeading
+          text={data?.heading?.title}
+          word={data?.heading?.highlightedWord}
+          color={data?.heading?.highlightedColor}
+          tag="h2"
+        />
         <PortableTextContainer
           data={data?.description}
           className="text-[1.8rem]"
