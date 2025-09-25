@@ -45,21 +45,18 @@ const Header = () => {
       items: [
         {
           label: 'diaries',
+          desc: 'Consectetur adipisicing elit.',
           href: 'diaries',
-          items: [
-            { label: 'diary 1', href: 'diary-1' },
-            { label: 'diary 2', href: 'diary-2' },
-            { label: 'diary 3', href: 'diary-3' },
-          ],
         },
         {
           label: 'cards',
+          desc: 'Lorem ipsum dolor sit.',
           href: 'cards',
-          items: [
-            { label: 'card 1', href: 'card-1' },
-            { label: 'card 2', href: 'card-2' },
-            { label: 'card 3', href: 'card-3' },
-          ],
+        },
+        {
+          label: 'Other',
+          desc: 'Lorem sit amet consectetur.',
+          href: 'other',
         },
       ],
     },

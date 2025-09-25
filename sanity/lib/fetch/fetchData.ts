@@ -38,6 +38,97 @@ export const getPageData = unstable_cache(
   },
 );
 
+export const getProductBySlug = unstable_cache(
+  async (slug: string) => {
+    const PRODUCT_QUERY = defineQuery(`
+    *[_type == "productType" && slug.current == $slug][0] {
+      ..., 
+      name, 
+      slug, 
+      description, 
+      category-> {
+        name, 
+        slug,
+        description,
+        image{
+          asset-> {
+            _ref,
+            url
+          },
+          hotspot,
+          ...
+        },
+        skuPrefix
+      },
+      price,
+
+      images[]{
+        asset-> {
+          _ref,
+          url
+        },
+        hotspot,
+        ...
+      },
+      inStock,
+      stock,
+      sku,
+      features[] {
+        ...
+      },
+      metaTitle,
+      metaDescription,
+      variants[] {
+        name,
+        price,
+        sku,
+        compareAtPrice,
+        color,
+        images[]{
+          asset-> {
+            _ref,
+            url
+          },
+          hotspot,
+          ...
+        },
+        stock,
+        inStock,
+        ...
+      },
+      additionalSections[] {
+        ...,
+          backgroundImages[]{
+          asset-> {
+            _ref,
+            url
+          },
+          hotspot,
+          ...
+        },
+      },
+      publishedAt,
+    }
+      `);
+
+    try {
+      const res = await sanityFetch({
+        query: PRODUCT_QUERY,
+        params: { slug },
+      });
+      return res?.data || [];
+    } catch (error) {
+      console.error('Error fetching product', error);
+      return [];
+    }
+  },
+  ['product'],
+  {
+    tags: ['product'],
+    revalidate: 900,
+  },
+);
+
 export const getAllCategories = unstable_cache(
   async () => {
     const CATEGORIES_QUERY = defineQuery(`

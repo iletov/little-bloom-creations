@@ -3,11 +3,12 @@ import { Aperture } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import VerticalLine from '../separator/VerticalLine';
+import { Facebook, Instagram, TikTok } from '../icons/icons';
 
 const socialMediaItems = [
-  { icon: <Aperture size={20} stroke="#fff" />, link: '#' },
-  { icon: <Aperture size={20} stroke="#fff" />, link: '#' },
-  { icon: <Aperture size={20} stroke="#fff" />, link: '#' },
+  { icon: <Facebook className="w-[22px] h-[22px]" />, link: '#' },
+  { icon: <Instagram className="w-[24px] h-[24px]" />, link: '#' },
+  { icon: <TikTok className="w-[24px] h-[24px]" />, link: '#' },
 ];
 
 const SocialMedComponent = ({ className }: { className?: string }) => {

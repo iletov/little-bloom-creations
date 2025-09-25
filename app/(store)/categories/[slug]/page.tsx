@@ -1,5 +1,6 @@
 import SectionRenderer from '@/component/section-renderer/SectionRenderer';
 import { getAllCategories, getPageData } from '@/sanity/lib/fetch/fetchData';
+import { notFound } from 'next/navigation';
 import React from 'react';
 
 interface Props {
@@ -13,14 +14,15 @@ export async function generateStaticParams() {
   }));
 }
 
-export const dynamicParams = true;
+// export const dynamicParams = true;
 export const revalidate = 1800;
 export default async function Product({ params }: Props) {
   const { slug } = await params;
 
-  if (!slug) return null;
+  if (!slug) return notFound();
 
   const page = await getPageData(slug);
+  if (!page) return notFound();
 
   console.log(`${slug} category ->`, page);
 

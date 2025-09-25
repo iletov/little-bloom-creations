@@ -133,12 +133,6 @@ export const sectionType = defineType({
       },
     }),
 
-    defineField({
-      name: 'title',
-      title: 'Title',
-      type: 'string',
-      hidden: ({ parent }) => !parent?.sectionType,
-    }),
     // Description
     defineField({
       name: 'description',
@@ -234,7 +228,6 @@ export const sectionType = defineType({
         ![
           'slideBanner',
           'imageGallery',
-          'fullBackground',
           'categoryCard',
           'productPreview',
         ].includes(parent?.sectionType) || !parent?.sectionType,

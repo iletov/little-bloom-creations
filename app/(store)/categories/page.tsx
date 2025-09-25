@@ -9,8 +9,6 @@ export default async function Categories() {
 
   const page = await getPageData(pageId);
 
-  console.log('categories page->', page.sections);
-
   return (
     <>
       {/* <StructuredData data={websiteSchema} /> */}
