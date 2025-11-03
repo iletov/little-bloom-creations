@@ -11,6 +11,8 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { CartIcon, CartIcon2, HomeIcon } from '../icons/icons';
 import Dropdown from './Dropdown';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
 
 interface HeaderProps {
   label: string;
@@ -27,6 +29,9 @@ const Header = () => {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
   const [isSticky, setIsSticky] = useState(false);
+
+  const { user, loading, signOut } = useAuth();
+  console.log(user);
 
   const { scrollY } = useScroll();
 
@@ -107,6 +112,7 @@ const Header = () => {
             {item?.label}
           </motion.p>
         </Link>
+
         {/* Dropdown */}
         <Dropdown data={item} openDropdown={openDropdown} index={index} />
       </motion.li>
@@ -116,11 +122,11 @@ const Header = () => {
   return (
     <>
       <motion.nav className="relative bg-pink-1 text-green-dark grid justify-items-center text-[1.8rem] pt-[3.5rem] pb-[4rem]">
-        <div className="text-[2.4rem] md:text-[4.2rem]">
+        {/* <div className="text-[2.4rem] md:text-[4.2rem]">
           <Link href={'/'}>
             <Image src={'/logo-ctr.svg'} alt="logo" width={200} height={50} />
           </Link>
-        </div>
+        </div> */}
 
         <motion.section
           layout
@@ -132,28 +138,65 @@ const Header = () => {
             duration: 0.5,
           }}
           className={cn(
-            ' cursor-pointer gap-2 flex z-20 bg-white rounded-[0.8rem] border-[1px] ',
+            'cursor-pointer gap-2 flex bg-white rounded-[0.8rem] border-[1px] z-20 relative',
             isSticky
               ? 'fixed top-[1rem] shadow-xl'
               : 'absolute top-[9.5rem] shadow-lg',
           )}>
-          <Link
-            href={'/'}
+          <div className="flex">
+            <Link
+              href={'/'}
+              className={cn(
+                'grid bg-green-1 hover:bg-green-5 rounded-l-[0.8rem] hover:text-white transition duration-200 ease-in-out place-items-center px-[10px] border-r-[1px]',
+              )}>
+              {HomeIcon}
+            </Link>
+
+            <ul className="flex  py-2  items-center justify-center min-w-max">
+              {navigationContainer}
+            </ul>
+
+            <Link
+              href="#"
+              className="grid text-green-dark hover:text-green-9/60 transition duration-200 ease-in-out place-items-center px-[10px] border-l-[1px]">
+              {CartIcon2}
+            </Link>
+          </div>
+
+          {/*====== AUTH COMPONENT ===== */}
+          {/* TODO: move the logic to a separate component */}
+
+          <motion.div
+            animate={{ scale: isSticky ? 1.03 : 1 }}
+            transition={{
+              type: 'spring',
+              stiffness: 300,
+              damping: 30,
+              duration: 0.5,
+            }}
             className={cn(
-              'grid bg-green-1 hover:bg-green-5 rounded-l-[0.8rem] hover:text-white transition duration-200 ease-in-out place-items-center px-[10px] border-r-[1px]',
+              ' cursor-pointer flex items-center justify-center z-20 bg-white rounded-full w-16 h-16 border-[2px] ',
+              isSticky
+                ? 'fixed top-[0.5rem] -right-[12%] shadow-xl'
+                : 'absolute top-[0.5rem] -right-[12%] shadow-lg',
             )}>
-            {HomeIcon}
-          </Link>
-
-          <ul className="flex  py-2  items-center justify-center min-w-max">
-            {navigationContainer}
-          </ul>
-
-          <Link
-            href="#"
-            className="grid text-green-dark hover:text-green-9/60 transition duration-200 ease-in-out place-items-center px-[10px] border-l-[1px]">
-            {CartIcon2}
-          </Link>
+            {user ? (
+              <>
+                <button>
+                  <Image
+                    src={user?.user_metadata?.avatar_url}
+                    alt="avatar"
+                    width={30}
+                    height={30}
+                    className="rounded-full"
+                  />
+                </button>
+              </>
+            ) : (
+              <Link href="/login">X</Link>
+            )}
+          </motion.div>
+          {/* =========== */}
         </motion.section>
       </motion.nav>
     </>

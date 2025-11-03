@@ -12,6 +12,7 @@ import { SanityLive } from '@/sanity/lib/live';
 import StoreProvider from '../store/StoreProvider';
 import { Toaster } from '@/components/ui/sonner';
 import Header from '@/component/header/Header';
+import QueryProvider from './query-provider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -103,17 +104,19 @@ export default async function RootLayout({
     <html lang="en">
       <body
         className={`${monsieurLa.variable}  ${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased tracking-tight font-sans flex flex-col min-h-screen light `}>
-        <StoreProvider>
-          <main className="flex flex-col">
-            <Header />
-            <div className="">
-              {children}
-              {/* <CookieConsentBanner /> */}
-            </div>
-          </main>
-          <SanityLive />
-          <Toaster />
-        </StoreProvider>
+        <QueryProvider>
+          <StoreProvider>
+            <main className="flex flex-col">
+              <Header />
+              <div className="">
+                {children}
+                {/* <CookieConsentBanner /> */}
+              </div>
+            </main>
+            <SanityLive />
+            <Toaster />
+          </StoreProvider>
+        </QueryProvider>
       </body>
     </html>
   );

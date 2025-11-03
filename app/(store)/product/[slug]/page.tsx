@@ -1,5 +1,6 @@
 import { PortableTextContainer } from '@/component/portabletext-container/PortableTextContainer';
 import SectionRenderer from '@/component/section-renderer/SectionRenderer';
+import Todo from '@/component/todo-supabase/Todo';
 import { getProductBySlug } from '@/sanity/lib/fetch/fetchData';
 import { notFound } from 'next/navigation';
 import React from 'react';
@@ -15,7 +16,7 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProductBySlug(slug);
   if (!product) return notFound();
 
-  console.log(`Product/${slug} ->`, product);
+  // console.log(`Product/${slug} ->`, product);
 
   return (
     <>
@@ -24,6 +25,7 @@ export default async function ProductPage({ params }: Props) {
           <h1 className="text-[4rem]">{product?.name}</h1>
           <PortableTextContainer data={product?.description} />
         </header>
+        <Todo />
         <SectionRenderer sections={product?.additionalSections} />
       </section>
     </>
