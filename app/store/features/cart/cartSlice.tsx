@@ -1,16 +1,16 @@
-import { EsotericaStore, MusicStore } from '@/sanity.types';
+// import { EsotericaStore, MusicStore } from '@/sanity.types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../store';
 import { calculateDiscountAmount } from '@/lib/discountamount';
 
-type Product = MusicStore | EsotericaStore;
+type Product = any;
 export type ProductWithSize = Product & {
   size?: string;
 };
 export interface CartItem {
   product: Product;
   quantity: number;
-  size?: string;
+  cartId: string;
 }
 
 interface CartState {
@@ -68,80 +68,19 @@ export const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    // addItem: (state, action: PayloadAction<MusicStore>) => {
-    //   const newItem = action.payload;
-    //   const existingItem = state.items.find(
-    //     item => item.product._id === newItem._id,
-    //   );
-
-    //   if (existingItem) {
-    //     state.items = state.items.map(item =>
-    //       item.product._id === newItem._id
-    //         ? { ...item, quantity: item.quantity + 1 }
-    //         : item,
-    //     );
-    //   } else {
-    //     state.items.push({ product: newItem, quantity: 1 });
-    //   }
-
-    addItem: (state, action: PayloadAction<ProductWithSize>) => {
+    addItem: (state, action: PayloadAction<CartState>) => {
       const newItem = action.payload;
-      // Find existing item with same ID AND size
-      const existingItem = state.items.find(
-        item => item.product._id === newItem._id && item.size === newItem.size,
-      );
-
-      if (existingItem) {
-        state.items = state.items.map(item =>
-          item.product._id === newItem._id && item.size === newItem.size
-            ? { ...item, quantity: item.quantity + 1 }
-            : item,
-        );
-      } else {
-        // Extract size from the product and store it separately
-        const { size, ...productWithoutSize } = newItem;
-        state.items.push({
-          product: productWithoutSize as Product,
-          quantity: 1,
-          size: size,
-        });
-      }
+      state.items.push({
+        cartId: crypto.randomUUID(),
+        product: newItem as Product,
+        quantity: 1,
+      });
     },
 
-    removeItem: (
-      state,
-      action: PayloadAction<{ productId: string; size?: string }>,
-    ) => {
-      const { productId, size } = action.payload;
-
-      state.items = state.items.reduce((acc, item) => {
-        if (item.product._id === productId && item.size === size) {
-          if (item.quantity > 1) {
-            acc.push({ ...item, quantity: item.quantity - 1 });
-          }
-        } else {
-          acc.push(item);
-        }
-        return acc;
-      }, [] as CartItem[]);
+    removeItem: (state, action: PayloadAction<string>) => {
+      const cartItemId = action.payload;
+      state.items = state.items.filter(item => item.cartId !== cartItemId);
     },
-
-    // removeItem: (state, action: PayloadAction<string>) => {
-    //   state.items = state.items.reduce((acc, item) => {
-    //     if (item.product._id === action.payload) {
-    //       if (item.quantity > 1) {
-    //         acc.push({ ...item, quantity: item.quantity - 1 });
-    //       }
-    //     } else {
-    //       acc.push(item);
-    //     }
-    //     return acc;
-    //   }, [] as CartItem[]);
-
-    //   // if (typeof window !== 'undefined') {
-    //   //   localStorage.setItem('cart', JSON.stringify(state));
-    //   // }
-    // },
 
     clearCart: state => {
       state.items = [];
@@ -192,11 +131,9 @@ export const selectTotalPrice = (state: RootState) => {
 export const selectItemCount = (
   state: RootState,
   productId: string,
-  size?: string,
+  // size?: string,
 ) => {
-  const item = state.cart.items.find(
-    item => item.product._id === productId && item.size === size,
-  );
+  const item = state.cart.items.find(item => item.product._id === productId);
   return item ? item.quantity : 0;
 };
 
@@ -205,20 +142,6 @@ export const selectTotalItems = (state: RootState, size?: string) => {
 };
 
 export const selectGroupedItems = (state: RootState) => state.cart.items;
-
-// export const selectGroupedItems = (state: RootState) => {
-//   return Object.values(
-//     state.cart.items.reduce((groups: { [key: string]: CartItem }, item) => {
-//       const id = item.product._id;
-//       if (!groups[id]) {
-//         groups[id] = item;
-//       } else {
-//         groups[id].quantity += item.quantity;
-//       }
-//       return groups;
-//     }, {})
-//   );
-// };
 
 export const { addItem, removeItem, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

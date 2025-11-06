@@ -44,6 +44,8 @@
     --pink-5: rgb(249 208 206);
     --pink-9: rgb(242 151 160);
     --pink-dark: rgb(66 39 42);
+    /* --green-0: rgb(252, 251, 247); */
+    --green-0: rgb(254, 253, 251);
     --green-1: rgb(242 236 214);
     --green-5: rgb(182 187 121);
     --green-9: rgb(81 99 69);
@@ -121,6 +123,35 @@
     /* @apply py-8 md:pt-12 pb-20; */
     @apply pb-8 md:pb-16 px-8 md:px-16;
   }
+}
+
+h3 {
+  font-size: 2.4rem;
+  line-height: 120%;
+}
+
+h4 {
+  font-size: 1.7rem;
+  line-height: 120%;
+}
+
+p,
+span {
+  font-size: 1.6rem;
+  line-height: 140%;
+}
+
+.input_styles {
+  margin: 0.5rem 0;
+  background-color: var(--green-0);
+  padding: 0.75rem 1rem;
+  /* my-2 bg-white py-3 px-4 */
+}
+.input_styles_contact {
+  margin: 0.5rem 0;
+  background-color: #f5f5f5;
+  padding: 0.75rem 1rem;
+  /* my-2 bg-white py-3 px-4 */
 }
 
 /* IMAGE GALLERY (BENTO GRID) */
@@ -378,8 +409,10 @@
 }
 
 .mask-image {
-  mask-image: url('@/public/cloud-md.svg');
-  -webkit-mask-image: url('@/public/cloud-md.svg');
+  /* mask-image: url('@/public/cloud-md.svg'); */
+  /* -webkit-mask-image: url('@/public/cloud-md.svg'); */
+  mask-image: url('/cloud-md.svg');
+  -webkit-mask-image: url('/cloud-md.svg');
   mask-position: center;
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
@@ -387,8 +420,10 @@
 }
 
 .mask-image-transparent {
-  mask-image: url('@/public/cloud-fill.svg');
-  -webkit-mask-image: url('@/public/cloud-fill.svg');
+  /* mask-image: url('@/public/cloud-fill.svg'); */
+  /* -webkit-mask-image: url('@/public/cloud-fill.svg'); */
+  mask-image: url('/cloud-fill.svg');
+  -webkit-mask-image: url('/cloud-fill.svg');
   width: 51rem;
   mask-position: center;
   mask-repeat: no-repeat;

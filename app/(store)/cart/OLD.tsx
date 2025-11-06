@@ -44,8 +44,6 @@ export default function CartPage() {
   const { isLoading } = useCities();
   const router = useRouter();
 
-  console.log('CART PAGE:', items);
-
   const totalItemsCount = items.reduce(
     (total, item) => total + item.quantity,
     0,
@@ -171,14 +169,14 @@ export default function CartPage() {
             className="w-full h-full object-cover"
           />
         </div>
-        <h1 className="text-[1.6rem] md:text-[2rem] font-montserrat">
+        <h1 className="md:text-[1.25rem] font-montserrat">
           Количката е празна...
         </h1>
       </div>
     );
 
   return (
-    <section className="pt-40 section_wrapper font-montserrat xl:px-32 space-y-5 md:flex gap-10 xl:gap-10 mb-[30rem] lg:mb-[24rem]">
+    <section className="section_wrapper font-montserrat xl:px-32 space-y-5 md:flex gap-10 xl:gap-10 mb-[30rem] lg:mb-[24rem]">
       <div className="flex-[1.1] lg:mt-5 px-3">
         <div className="  bg-secondaryPurple/15 rounded-lg shadow-md">
           {items?.map(group => (

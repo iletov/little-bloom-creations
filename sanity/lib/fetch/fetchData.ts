@@ -42,7 +42,7 @@ export const getProductBySlug = unstable_cache(
   async (slug: string) => {
     const PRODUCT_QUERY = defineQuery(`
     *[_type == "productType" && slug.current == $slug][0] {
-      ..., 
+       
       name, 
       slug, 
       description, 
@@ -71,7 +71,7 @@ export const getProductBySlug = unstable_cache(
         ...
       },
       inStock,
-      stock,
+      // stock,
       sku,
       features[] {
         ...
@@ -92,7 +92,7 @@ export const getProductBySlug = unstable_cache(
           hotspot,
           ...
         },
-        stock,
+        // stock,
         inStock,
         ...
       },

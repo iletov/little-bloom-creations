@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { getEkontSenderDetails } from '@/sanity/lib/ekont/senderDetails';
+// import { getEkontSenderDetails } from '@/sanity/lib/ekont/senderDetails';
 import { RootState } from '../../store';
 
 const ekontSenderSlice = createSlice({

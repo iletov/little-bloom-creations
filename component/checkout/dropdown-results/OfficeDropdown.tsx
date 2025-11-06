@@ -96,9 +96,9 @@ export const OfficeDropdown = ({
 
   return (
     <section className=" w-full relative space-y-2">
-      <h3 className="text-lg mb-3 border-b-[2px] w-fit pb-2 font-montserrat bg">
+      <h4 className=" mb-3 border-b-[2px] w-fit pb-2 font-montserrat bg">
         Изберете офис
-      </h3>
+      </h4>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -106,7 +106,7 @@ export const OfficeDropdown = ({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              'w-full justify-between min-h-[2.85rem] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring font-montserrat',
+              'w-full justify-between min-h-[2.85rem] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring font-montserrat bg-green-5 text-white px-[8px] [&_svg]:size-[unset]',
               className,
             )}
             disabled={disabled || !selectedCityData}>
@@ -116,28 +116,28 @@ export const OfficeDropdown = ({
                 <span>({selectedOffice.code})</span>
               </p>
             ) : (
-              <p className="text-muted-foreground ">{placeholder}</p>
+              <p className="text-white">{placeholder}</p>
             )}
-            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronDown size={20} className="shrink-0 " />
           </Button>
         </PopoverTrigger>
         <PopoverContent
           align="start"
-          side="top"
-          sideOffset={0}
-          className="w-full max-w-[18rem] lg:min-w-[20rem] lg:max-w-[30rem] p-0 border-[1px] rounded-lg font-montserrat">
+          side="bottom"
+          sideOffset={10}
+          className=" md:w-[calc(100%-1.26rem)] p-0 border-[1px] shadow-lg rounded-xl font-montserrat">
           <Command>
             {searchable && (
               <CommandInput
                 placeholder="Search offices..."
-                className="min-h-9 py-1 bg-foreground"
+                className="min-h-16 py-1 text-[1.4rem] bg-white"
                 value={searchQuery}
                 onValueChange={setSearchQuery}
               />
             )}
             <CommandList>
               {loading ? (
-                <div className="w-full py-6 text-center text-sm text-gray-500">
+                <div className="w-full py-6 text-center text-[1.4rem] text-gray-500">
                   <Loader />
                 </div>
               ) : (
@@ -147,7 +147,7 @@ export const OfficeDropdown = ({
                     {filteredOffices.map(office => (
                       <CommandItem
                         key={office.id}
-                        className="cursor-pointer border-b-[1px] py-1.5 data-[selected=true]:bg-primaryPurple"
+                        className="cursor-pointer border-b-[1px] py-1.5 data-[selected=true]:bg-green-1/30"
                         value={office.name}
                         onSelect={() => handleSelect(office)}>
                         <Check

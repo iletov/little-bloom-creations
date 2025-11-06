@@ -55,7 +55,7 @@ export const OrderDetailsContainer = ({
 
   return (
     <section className="flex-[0.75] bg-secondaryPurple/15 p-5 rounded-xl shadow-md">
-      <h3 className="text-lg mb-3 border-b-[2px] w-fit pb-2 font-montserrat">
+      <h3 className="mb-3 border-b-[2px] w-fit pb-2 font-montserrat">
         Изберете метод за доставка
       </h3>
       <RadioGroup
@@ -63,7 +63,7 @@ export const OrderDetailsContainer = ({
         onValueChange={handleSelectDeliveryCompany}
         className="mt-5 order-2 pb-3">
         <div className="flex flex-col gap-4">
-          <div className={`space-x-1`}>
+          <div className={`space-x-2`}>
             <RadioGroupItem
               value="ekont-office"
               id="ekont-office"
@@ -72,11 +72,11 @@ export const OrderDetailsContainer = ({
             />
             <Label
               htmlFor="ekont-office"
-              className={` space-x-2 text-[0.85rem] cursor-pointer`}>
+              className={` space-x-2 cursor-pointer`}>
               Доставка до офис на еконт
             </Label>
           </div>
-          <div className={`space-x-1`}>
+          <div className={`space-x-2`}>
             <RadioGroupItem
               value="ekont-courier"
               id="ekont-courier"
@@ -85,7 +85,7 @@ export const OrderDetailsContainer = ({
             />
             <Label
               htmlFor="ekont-courier"
-              className={` space-x-2 text-[0.85rem] cursor-pointer`}>
+              className={` space-x-2 cursor-pointer`}>
               Доставка до адрес
             </Label>
           </div>

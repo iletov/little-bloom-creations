@@ -1,7 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import {
   addItem,
-  removeItem,
   clearCart,
   selectCartItems,
   selectTotalPrice,
@@ -9,9 +8,9 @@ import {
   selectTotalItems,
   selectGroupedItems,
   ProductWithSize,
+  removeItem,
 } from '@/app/store/features/cart/cartSlice';
 
-import { EsotericaStore, MusicStore } from '@/sanity.types';
 import { RootState } from '@/app/store/store';
 import { selectProducts, setAllProducts } from '@/app/store/features/root';
 import {
@@ -37,7 +36,6 @@ import {
   setDeliveryCost,
 } from '@/app/store/features/stripe/stripeSlice';
 import { Metadata } from '@/app/api/payment-intent/route';
-import { use } from 'react';
 
 export const useCart = () => {
   const dispatch = useDispatch();
@@ -59,16 +57,13 @@ export const useCart = () => {
     deliveryCost: useSelector(selectDeliveryCost),
 
     //methods
-    addProducts: (products: MusicStore[]) => dispatch(setAllProducts(products)),
-    addItem: (product: ProductWithSize) => dispatch(addItem(product)),
+    addProducts: (products: any) => dispatch(setAllProducts(products)),
+    addItem: (product: any) => dispatch(addItem(product)),
     // addPaymentIntent: (intent: string) => dispatch(addPaymentIntent(intent)),
-    removeItem: (productId: string, size?: string) =>
-      dispatch(removeItem({ productId, size })),
+    removeItem: (product: string) => dispatch(removeItem(product)),
     clearCart: () => dispatch(clearCart()),
     getItemCount: (productId: string, size?: string) =>
-      useSelector((state: RootState) =>
-        selectItemCount(state, productId, size),
-      ),
+      useSelector((state: RootState) => selectItemCount(state, productId)),
 
     dispatchClientSecret: (state: string) => dispatch(setClientSecret(state)),
     dispatchPaymentIntentId: (state: string | null) =>

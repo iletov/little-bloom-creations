@@ -26,8 +26,7 @@ export const OrderSummery = ({
       font-montserrat
       rounded-lg
       shadow-
-      bg-primaryPurple
-      md:bg-secondaryPurple/15
+      bg-white
       space-y-1.5
       md:space-y-3
       px-6 py-4 
@@ -35,19 +34,19 @@ export const OrderSummery = ({
       fixed bottom-0 left-0 
       lg:left-auto lg:sticky 
       lg:top-24 lg:order-last ">
-      <h3 className="tex-[1rem] md:font-semibold">Резюме на поръчката:</h3>
-      <p className="flex justify-between">
-        <span className="text-[0.875rem]">Артикули:</span>
+      <h3 className="md:font-semibold">Резюме на поръчката:</h3>
+      <p className="flex justify-between text-[1.6rem]">
+        <span className="">Артикули:</span>
         <span>х {totalItemsCount}</span>
       </p>
       <Separator />
-      <p className="flex justify-between">
-        <span className="text-[0.875rem]">Цена за доставка:</span>
+      <p className="flex justify-between text-[1.6rem]">
+        <span className="">Цена за доставка:</span>
         <span>{deliveryCost} лв.</span>
       </p>
       <p className="flex justify-between mb-2 md:mb-6">
-        <span className="font-semibold text-[1.25rem]">Обща сума:</span>
-        <span className="font-semibold text-[1.25rem]">
+        <span className="font-semibold text-[1.6rem]">Обща сума:</span>
+        <span className="font-semibold text-[1.6rem]">
           {(totalPrice + deliveryCost).toFixed(2)} лв.
         </span>
       </p>

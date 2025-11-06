@@ -33,7 +33,7 @@ export default async function Home() {
 
   const page = await getPageData(pageId);
 
-  console.log('pages', page.sections);
+  // console.log('pages', page.sections);
 
   // const websiteSchema = {
   //   '@context': 'http://schema.org',

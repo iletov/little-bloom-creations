@@ -12,7 +12,7 @@ export const ProductsPrice = ({
   className?: string;
 }) => {
   return (
-    <div className={cn(`flex gap-2 text-foreground`, className)}>
+    <div className={cn(`flex gap-2 text-foreground text-[1.6rem]`, className)}>
       {product?.discount ? (
         <p>
           {priceTag && <span className="mr-1">{priceTag}</span>}

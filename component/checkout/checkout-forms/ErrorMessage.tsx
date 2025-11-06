@@ -7,7 +7,7 @@ export const ErrorMessage = ({ message }: { message: string | undefined }) => {
     <motion.p
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="text-red-500 text-sm mt-1 w-full">
+      className="text-red-500 text-[1.4rem] mt-1 w-full">
       {message}
     </motion.p>
   );

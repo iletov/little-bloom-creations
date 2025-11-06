@@ -93,7 +93,7 @@ export const CityDropdown = ({
               {filteredCities.map(city => (
                 <div
                   key={city.nameEn + city.id}
-                  className="px-4 py-2 bg-foreground text-neutral-800 hover:bg-primaryPurple hover:text-foreground cursor-pointer"
+                  className="px-4 py-2 text-[1.4rem] bg-white text-neutral-800 hover:bg-green-1 cursor-pointer"
                   onClick={() => {
                     onSelect(city);
                     setShowDropdown(false);

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { useCart } from '@/hooks/useCart';
-import { useUser } from '@clerk/nextjs';
+
 import { Input } from '@/components/ui/input';
 import { ErrorMessage } from './ErrorMessage';
 import { CityDropdown } from '../dropdown-results/CityDropdown';
@@ -14,9 +14,10 @@ import {
 } from '@/lib/form-validation/validations';
 import { OfficeDropdown } from '../dropdown-results/OfficeDropdown';
 import { calculateLabel } from '@/actions/ekont/calculateLabel';
-import { senderInfo } from '@/actions/ekont/senderDetails';
-import useSWR from 'swr';
-import { useSenderInfo } from '@/hooks/useSenderInfo';
+// import { senderInfo } from '@/actions/ekont/senderDetails';
+// import useSWR from 'swr';
+// import { useSenderInfo } from '@/hooks/useSenderInfo';
+import { useAuth } from '@/hooks/useAuth';
 
 export interface City {
   id: string;
@@ -45,7 +46,7 @@ export const CheckoutForm = ({
   const [showDropdown, setShowDropdown] = useState(false);
   const [citySearchTerm, setCitySearchTerm] = useState('');
   const [officeCode, setOfficeCode] = useState('');
-  const { user } = useUser();
+  const { user } = useAuth();
   const [isDeliveryCost, setIsDeliveryCost] = useState(false);
   const {
     saveGuestData,
@@ -57,33 +58,33 @@ export const CheckoutForm = ({
     deliveryCost,
   } = useCart();
   const { cities, isLoading, isError } = useCities();
-  const { senderData } = useSenderInfo();
+  // const { senderData } = useSenderInfo();
   // console.log('USER CART--->', guestFormData, addressFormData);
 
-  useEffect(() => {
-    if (isDeliveryCost) {
-      calculateAndSetDeliveryCost().then(res => {
-        setDeliveryCost(res);
-        setIsDeliveryCost(false); // Reset the flag after calculation
-      });
-    }
-  }, [isDeliveryCost]);
+  // useEffect(() => {
+  //   if (isDeliveryCost) {
+  //     calculateAndSetDeliveryCost().then(res => {
+  //       setDeliveryCost(res);
+  //       setIsDeliveryCost(false); // Reset the flag after calculation
+  //     });
+  //   }
+  // }, [isDeliveryCost]);
 
-  const calculateAndSetDeliveryCost = async () => {
-    if (!senderData || !addressFormData || !deliveryMethod) {
-      return 0;
-    }
+  // const calculateAndSetDeliveryCost = async () => {
+  //   if (!senderData || !addressFormData || !deliveryMethod) {
+  //     return 0;
+  //   }
 
-    const calculateDeliveryCost = await calculateLabel(
-      senderData,
-      guestFormData,
-      addressFormData,
-      totalPrice,
-      deliveryMethod,
-    );
+  //   const calculateDeliveryCost = await calculateLabel(
+  //     senderData,
+  //     guestFormData,
+  //     addressFormData,
+  //     totalPrice,
+  //     deliveryMethod,
+  //   );
 
-    return calculateDeliveryCost?.label?.totalPrice || 0;
-  };
+  //   return calculateDeliveryCost?.label?.totalPrice || 0;
+  // };
 
   const handleSelectCities = async (city: City) => {
     addressForm.setValue('city', city.name, { shouldValidate: true });
@@ -122,7 +123,7 @@ export const CheckoutForm = ({
   return (
     <div className="my-5 md:my-10 w-full relative space-y-6">
       <div className="">
-        <h4 className="text-lg mb-3 border-b-[2px] pb-2 font-montserrat">
+        <h4 className="mb-3 border-b-[2px] pb-2 font-montserrat">
           Лични данни
         </h4>
         <form
@@ -165,7 +166,7 @@ export const CheckoutForm = ({
         </form>
       </div>
       <div className="">
-        <h4 className="text-lg mb-3 border-b-[2px] w-fit pb-2 font-montserrat">
+        <h4 className="mb-3 border-b-[2px] w-fit pb-2 font-montserrat">
           Адрес за доставка
         </h4>
         <form

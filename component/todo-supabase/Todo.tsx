@@ -17,8 +17,6 @@ const Todo = ({ data }: Props) => {
 
   const { user, signOut } = useAuth();
 
-  console.log('AUTH', user);
-
   const supabase = createClient();
 
   /**

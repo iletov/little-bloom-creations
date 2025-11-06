@@ -59,6 +59,7 @@ export default {
         'pink-5': '#f9d0ce',
         'pink-9': '#f297a0',
         'pink-dark': '#42272a',
+        'green-0': '#fcfbf7',
         'green-1': '#f2ecd6',
         'green-5': '#b6bb79',
         'green-9': '#516345',
