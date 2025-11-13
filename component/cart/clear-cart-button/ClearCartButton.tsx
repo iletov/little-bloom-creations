@@ -17,7 +17,10 @@ const ClearCartButton = ({ cartId, className }: ClearButtonProps) => {
     <>
       <Button
         onClick={() => removeItem(cartId)}
-        className={cn('w-fit px-1 py-1 bg-white hover:bg-[unset]', className)}>
+        className={cn(
+          ' px-[unset] py-[unset] w-12 h-12 bg-pink-1 hover:bg-[unset] rounded-full hover:ring-offset-pink-5 hover:ring-pink-5',
+          className,
+        )}>
         <Trash className="text-pink-600" />
       </Button>
     </>

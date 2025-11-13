@@ -7,8 +7,11 @@ export const structure: StructureResolver = S =>
       S.documentTypeListItem('pageType').title('Pages'),
       S.documentTypeListItem('category').title('Categories'),
       S.documentTypeListItem('productType').title('Products'),
-
       S.divider(),
+
+      S.documentTypeListItem('ekontSenderDetails').title(
+        'Еконт данни (подател)',
+      ),
       // ...S.documentTypeListItems().filter(
       //   item =>
       //     item.getId() &&

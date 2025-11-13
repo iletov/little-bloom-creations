@@ -34,6 +34,10 @@ import {
   AddressFormData,
   selectDeliveryCost,
   setDeliveryCost,
+  updateAddresData,
+  updateGuestData,
+  deliveryCostFlag,
+  selectDeliveryCostFlag,
 } from '@/app/store/features/stripe/stripeSlice';
 import { Metadata } from '@/app/api/payment-intent/route';
 
@@ -55,10 +59,12 @@ export const useCart = () => {
     guestFormData: useSelector(selectGuestFormData),
     addressFormData: useSelector(selectAddressFormData),
     deliveryCost: useSelector(selectDeliveryCost),
+    deliveryCostFlag: useSelector(selectDeliveryCostFlag),
 
     //methods
     addProducts: (products: any) => dispatch(setAllProducts(products)),
-    addItem: (product: any) => dispatch(addItem(product)),
+    addItem: (product: any, personalisation: any) =>
+      dispatch(addItem({ product, personalisation })),
     // addPaymentIntent: (intent: string) => dispatch(addPaymentIntent(intent)),
     removeItem: (product: string) => dispatch(removeItem(product)),
     clearCart: () => dispatch(clearCart()),
@@ -78,5 +84,9 @@ export const useCart = () => {
       dispatch(saveAddressData(state)),
     setDeliveryCost: (state: number) => dispatch(setDeliveryCost(state)),
     clearFormData: () => dispatch(clearFormData()),
+    updateAddresData: (state: AddressFormData) =>
+      dispatch(updateAddresData(state)),
+    updateGuestData: (state: GuestFormData) => dispatch(updateGuestData(state)),
+    setDeliveryCostFlag: (state: boolean) => dispatch(deliveryCostFlag(state)),
   };
 };

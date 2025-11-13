@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/useCart';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { useSenderInfo } from '@/hooks/useSenderInfo';
+// import { useSenderInfo } from '@/hooks/useSenderInfo';
 import { convertToSubCurrency } from '@/lib/convertAmount';
 import { create } from 'domain';
 import { redirect, useRouter } from 'next/navigation';
@@ -120,7 +121,7 @@ export const PaymentCash = ({
         variant={'default'}
         onClick={handleOrderSubmit}
         aria-label="Submit order"
-        className={`w-full sm:w-auto min-w-[135px] py-4 mt-4 bg-darkGold hover:bg-darkGold/80 text-foreground ${isDissabled && 'cursor-not-allowed opacity-70 '} `}>
+        className={`w-full sm:w-auto min-w-[135px] py-4 mt-4 ${isDissabled && 'cursor-not-allowed opacity-70 '} `}>
         {isLoading ? <Loader /> : isDissabled ? 'Без наличност' : `Поръчай`}
       </Button>
       {showAlert && (

@@ -3,9 +3,9 @@ import { RootState } from '../../store';
 import { Metadata } from '@/app/api/payment-intent/route';
 
 export interface GuestFormData {
-  firstName: string;
-  lastName: string;
-  email: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
 }
 
 export interface AddressFormData {
@@ -27,6 +27,7 @@ interface PaymentState {
   metadata: Metadata;
   guestFormData: GuestFormData | null;
   addressFormData: AddressFormData | null;
+  deliveryCostFlag: boolean;
   deliveryCost: number;
 }
 
@@ -39,10 +40,20 @@ const initialState: PaymentState = {
     orderNumber: '',
     customerName: '',
     customerEmail: '',
-    clerkUserId: '',
+    supabaseUserId: '',
   },
   guestFormData: null,
-  addressFormData: null,
+  addressFormData: {
+    country: 'България',
+    city: '',
+    street: '',
+    streetNumber: '',
+    other: '',
+    postalCode: '',
+    phoneNumber: '',
+    officeCode: '',
+  },
+  deliveryCostFlag: false,
   deliveryCost: 0,
 };
 
@@ -74,9 +85,27 @@ const paymentSlice = createSlice({
     saveAddressData: (state, action: PayloadAction<AddressFormData>) => {
       state.addressFormData = action.payload;
     },
+    updateAddresData: (state, action: PayloadAction<AddressFormData>) => {
+      state.addressFormData = {
+        ...state.addressFormData,
+        ...action.payload,
+      };
+    },
+
+    updateGuestData: (state, action: PayloadAction<GuestFormData>) => {
+      state.guestFormData = {
+        ...state.guestFormData,
+        ...action.payload,
+      };
+    },
     setDeliveryCost: (state, action: PayloadAction<number>) => {
       state.deliveryCost = action.payload;
     },
+
+    deliveryCostFlag: (state, action: PayloadAction<boolean>) => {
+      state.deliveryCostFlag = action.payload;
+    },
+
     clearFormData: state => {
       state.guestFormData = null;
       state.addressFormData = null;
@@ -98,6 +127,9 @@ export const selectAddressFormData = (state: RootState) =>
 export const selectDeliveryCost = (state: RootState) =>
   state.payment.deliveryCost;
 
+export const selectDeliveryCostFlag = (state: RootState) =>
+  state.payment.deliveryCostFlag;
+
 export const {
   setClientSecret,
   setPaymentIntentId,
@@ -109,5 +141,8 @@ export const {
   saveAddressData,
   setDeliveryCost,
   clearFormData,
+  updateAddresData,
+  updateGuestData,
+  deliveryCostFlag,
 } = paymentSlice.actions;
 export default paymentSlice.reducer;

@@ -9,7 +9,7 @@ export type Metadata = {
   orderNumber: string;
   customerName: string;
   customerEmail: string | undefined;
-  clerkUserId: string;
+  supabaseUserId: string;
 };
 
 export type GroupedCartItem = {
@@ -188,7 +188,7 @@ export const POST = async (req: NextRequest) => {
         customerPhone: orderDetails.phoneNumber,
       },
       stripeCustomerId: undefined,
-      clerkUserId: metadata.clerkUserId,
+      supabaseUserId: metadata.supabaseUserId,
       currency: 'BGN',
       deliveryMethod: orderMethods?.deliveryMethod || '',
       paymentMethod: orderMethods?.paymentMethod || '',

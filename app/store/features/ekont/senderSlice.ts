@@ -7,6 +7,8 @@ const ekontSenderSlice = createSlice({
   initialState: {
     senderDetails: [],
     deliveryMethod: '' as string,
+    searchForCity: '' as string,
+    selectedOffice: '' as any,
   },
   reducers: {
     setSenderDetails: (state, action: PayloadAction<any>) => {
@@ -15,6 +17,12 @@ const ekontSenderSlice = createSlice({
     setDeliveryMethod: (state, action: PayloadAction<string>) => {
       state.deliveryMethod = action.payload;
     },
+    setSearchForCity: (state, action: PayloadAction<string>) => {
+      state.searchForCity = action.payload;
+    },
+    setSelectedOffice: (state, action: PayloadAction<any>) => {
+      state.selectedOffice = action.payload;
+    },
   },
 });
 
@@ -22,6 +30,16 @@ export const selectSenderDetails = (state: RootState) =>
   state.ekontSender.senderDetails;
 export const selectDeliveryMethod = (state: RootState) =>
   state.ekontSender.deliveryMethod;
-export const { setSenderDetails, setDeliveryMethod } = ekontSenderSlice.actions;
+export const selectSearchForCity = (state: RootState) =>
+  state.ekontSender.searchForCity;
+export const selectedOffice = (state: RootState) =>
+  state.ekontSender.selectedOffice;
+
+export const {
+  setSenderDetails,
+  setDeliveryMethod,
+  setSearchForCity,
+  setSelectedOffice,
+} = ekontSenderSlice.actions;
 
 export default ekontSenderSlice.reducer;

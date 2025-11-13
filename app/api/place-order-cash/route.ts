@@ -101,7 +101,7 @@ export const POST = async (req: NextRequest) => {
         customerPhone: body?.orderDetails.phoneNumber,
       },
       stripeCustomerId: undefined,
-      clerkUserId: body?.metadata.clerkUserId,
+      supabaseUserId: body?.metadata.supabaseUserId,
       currency: 'BGN',
       deliveryMethod: body?.orderMethods?.deliveryMethod,
       paymentMethod: body?.orderMethods?.paymentMethod,

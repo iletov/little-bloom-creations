@@ -362,7 +362,7 @@ export type Order = {
   orderNumber?: string;
   stripeCheckoutSessionId?: string;
   stripeCustomerId?: string;
-  clerkUserId?: string;
+  supabaseUserId?: string;
   customerDetails?: {
     customerName?: string;
     customerEmail?: string;
@@ -1170,7 +1170,7 @@ export type FAVORITE_PRODUCTS_QUERYResult = null;
 
 // Source: ./sanity/lib/orders/getOrders.ts
 // Variable: ORDERS_QUERY
-// Query: *[_type == "order" && clerkUserId == $userId] | order(_createdAt desc) {        ...,        products[]{          ...,          product->        },      }
+// Query: *[_type == "order" && supabaseUserId == $userId] | order(_createdAt desc) {        ...,        products[]{          ...,          product->        },      }
 export type ORDERS_QUERYResult = Array<{
   _id: string;
   _type: 'order';
@@ -1180,7 +1180,7 @@ export type ORDERS_QUERYResult = Array<{
   orderNumber?: string;
   stripeCheckoutSessionId?: string;
   stripeCustomerId?: string;
-  clerkUserId?: string;
+  supabaseUserId?: string;
   customerDetails?: {
     customerName?: string;
     customerEmail?: string;
@@ -2347,7 +2347,7 @@ export type SEARCH_PRODUCTS_BY_NAME_QUERYResult = Array<
       orderNumber?: string;
       stripeCheckoutSessionId?: string;
       stripeCustomerId?: string;
-      clerkUserId?: string;
+      supabaseUserId?: string;
       customerDetails?: {
         customerName?: string;
         customerEmail?: string;
@@ -2701,7 +2701,7 @@ declare module '@sanity/client' {
     '\n    \n    *[ _type == "eventsType"] | order(_createdAt asc) \n   { ...,\n    "messages": undefined\n    }\n    ': EVENTS_QUERYResult;
     '\n    \n    *[ _type == "eventsType" && slug.current == $slug] | order(_createdAt desc) [0] {\n\n      ...,\n      "messages": undefined\n    }\n    ': EVENTS_QUERY_BY_SLUGResult;
     '\n  *[_type == "favoriteProducts" && userId == $userId][0] {\n    ...,\n    userId,\n    itemId[]-> {\n      _id,\n      Name,\n      ...,\n    }\n  }\n    ': FAVORITE_PRODUCTS_QUERYResult;
-    '\n      *[_type == "order" && clerkUserId == $userId] | order(_createdAt desc) {\n        ...,\n        products[]{\n          ...,\n          product->\n        },\n      }\n    ': ORDERS_QUERYResult;
+    '\n      *[_type == "order" && supabaseUserId == $userId] | order(_createdAt desc) {\n        ...,\n        products[]{\n          ...,\n          product->\n        },\n      }\n    ': ORDERS_QUERYResult;
     '\n    *[_type == "musicStore" || _type == "esotericaStore" ] | order(Name asc) {\n  Name,\n  stock,\n  price,\n  discount,\n  _id,\n  image,\n  images[]{\n        asset->,\n        hotspot,\n        crop,\n        _type,\n        _key\n      },\n  slug,\n  category[]->{title}\n}\n    ': ALL_PRODUCTS_QUERYResult;
     '\n    *[_type == "esotericaStore"] | order(Name asc) {\n      Name,\n      stock,\n      price,\n      discount,\n      _id,\n      image,\n      images[]{\n        asset->,\n        hotspot,\n        crop,\n        _type,\n        _key\n      },\n      slug,\n      showSizes,\n      sizes,\n      category[]->{title},\n      _type,    \n      _createdAt,\n      _updatedAt,\n      _rev,\n      // images[]->,\n      // productVideo->,\n        \n    }\n  ': ESOTERICA_PRODUCTS_QUERYResult;
     '\n    *[_type == "musicStore"] | order(Name asc) {\n      Name,\n      stock,\n      price,\n      discount,\n      _id,\n      image,\n      images[]{\n        asset->,\n        hotspot,\n        crop,\n        _type,\n        _key\n      },\n      slug,\n      showSizes,\n      sizes,\n      category[]->{title},\n      _type,    \n      _createdAt,\n      _updatedAt,\n      _rev,\n      // images[]->,\n      // productVideo->,\n      \n    }\n  ': MUSIC_PRODUCTS_QUERYResult;

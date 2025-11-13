@@ -1,19 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-//NOT IN USE!
-
 export async function POST(req: NextRequest) {
   const ekontApiKey = process.env.ECONT_API_KEY;
   const ekontUrl = process.env.EKONT_API_URL;
   const auth = Buffer.from(`${ekontApiKey}`).toString('base64');
 
   try {
-    const filters = await req.json();
+    const body = await req.json();
+    // console.log('Received body:', body);
 
     const requestBody = {
-      countryCode: filters.countryCode || 'BGR',
-      cityId: filters.cityId || undefined,
+      countryCode: body.countryCode || 'BGR',
+      cityId: body.cityId || undefined,
     };
+
+    // console.log('Sending to Ekont:', requestBody);
 
     const response = await fetch(
       `${ekontUrl}/Nomenclatures/NomenclaturesService.getOffices.json`,
@@ -32,11 +33,13 @@ export async function POST(req: NextRequest) {
     }
     const data = await response.json();
 
-    return NextResponse.json(data.offices, {
+    const offices = data?.offices.filter(
+      (office: any) =>
+        office.isAPS == false && office.address.city.id === body.cityId,
+    );
+
+    return NextResponse.json(offices, {
       status: 200,
-      headers: {
-        'Cache-Control': 'private, max-age=3600',
-      },
     });
   } catch (error) {
     console.error('Error fetching offices:', error);

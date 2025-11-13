@@ -12,12 +12,16 @@ import { Popover } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { Check, ChevronDown } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { City } from '../checkout-forms/CheckoutForm';
-import { getOffices } from '@/actions/ekont/getOffices';
+import React, { useState } from 'react';
 import { Loader } from '@/component/loader/Loader';
+import { useOffices } from '@/hooks/useOffices';
+import { useCities } from '@/hooks/useCities';
+import { useSenderDetails } from '@/hooks/useSenderDetails';
+import { useCart } from '@/hooks/useCart';
+import { AddressFormData } from '@/app/store/features/stripe/stripeSlice';
+import { useSenderInfo } from '@/hooks/useSenderInfo';
 
-interface Office {
+export interface Office {
   id: string;
   name: string;
   code: string;
@@ -35,61 +39,55 @@ interface Office {
 interface CustomDropdownProps {
   placeholder?: string;
   className?: string;
-  searchable?: boolean;
   disabled?: boolean;
-  selectedCityData: City | undefined;
-  onOfficeSelect?: (office: Office) => void;
+  // selectedCityData: City | undefined;
+  // onOfficeSelect?: (office: Office) => void;
 }
 export const OfficeDropdown = ({
   // options,
-  placeholder = 'Select an option',
+  placeholder = 'Select option',
   className,
-  searchable = true,
   disabled = false,
-  selectedCityData,
-  onOfficeSelect,
+  // selectedCityData,
+  // onOfficeSelect,
 }: CustomDropdownProps) => {
   const [open, setOpen] = useState(false);
-  const [offices, setOffices] = useState<Office[]>([]);
-  const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
-  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    if (!selectedCityData || !open) return;
+  const { cities } = useCities();
+  const { senderData } = useSenderInfo();
+  const { searchForCity, selectedOffice, setSelectedOffice, ekontMethod } =
+    useSenderDetails();
+  const { updateAddresData, setDeliveryCost } = useCart();
 
-    const loadOffices = async () => {
-      try {
-        setLoading(true);
-        if (selectedCityData?.country?.code3 && selectedCityData?.id) {
-          const data = await getOffices(
-            selectedCityData.country.code3,
-            selectedCityData.id,
-          );
-          setOffices(data || []);
-        }
-      } catch (error) {
-        console.error('Failed to load offices:', error);
-        setOffices([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const selectedCityData = cities?.find(
+    city => searchForCity.toLowerCase() === city.name.toLowerCase(),
+  );
 
-    loadOffices();
-  }, [selectedCityData, open]);
+  const { offices, isLoading, error } = useOffices(
+    selectedCityData?.country?.code3,
+    selectedCityData?.id,
+  );
 
-  const handleSelect = (currentOffice: Office) => {
+  if (isLoading)
+    return (
+      <div className="flex justify-center">
+        <Loader />
+      </div>
+    );
+
+  if (error) return <p>faild to load offices</p>;
+
+  const handleSelectOffice = async (currentOffice: Office) => {
     setSelectedOffice(currentOffice);
-
-    if (onOfficeSelect) {
-      onOfficeSelect(currentOffice);
-    }
+    updateAddresData({ officeCode: currentOffice?.code } as AddressFormData);
+    // setDeliveryCostFlag(true);
+    setDeliveryCost(0);
     setOpen(false);
   };
 
   const filteredOffices = searchQuery
-    ? offices.filter(office =>
+    ? offices?.filter(office =>
         office.name.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : offices;
@@ -127,16 +125,15 @@ export const OfficeDropdown = ({
           sideOffset={10}
           className=" md:w-[calc(100%-1.26rem)] p-0 border-[1px] shadow-lg rounded-xl font-montserrat">
           <Command>
-            {searchable && (
-              <CommandInput
-                placeholder="Search offices..."
-                className="min-h-16 py-1 text-[1.4rem] bg-white"
-                value={searchQuery}
-                onValueChange={setSearchQuery}
-              />
-            )}
+            <CommandInput
+              placeholder="Search offices..."
+              className="min-h-16 py-1 text-[1.4rem] bg-white"
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+            />
+
             <CommandList>
-              {loading ? (
+              {isLoading ? (
                 <div className="w-full py-6 text-center text-[1.4rem] text-gray-500">
                   <Loader />
                 </div>
@@ -144,12 +141,12 @@ export const OfficeDropdown = ({
                 <>
                   <CommandEmpty>No offices found.</CommandEmpty>
                   <CommandGroup className="max-h-72 overflow-auto ">
-                    {filteredOffices.map(office => (
+                    {filteredOffices?.map(office => (
                       <CommandItem
                         key={office.id}
                         className="cursor-pointer border-b-[1px] py-1.5 data-[selected=true]:bg-green-1/30"
                         value={office.name}
-                        onSelect={() => handleSelect(office)}>
+                        onSelect={() => handleSelectOffice(office)}>
                         <Check
                           className={cn(
                             'mr-2 h-4 w-4',
@@ -159,16 +156,24 @@ export const OfficeDropdown = ({
                           )}
                         />
                         <div className="flex flex-col items-start justify-center ">
-                          <div className="flex gap-2 font-bold">
+                          <div className="flex gap-2 font-bold ">
                             <p>{office.name}</p>
                             <p>({office.code})</p>
                           </div>
                           <div className="flex gap-1 ">
-                            <p>{office.address.city.postCode},</p>
-                            <p>{office.address.fullAddress}</p>
+                            <p className="text-[1.4rem]">
+                              {office.address.city.postCode},
+                            </p>
+                            <p className="text-[1.4rem]">
+                              {office.address.fullAddress}
+                            </p>
                           </div>
-                          <p>{office.phones.map((phone: string) => phone)}</p>
-                          <p>{office.emails.map((email: string) => email)}</p>
+                          <p className="text-[1.4rem]">
+                            {office.phones.map((phone: string) => phone)}
+                          </p>
+                          <p className="text-[1.4rem]">
+                            {office.emails.map((email: string) => email)}
+                          </p>
                         </div>
                       </CommandItem>
                     ))}

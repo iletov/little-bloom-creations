@@ -17,7 +17,7 @@ export const calculateLabel = async (
     label: {
       senderClient: {
         name: sender?.senderClient?.name,
-        phones: sender?.senderClient.phones,
+        phones: sender?.senderClient?.phones,
       },
       senderAddress: {
         city: {
@@ -39,10 +39,7 @@ export const calculateLabel = async (
       },
       receiverAddress: {
         city: {
-          name:
-            deliveryMethod === 'ekont-courier' || deliveryMethod === 'delivery'
-              ? (receiver?.city ?? '')
-              : '',
+          name: receiver?.city ?? '',
           postCode:
             deliveryMethod === 'ekont-courier' || deliveryMethod === 'delivery'
               ? (receiver?.postalCode ?? '')
@@ -69,10 +66,7 @@ export const calculateLabel = async (
             : '',
       },
       senderDeliveryType: sender?.senderDeliveryType,
-      senderOfficeCode:
-        deliveryMethod === 'ekont-office' || deliveryMethod === 'office'
-          ? sender?.senderOfficeCode
-          : '',
+      senderOfficeCode: sender?.senderOfficeCode || '',
       receiverOfficeCode: receiver?.officeCode || '',
       receiverDeliveryType:
         deliveryMethod === 'ekont-office' || deliveryMethod === 'office'
@@ -145,7 +139,8 @@ export const calculateLabel = async (
     );
 
     if (!res.ok) {
-      throw new Error(`Econt API calculateLabel error: ${res.status}`);
+      console.log(`Econt API calculateLabel error: ${res.status}`);
+      throw new Error(`Econt API calculateLabel error`);
     }
 
     const data = await res.json();

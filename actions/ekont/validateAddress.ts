@@ -1,13 +1,7 @@
 'use server';
 import { Buffer } from 'buffer';
 
-export const validateAddress = async (
-  city: string | undefined,
-  street: string | undefined,
-  streetNumber: string | undefined,
-  other: string | undefined,
-  postCode: string | undefined,
-) => {
+export const validateAddress = async (data: any) => {
   const ekontApiKey = process.env.ECONT_API_KEY;
   const ekontUrl = process.env.EKONT_API_URL;
 
@@ -16,12 +10,12 @@ export const validateAddress = async (
   const addressData = {
     address: {
       city: {
-        name: city,
+        name: data?.city,
       },
-      street,
-      num: streetNumber,
-      other,
-      postCode,
+      street: data?.street,
+      num: data?.streetNumber,
+      other: data?.other,
+      postCode: data?.postCode,
     },
   };
 
@@ -37,8 +31,8 @@ export const validateAddress = async (
     },
   );
 
-  const data = await res.json();
-  console.log('validate address', data);
+  const validated = await res.json();
+  console.log('validate address', validated);
 
-  return data;
+  return validated;
 };

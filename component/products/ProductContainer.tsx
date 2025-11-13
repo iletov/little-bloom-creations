@@ -1,14 +1,14 @@
-'use client';
 import React from 'react';
 import { PortableTextContainer } from '../portabletext-container/PortableTextContainer';
 import Image from 'next/image';
 import { urlFor } from '@/sanity/lib/image';
 import AddToCartButton from '../cart/add-to-cart-button/AddToCartButton';
+import ProductForm from './ProductForm';
 
 const ProductContainer = ({ data }: any) => {
   return (
-    <section className="flex gap-10">
-      <div className=" flex-1 flex justify-center">
+    <section className="grid md:grid-cols-2 gap-10">
+      <div className="self-start justify-self-center">
         <div className="aspect-square max-w-[30rem]">
           <Image
             src={urlFor(data?.images[0]).url()}
@@ -23,13 +23,14 @@ const ProductContainer = ({ data }: any) => {
           />
         </div>
       </div>
-      <div className="flex-1 ">
+      <div className=" space-y-8">
         <header className="">
           <h1 className="text-[4rem]">{data?.name}</h1>
           <PortableTextContainer data={data?.description} />
         </header>
 
-        <AddToCartButton product={data} />
+        <ProductForm product={data} />
+        {/* <AddToCartButton product={data} /> */}
       </div>
     </section>
   );

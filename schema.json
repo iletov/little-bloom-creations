@@ -3624,7 +3624,7 @@
         },
         "optional": true
       },
-      "clerkUserId": {
+      "supabaseUserId": {
         "type": "objectAttribute",
         "value": {
           "type": "string"

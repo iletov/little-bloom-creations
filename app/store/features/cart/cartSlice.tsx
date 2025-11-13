@@ -11,6 +11,7 @@ export interface CartItem {
   product: Product;
   quantity: number;
   cartId: string;
+  personalisation?: any;
 }
 
 interface CartState {
@@ -68,11 +69,16 @@ export const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addItem: (state, action: PayloadAction<CartState>) => {
-      const newItem = action.payload;
+    addItem: (
+      state,
+      action: PayloadAction<{ product: Product; personalisation: any }>,
+    ) => {
+      const { product, personalisation } = action.payload;
+
       state.items.push({
         cartId: crypto.randomUUID(),
-        product: newItem as Product,
+        product: product as Product,
+        personalisation: personalisation,
         quantity: 1,
       });
     },
@@ -137,7 +143,7 @@ export const selectItemCount = (
   return item ? item.quantity : 0;
 };
 
-export const selectTotalItems = (state: RootState, size?: string) => {
+export const selectTotalItems = (state: RootState) => {
   return state.cart.items.reduce((total, item) => total + item.quantity, 0);
 };
 

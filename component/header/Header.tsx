@@ -14,6 +14,9 @@ import Dropdown from './Dropdown';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/useCart';
+import dynamic from 'next/dynamic';
+import CartButton from '../cart/cart-button/CartButton';
+import { useIsClient } from '@/hooks/useIsClient';
 
 interface HeaderProps {
   label: string;
@@ -33,6 +36,7 @@ const Header = () => {
 
   const { user, loading, signOut } = useAuth();
   const { totalItems } = useCart();
+
   const { scrollY } = useScroll();
 
   // if (user !== null) {
@@ -159,16 +163,9 @@ const Header = () => {
             <ul className="flex  py-2  items-center justify-center min-w-max">
               {navigationContainer}
             </ul>
-
-            <Link
-              href={'/cart'}
-              className="grid text-green-dark hover:text-green-9/60 transition duration-200 ease-in-out place-items-center px-[10px] border-l-[1px]">
-              {CartIcon2}
-              <span className="absolute -top-2 -right-4 rounded-full w-8 h-8 grid place-items-center bg-rose-800 text-white text-[1rem]">
-                {totalItems}
-              </span>
-            </Link>
           </div>
+
+          <CartButton />
 
           {/*====== AUTH COMPONENT ===== */}
           {/* TODO: move the logic to a separate component */}

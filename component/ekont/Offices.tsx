@@ -1,29 +1,28 @@
 'use client';
-import { getOffices } from '@/actions/ekont/getOffices';
+// import { getOffices } from '@/actions/ekont/getOffices';
 import { Button } from '@/components/ui/button';
 import React, { useState } from 'react';
 import { Separator } from '../separator/Separator';
 import { City } from '../checkout/checkout-forms/CheckoutForm';
+import { useOffices } from '@/hooks/useOffices';
 
 type Office = {
   selectedCityData: City | undefined;
 };
 export const Offices = ({ selectedCityData }: Office) => {
-  const [offices, setOffices] = useState([]);
+  // const [offices, setOffices] = useState([]);
 
   const [officeCode, setOfficeCode] = useState(Number);
   const [isOpen, setIsOpen] = useState(false);
 
+  const { offices, isLoading } = useOffices(
+    selectedCityData?.country?.code3,
+    selectedCityData?.id,
+    isOpen,
+  );
+
   const handleSA = async () => {
     setIsOpen(true);
-    if (selectedCityData) {
-      const data = await getOffices(
-        selectedCityData?.country?.code3,
-        selectedCityData?.id,
-      );
-      setOffices(data.offices);
-      console.log('---OFFICES---', data.offices);
-    }
   };
 
   const handleOfficeClick = (code: number) => {

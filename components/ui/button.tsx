@@ -11,7 +11,7 @@ const buttonVariants = cva(
       variant: {
         primery: 'text-primary-foreground shadow hover:opacity-80',
         default:
-          'bg-green-1 text-green-dark hover:text-green-1 shadow hover:bg-green-5 hover:ring-1 hover:ring-green-5 hover:ring-offset-1 hover:ring-offset-green-1 ',
+          'bg-green-1 text-green-dark hover:text-green-0 shadow hover:bg-green-5 hover:ring-0 hover:ring-green-5 hover:ring-offset-4 hover:ring-offset-green-1 ',
         pink: 'bg-pink-9 text-pink-1 shadow  hover:ring-1 hover:ring-pink-9 hover:ring-offset-1 hover:ring-offset-pink-1',
         outline: 'bg-green-5 shadow-md',
         secondary:

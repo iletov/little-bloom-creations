@@ -49,7 +49,7 @@ const TabSection = ({ data }: TabSectionProps) => {
                 activeKey === item?._key && 'bg-green-1',
               )}
               onClick={() => setActiveKey(item?._key)}>
-              <h3>{item?.title}</h3>
+              <h3 className="text-[1.6rem]">{item?.title}</h3>
             </Button>
           ))}
         </div>
@@ -59,10 +59,10 @@ const TabSection = ({ data }: TabSectionProps) => {
           <AnimatePresence mode="wait">
             <motion.div
               key={activeItem?._key}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 16 }}
-              transition={{ duration: 0.3, ease: 'easeIn' }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.2, ease: 'easeIn' }}
               className="grid grid-cols-1 md:grid-cols-[3fr_4fr] gap-[4rem]">
               <figure className="w-full aspect-[1/0.7] rounded-[1rem] overflow-clip">
                 <Image

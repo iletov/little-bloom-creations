@@ -46,8 +46,28 @@ export const contactSchema = z.object({
   message: z.string().min(2, { message: 'Message is required' }),
 });
 
+export const personlisedFormSchema = z.object({
+  addMainText: z
+    .union([
+      z.enum(['regular', 'italic']),
+      z.literal('no-text').transform(() => null),
+    ])
+    .optional(),
+  textColor: z.enum(['gold', 'silver'], {
+    errorMap: () => ({ message: 'Моля, изберете цвят' }),
+  }),
+
+  name: z
+    .string({ required_error: 'Моля, въведете име' })
+    .trim()
+    .nonempty('Моля, въведете име')
+    .regex(/^[\u0400-\u04FF\s-]+$/, 'Използвайте само български букви'),
+});
+
 export type GuestFormDataType = z.infer<typeof guestSchema>;
 // export type noAddressType = z.infer<typeof noAddress>;
 export type fullAddressType = z.infer<typeof fullAddress>;
 // export type formSchemaType = ReturnType<typeof formSchema>;
 export type ContactFormDataType = z.infer<typeof contactSchema>;
+
+export type PersonlisedFormDataType = z.infer<typeof personlisedFormSchema>;

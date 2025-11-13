@@ -96,7 +96,7 @@ export default function CartPage() {
             guestForm.getValues()?.lastName,
         customerEmail: user?.email ?? guestForm.getValues()?.email,
 
-        clerkUserId: user?.id ?? 'GUEST_' + crypto.randomUUID().slice(0, 8),
+        supabaseUserId: user?.id ?? 'GUEST_' + crypto.randomUUID().slice(0, 8),
       };
       setMetadata(metadata);
 
