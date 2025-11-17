@@ -10,7 +10,6 @@ import { ItemsList } from '@/component/cart/items-list/ItemsList';
 import { convertToSubCurrency } from '@/lib/convertAmount';
 import { Separator } from '@/component/separator/Separator';
 import { checkQuantity } from '@/actions/checkQuantity';
-import { Offices } from '@/component/ekont/Offices';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { AlertBox } from '@/component/modals/AlertBox';
 import { notFound, redirect } from 'next/navigation';

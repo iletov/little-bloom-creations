@@ -1,10 +1,11 @@
 'use client';
+import { Loader } from '@/component/loader/Loader';
 import { useCart } from '@/hooks/useCart';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 
-const SuccessPage = () => {
+function SuccessPageContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get('order_number');
   // const sessionId = searchParams.get('session_id');
@@ -22,7 +23,7 @@ const SuccessPage = () => {
       clearClientSecret();
       dispatchPaymentIntentId(null);
     }
-  }, [orderNumber]);
+  }, [orderNumber, clearCart, clearFormData, clearClientSecret]);
 
   return (
     <section className="w-full product-bg_gradient  h-[calc(100vh-65px)] shadow-xl flex flex-col gap-4 items-center justify-center bg-foreground order">
@@ -44,6 +45,19 @@ const SuccessPage = () => {
         />
       </div>
     </section>
+  );
+}
+
+const SuccessPage = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="h-[calc(100vh-65px)] flex items-center justify-center">
+          <Loader />
+        </div>
+      }>
+      <SuccessPageContent />
+    </Suspense>
   );
 };
 

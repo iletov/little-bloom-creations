@@ -34,7 +34,30 @@ export const getPageData = unstable_cache(
   ['page-data'],
   {
     tags: ['page-data'],
-    revalidate: 900,
+    revalidate: 1800,
+  },
+);
+
+export const getProducts = unstable_cache(
+  async () => {
+    const PRODUCTS_QUERY = defineQuery(`
+    *[_type == "productType"] 
+    `);
+
+    try {
+      const res = await sanityFetch({
+        query: PRODUCTS_QUERY,
+      });
+      return res?.data || [];
+    } catch (error) {
+      console.error('Error fetching albums', error);
+      return [];
+    }
+  },
+  ['products'],
+  {
+    tags: ['products'],
+    revalidate: 3600,
   },
 );
 
@@ -125,7 +148,7 @@ export const getProductBySlug = unstable_cache(
   ['product'],
   {
     tags: ['product'],
-    revalidate: 900,
+    revalidate: 3600,
   },
 );
 
@@ -162,6 +185,6 @@ export const getAllCategories = unstable_cache(
   ['categories'],
   {
     tags: ['categories'],
-    revalidate: 900,
+    revalidate: 3600,
   },
 );

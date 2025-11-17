@@ -71,7 +71,7 @@ export default function SignIn() {
           <Link
             href="/signup"
             className="text-indigo-600 hover:text-indigo-500">
-            Don't have an account? Sign up
+            Dont have an account? Sign up
           </Link>
         </div>
       </div>

@@ -2,7 +2,7 @@ import { PortableTextContainer } from '@/component/portabletext-container/Portab
 import ProductContainer from '@/component/products/ProductContainer';
 import SectionRenderer from '@/component/section-renderer/SectionRenderer';
 import Todo from '@/component/todo-supabase/Todo';
-import { getProductBySlug } from '@/sanity/lib/fetch/fetchData';
+import { getProductBySlug, getProducts } from '@/sanity/lib/fetch/fetchData';
 import { getProductBySku } from '@/supabase/lib/getProductBySku';
 
 import { notFound } from 'next/navigation';
@@ -11,6 +11,15 @@ import React from 'react';
 interface Props {
   params: Promise<{ slug: string | undefined }>;
 }
+
+export async function generateStaticParams() {
+  const products = await getProducts();
+  return products?.map((product: { slug: { current: string } }) => ({
+    slug: product.slug.current,
+  }));
+}
+
+export const revalidate = 1800;
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
@@ -29,8 +38,6 @@ export default async function ProductPage({ params }: Props) {
     ...sanityData,
     ...supabaseData,
   };
-
-  console.log('MERGED DATA ->>', data);
 
   return (
     <>

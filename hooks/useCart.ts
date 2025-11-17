@@ -12,7 +12,6 @@ import {
 } from '@/app/store/features/cart/cartSlice';
 
 import { RootState } from '@/app/store/store';
-import { selectProducts, setAllProducts } from '@/app/store/features/root';
 import {
   clearClientSecret,
   selectClientSecret,
@@ -46,7 +45,6 @@ export const useCart = () => {
 
   return {
     //selectors
-    allProducts: useSelector(selectProducts),
     items: useSelector(selectCartItems),
     paymentIntentId: useSelector(selectPaymentIntentId),
     totalPrice: useSelector(selectTotalPrice),
@@ -62,7 +60,6 @@ export const useCart = () => {
     deliveryCostFlag: useSelector(selectDeliveryCostFlag),
 
     //methods
-    addProducts: (products: any) => dispatch(setAllProducts(products)),
     addItem: (product: any, personalisation: any) =>
       dispatch(addItem({ product, personalisation })),
     // addPaymentIntent: (intent: string) => dispatch(addPaymentIntent(intent)),

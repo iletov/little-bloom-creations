@@ -1,9 +1,5 @@
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { sendWelcomeEmail } from '@/lib/aws-email';
-import prisma from '@/lib/prismaClient';
-import { calculateLabel } from '@/actions/ekont/calculateLabel';
-import { backendClient } from '@/sanity/lib/backendClient';
 import { createClient } from '@/lib/supabaseServer';
 
 export async function POST(req: NextRequest) {

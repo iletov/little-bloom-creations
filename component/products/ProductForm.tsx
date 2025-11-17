@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import CustomCheckbox from '../checkbox-container/CustomCheckbox';
 import { toast } from 'sonner';
-import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { CartIcon2 } from '../icons/icons';
 

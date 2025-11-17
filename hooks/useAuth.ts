@@ -12,14 +12,6 @@ export function useAuth() {
   // const router = useRouter()
 
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-      setLoading(false);
-    };
-
     getUser();
 
     const {
@@ -31,6 +23,14 @@ export function useAuth() {
 
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
+
+  const getUser = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    setUser(user);
+    setLoading(false);
+  };
 
   const signOut = async () => {
     await supabase.auth.signOut();

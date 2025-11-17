@@ -1,6 +1,4 @@
 import { configureStore } from '@reduxjs/toolkit';
-import rootReducer from './features/root/index';
-import filterReducer from './features/filter/filterSlice';
 import cartReducer from './features/cart/cartSlice';
 import paymentReducer from './features/stripe/stripeSlice';
 import ekontSenderSlice from './features/ekont/senderSlice';
@@ -8,8 +6,6 @@ import { localStorageMiddleware } from './middleware/LocalStorage';
 
 export const store = configureStore({
   reducer: {
-    root: rootReducer,
-    filter: filterReducer,
     cart: cartReducer,
     payment: paymentReducer,
     ekontSender: ekontSenderSlice,

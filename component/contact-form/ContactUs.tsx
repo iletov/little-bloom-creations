@@ -3,7 +3,7 @@
 import { createContactUs, userDataProps } from '@/actions/createContactUs';
 import React, { useState } from 'react';
 import './style.css';
-import { useUser } from '@clerk/nextjs';
+// import { useUser } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import { Heading } from '../text/Heading';
 import { Input } from '@/components/ui/input';
@@ -20,6 +20,7 @@ import { X } from 'lucide-react';
 import ContactInfo from './ContactInfo';
 import { AlertBox } from '../modals/AlertBox';
 import BasicForm from './BasicForm';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ContactUsProps {
   contacts?: {
@@ -40,12 +41,12 @@ export const ContactUs = ({
   bgColor,
 }: ContactUsProps) => {
   const [showAlert, setShowAlert] = useState(false);
-  const { user } = useUser();
+  const { user } = useAuth();
 
   const userData: userDataProps = {
     id: user?.id ?? '',
-    userName: user?.fullName ?? '',
-    userEmail: user?.emailAddresses[0]?.emailAddress ?? '',
+    userName: user?.user_metadata?.name ?? '',
+    userEmail: user?.email ?? '',
   };
 
   const contactForm = useForm<ContactFormDataType>({

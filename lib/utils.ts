@@ -14,21 +14,3 @@ export function expiredDate(date: string) {
   }
   return false;
 }
-
-export const formatedEvent = (event: any) => {
-  const date = new Date(event ?? '');
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = date.toLocaleString('default', { month: 'long' });
-  const year = date.getFullYear();
-  const time = date.toLocaleString('default', {
-    hour: 'numeric',
-    minute: 'numeric',
-  });
-
-  return {
-    day,
-    month,
-    year,
-    time,
-  };
-};

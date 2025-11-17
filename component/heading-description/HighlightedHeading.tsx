@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import React from 'react';
+import React, { JSX } from 'react';
 
 type HighlightedProps = {
   text: string;

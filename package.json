@@ -68,7 +68,7 @@
     "@types/mongodb": "^4.0.6",
     "@types/node": "^20",
     "@types/node-cron": "^3.0.11",
-    "@types/react": "^19",
+    "@types/react": "^19.2.5",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.1.2",
