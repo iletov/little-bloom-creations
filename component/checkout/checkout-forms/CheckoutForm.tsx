@@ -6,7 +6,6 @@ import { useCart } from '@/hooks/useCart';
 import { Input } from '@/components/ui/input';
 import { ErrorMessage } from './ErrorMessage';
 import { CityDropdown } from '../dropdown-results/CityDropdown';
-import { useCities } from '@/hooks/useCities';
 import {
   AddressFormDataType,
   fullAddress,
@@ -103,13 +102,7 @@ export const CheckoutForm = () => {
     }
   };
 
-  console.log(
-    'GUEST FORM',
-    deliveryCostFlag,
-    deliveryCost,
-    // senderData,
-    addressFormData,
-  );
+  console.log('GUEST FORM', deliveryCostFlag, deliveryCost, addressFormData);
 
   const handleUpdateOnBlur = <K extends keyof AddressFormDataType>(
     key: K,

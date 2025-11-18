@@ -1,136 +1,105 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GroupedCartItem } from '../payment-intent/route';
-import { backendClient } from '@/sanity/lib/backendClient';
-import { CartItem } from '@/actions/checkQuantity';
-import { userCheckout } from '@/lib/db/userCheckout';
-import { select } from 'motion/react-client';
-
-type UpdateProducts = {
-  _id: string;
-  quantity: number;
-  stock: number;
-  newStock: number;
-};
+import { createClient } from '@/lib/supabaseServer';
 
 export const POST = async (req: NextRequest) => {
+  const supabase = await createClient();
   const body = await req.json();
 
+  // console.log(
+  //   'ITEMS SENT TO PURCHASE ORDER:',
+  //   JSON.stringify(body.orderMethods, null, 2),
+  // );
+
   try {
-    //validation
+    const requiredFields = {
+      metadata: ['customerName', 'customerEmail'],
+      orderDetails: ['country', 'city', 'postalCode', 'phoneNumber'],
+    };
 
-    const itemsWithoutPrice = body?.cartItems.filter(
-      (item: GroupedCartItem) => !item.product.price,
-    );
+    for (const [key, value] of Object.entries(requiredFields)) {
+      if (body[key]) {
+        for (const field of value) {
+          if (!body[key][field] || !body[key]) {
+            return NextResponse.json(
+              { error: `Missing ${field} in ${key}` },
+              { status: 400 },
+            );
+          }
+        }
+      }
+    }
 
-    if (itemsWithoutPrice.length > 0) {
+    const dbItems = body.cartItems.map((item: any) => ({
+      sku: item?.product.sku,
+      quantity: item?.quantity,
+      personalization: item?.personalization,
+      variant_sku: item?.product?.variant?.sku ?? null,
+      variant_name: item?.product?.variant?.name ?? null,
+    }));
+
+    const shippingDetails = {
+      email: body.metadata?.customerEmail,
+      full_name: body.metadata?.customerName,
+
+      //from orderDetails
+      phone: body.orderDetails?.phoneNumber,
+      country: body.orderDetails?.country,
+      city: body.orderDetails?.city,
+      postal_code: body.orderDetails?.postalCode,
+      street: body.orderDetails?.street ?? null,
+      street_number: body.orderDetails?.streetNumber ?? null,
+      additional_info: body.orderDetails?.other ?? null,
+      office_code: body.orderDetails?.officeCode ?? null,
+    };
+
+    const orderMethods = {
+      delivery_method: body?.orderMethods?.deliveryMethod,
+      payment_method: body?.orderMethods?.paymentMethod,
+      delivery_cost: body?.orderMethods?.deliveryCost,
+    };
+
+    const { data, error } = await supabase.rpc('purchase_order', {
+      p_user_id: body.metadata?.supabaseUserId ?? null,
+      p_items: dbItems,
+      p_shipping: shippingDetails,
+      p_order_methods: orderMethods,
+    });
+
+    if (error) {
+      console.error('Supabase RPC error:', error);
       return NextResponse.json(
-        { error: "Some items don't have price" },
+        { success: false, error: 'Database error', details: error.message },
+        { status: 500 },
+      );
+    }
+
+    if (!data || !data.success) {
+      return NextResponse.json(
+        { success: false, error: data?.error || 'Purchase failed' },
         { status: 400 },
       );
     }
 
-    const productIds = body?.cartItems?.map(
-      (item: CartItem) => item.product._id,
-    );
-
-    const findProductsById = await backendClient.fetch(
-      `*[_type in ["musicStore", "esotericaStore"] && _id in $productIds]{
-          _id,
-          Name,
-          stock
-          }`,
-      { productIds },
-    );
-
-    // console.log('findProductsById---->', findProductsById);
-
-    if (!findProductsById || findProductsById.length === 0) {
-      console.error('No products found');
-      return NextResponse.json({ error: 'No products found' }, { status: 400 });
+    if (data) {
+      console.log('RETURNED DATA', data);
     }
 
-    const productUpdates = findProductsById?.map((item: UpdateProducts) => {
-      const cartItem = body.cartItems.find(
-        (cartItem: CartItem) => cartItem.product._id === item._id,
-      );
-
-      return {
-        _id: item._id,
-        quantity: cartItem?.quantity,
-        newStock: item?.stock - cartItem.quantity, // Reduce stock
-      };
-    });
-
-    // console.log('productUpdates---->', productUpdates);
-
-    const updatedProducts = await Promise.all(
-      productUpdates.map((updatedProduct: UpdateProducts) =>
-        backendClient
-          .patch(updatedProduct._id)
-          .set({ stock: updatedProduct.newStock })
-          .commit(),
-      ),
-    );
-
-    console.log('updated-SUCCESS---->', updatedProducts);
-
-    const sanityProducts = body?.cartItems?.map((item: any) => ({
-      _key: crypto.randomUUID(),
-      product: {
-        _type: 'reference',
-        _ref: item.product._id,
-      },
-      // priceId: item.price?.id,
-      quantity: item.quantity || 0,
-      selectedSize: item.size || '',
-      // priceAtPurchase: item.product.price,
-      // productName: item.product.Name,
-    }));
-
-    // TODO: Add the user details to the database...
-
-    await userCheckout(body);
-
-    await backendClient.create({
-      _type: 'order',
-      orderNumber: body?.metadata.orderNumber,
-      stripePaymentIntentId: undefined,
-      customerDetails: {
-        customerName: body?.metadata.customerName,
-        customerEmail: body?.metadata.customerEmail,
-        customerPhone: body?.orderDetails.phoneNumber,
-      },
-      stripeCustomerId: undefined,
-      supabaseUserId: body?.metadata.supabaseUserId,
-      currency: 'BGN',
-      deliveryMethod: body?.orderMethods?.deliveryMethod,
-      paymentMethod: body?.orderMethods?.paymentMethod,
-      // amountDiscount: total_details?.amount_discount
-      //   ? total_details.amount_discount / 100
-      //   : 0,
-      customerAddress: {
-        country: body?.orderDetails.country,
-        city: body?.orderDetails.city,
-        officeCode: body?.orderDetails.officeCode,
-        zip: body?.orderDetails.postalCode,
-        street: body?.orderDetails.street,
-        streetNumber: body?.orderDetails.streetNumber,
-        other: body?.orderDetails.other,
-      },
-      products: sanityProducts,
-      totalPrice: body?.amount ? body?.amount / 100 : 0,
-      status: 'inProgress',
-      orderDate: new Date().toISOString(),
-    });
-
     return NextResponse.json(
-      { orderNumber: body?.metadata.orderNumber },
+      {
+        success: true,
+        order_id: data.order_id,
+        total_amount: data.total_amount,
+      },
       { status: 200 },
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error submiting cash order', error);
     return NextResponse.json(
-      { error: 'Error submiting cash order' },
+      {
+        success: false,
+        error: 'Internal server error',
+        details: error.message,
+      },
       { status: 500 },
     );
   }

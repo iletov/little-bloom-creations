@@ -27,10 +27,11 @@ export const PaymentCash = ({
   const { ekontMethod } = useSenderDetails();
   const {
     totalPrice,
+    deliveryCost,
     metadata,
     addressFormData,
     guestFormData,
-    groupedItems,
+    items,
     paymentIntentId,
   } = useCart();
 
@@ -43,6 +44,7 @@ export const PaymentCash = ({
   const orderMethods = {
     deliveryMethod: ekontMethod,
     paymentMethod: paymentMethod,
+    deliveryCost: deliveryCost,
   };
 
   const handleOrderSubmit = async () => {
@@ -57,17 +59,19 @@ export const PaymentCash = ({
       }
 
       if (!senderData || !addressFormData || !ekontMethod) {
+        console.error('Missing required data SENDER, ADDRESS, EKONT METHOD');
         return 0;
       }
 
-      const validate = await calculateLabel(
-        senderData,
-        guestFormData,
-        addressFormData,
-        totalPrice,
-        ekontMethod,
-        paymentMethod,
-      );
+      // const validate = await calculateLabel(
+      //   // await calculateLabel(
+      //   senderData,
+      //   guestFormData,
+      //   addressFormData,
+      //   totalPrice,
+      //   ekontMethod,
+      //   paymentMethod,
+      // );
 
       const res = await fetch('/api/place-order-cash', {
         method: 'POST',
@@ -75,9 +79,9 @@ export const PaymentCash = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          cartItems: groupedItems,
+          cartItems: items,
           metadata,
-          amount: convertToSubCurrency(totalPrice),
+          // amount: convertToSubCurrency(totalPrice),
           orderDetails: addressFormData,
           orderMethods,
         }),
@@ -86,27 +90,27 @@ export const PaymentCash = ({
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message);
+        throw new Error('Response is not ok', data?.message);
       }
 
       if (data.error) {
         throw new Error(data.error.message);
       }
 
-      // console.log('Order placed successfully!', data);
+      console.log('Order placed successfully!', data);
 
-      if (validate?.label.totalPrice) {
-        setAlertMessage({
-          title: 'Успешно направена поръчка!',
-          message: 'Вашата поръчка беше успешно направена!',
-        });
-        setShowAlert(true);
-      }
+      // if (validate?.label.totalPrice) {
+      //   setAlertMessage({
+      //     title: 'Успешно направена поръчка!',
+      //     message: 'Вашата поръчка беше успешно направена!',
+      //   });
+      //   setShowAlert(true);
+      // }
     } catch (error) {
       console.error('Error submiting cash order', error);
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const closeAlert = () => {

@@ -9,7 +9,7 @@ export type Metadata = {
   orderNumber: string;
   customerName: string;
   customerEmail: string | undefined;
-  supabaseUserId: string;
+  supabaseUserId: string | null;
 };
 
 export type GroupedCartItem = {

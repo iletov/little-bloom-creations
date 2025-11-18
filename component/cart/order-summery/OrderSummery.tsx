@@ -30,7 +30,6 @@ export const OrderSummery = () => {
     addressFormData,
     guestFormData,
     setMetadata,
-    metadata,
   } = useCart();
 
   // console.log('ORDER SUMMERY - USER', user, metadata);
@@ -45,7 +44,7 @@ export const OrderSummery = () => {
           guestFormData?.firstName + ' ' + guestFormData?.lastName,
         customerEmail: user?.email ?? guestFormData?.email,
 
-        supabaseUserId: user?.id ?? 'GUEST_' + crypto.randomUUID().slice(0, 8),
+        supabaseUserId: user?.id ?? null,
       };
       setMetadata(metadata);
 

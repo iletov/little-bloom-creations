@@ -12,36 +12,28 @@ import { Separator } from '@/component/separator/Separator';
 import { checkQuantity } from '@/actions/checkQuantity';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { AlertBox } from '@/component/modals/AlertBox';
-import { notFound, redirect } from 'next/navigation';
-
-// redirect(notFound());
 
 export default function CheckoutPage() {
-  // const { user } = useUser();
+  const { ekontMethod } = useSenderDetails();
   const {
-    groupedItems,
+    items,
     totalPrice,
+    totalItems,
     paymentIntentId,
-    guestFormData,
     addressFormData,
     metadata,
     dispatchClientSecret,
     dispatchPaymentIntentId,
     deliveryCost,
   } = useCart();
-  const { ekontMethod } = useSenderDetails();
-  const totalItemsCount = groupedItems.reduce(
-    (total, item) => total + item.quantity,
-    0,
-  );
-
-  // console.log('CHECKOUT', guestFormData, addressFormData);
 
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [isDissabled, setIsDissabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ title: '', message: '' });
+
+  // console.log('CHECKOUT - ITEMS', items);
 
   const handleCardPayment = async () => {
     setPaymentMethod('card');
@@ -60,7 +52,7 @@ export default function CheckoutPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          cartItems: groupedItems,
+          cartItems: items,
           metadata,
           existingPaymentIntentId: paymentIntentId ?? null,
           amount: convertToSubCurrency(totalPrice),
@@ -69,7 +61,6 @@ export default function CheckoutPage() {
         }),
       });
       const data = await response.json();
-      // console.log('Payment Intent Data:', data);
 
       if (!response.ok) {
         setAlertMessage({
@@ -94,22 +85,24 @@ export default function CheckoutPage() {
   const handleCashPayment = async () => {
     setPaymentMethod('cash');
     setIsDissabled(false);
+    console.log('Payment Cash button clicked!');
+
     // check the quantity
-    const stockErrors = await checkQuantity({ cartItems: groupedItems });
+    // const stockErrors = await checkQuantity({ cartItems: items });
 
-    if (stockErrors) {
-      setIsDissabled(true);
-      console.log('stockErrors', stockErrors);
+    // if (stockErrors) {
+    //   setIsDissabled(true);
+    //   console.log('stockErrors', stockErrors);
 
-      const errorMessage = stockErrors
-        .map(error => `${error.name} временно няма в наличност: ${error.stock}`)
-        .join(', ');
+    //   const errorMessage = stockErrors
+    //     .map(error => `${error.name} временно няма в наличност: ${error.stock}`)
+    //     .join(', ');
 
-      setAlertMessage({ title: 'Error', message: errorMessage });
-      setShowAlert(true);
-      setIsLoading(false);
-      return;
-    }
+    //   setAlertMessage({ title: 'Error', message: errorMessage });
+    //   setShowAlert(true);
+    //   setIsLoading(false);
+    //   return;
+    // }
     // console.log('Payment method changed to cash');
   };
 
@@ -124,15 +117,19 @@ export default function CheckoutPage() {
   const lableStyles = `px-[1rem] cursor-pointer hover:shadow-md py-[1.25rem] border-[1px] text-[1rem] md:text-[1.375rem] font-normal leading-[120%] gap-3 md:gap-1 text-foreground font-montserrat w-full md:w-fit flex md:flex-col justify-start items-center md:items-start transition-all duration-300 ease-in-out bg-secondaryPurple/15 rounded-xl `;
 
   return (
-    <section className="section_wrapper pt-40 xl:px-32 space-y-5 gap-10 xl:gap-10 mb-[30rem] lg:mb-[24rem] grid ">
+    <section className="section_wrapper pt-40 xl:px-32 space-y-5 gap-10 xl:gap-10 mb-[30rem] lg:mb-[24rem] grid">
       <div className="rounded-xl shadow-md border-[1px] my-5 px-3">
-        {groupedItems?.map(group => (
-          <ItemsList key={group.product._id} group={group} checkout={true} />
+        {items?.map(group => (
+          <ItemsList
+            key={group?.product?.id + crypto.randomUUID().slice(0, 8)}
+            group={group}
+            checkout={true}
+          />
         ))}
         <Separator className="border-[0.5px] border-green-1" />
         <div className="w-full md:w-fit grid ml-auto space-y-1 px-2 pb-4">
           <p className="flex gap-4 items-center justify-between">
-            Продукти: <span>{totalItemsCount}</span>
+            Продукти: <span>{totalItems}</span>
           </p>
           <p className="flex gap-4 items-center justify-between">
             Доставка: <span>{deliveryCost} лв</span>
@@ -147,7 +144,7 @@ export default function CheckoutPage() {
         <Label
           htmlFor="ekont-office"
           className={` space-x-2 mt-3 mb-2 text-[2rem] cursor-pointer font-montserrat`}>
-          Изберете начин на плащане
+          Payment Method
         </Label>
         <RadioGroup
           value={paymentMethod || ''}
@@ -175,8 +172,6 @@ export default function CheckoutPage() {
           </div>
         </RadioGroup>
       </>
-
-      {/* <Offices /> */}
 
       <div className="mt-5 mb-16 order-3">
         {paymentMethod === 'cash' ? (

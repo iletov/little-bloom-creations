@@ -139,7 +139,7 @@ export const selectItemCount = (
   productId: string,
   // size?: string,
 ) => {
-  const item = state.cart.items.find(item => item.product._id === productId);
+  const item = state.cart.items.find(item => item.product.id === productId);
   return item ? item.quantity : 0;
 };
 
