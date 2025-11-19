@@ -1,17 +1,23 @@
 'use server';
 
-export const calculateLabel = async (
+export const createLabel = async (
   sender: any,
   receiverNames: any,
   receiver: any,
+  totalPrice: number,
   deliveryMethod: string | null,
+  paymentMethod: string = '',
+  create: boolean = false,
 ) => {
   const ekontApiKey = process.env.ECONT_API_KEY;
   const ekontUrl = process.env.EKONT_API_URL;
   const auth = Buffer.from(`${ekontApiKey}`).toString('base64');
 
-  const isDelivery = deliveryMethod === 'ekont-courier';
-  const isPickup = deliveryMethod === 'ekont-office';
+  const isDelivery =
+    deliveryMethod === 'ekont-courier' || deliveryMethod === 'delivery';
+  const isPickup =
+    deliveryMethod === 'ekont-office' || deliveryMethod === 'office';
+  const isPaymentCash = paymentMethod === 'cash';
 
   const receiverFullName =
     receiverNames?.firstName + ' ' + receiverNames?.lastName;
@@ -66,18 +72,56 @@ export const calculateLabel = async (
       senderOfficeCode: isPickup ? sender?.senderOfficeCode : '',
       receiverOfficeCode: receiver?.officeCode || '',
       receiverDeliveryType: isPickup ? 'office' : 'delivery',
+      payAfterAccept: sender?.payAfterAccept,
+      payAfterTest: sender?.payAfterTest,
       packCount: 1,
       shipmentType: 'PACK',
       weight: 5,
+      shipmentDescription: sender?.shipmentDescription || '',
+      paymentSenderMethod: sender?.paymentSenderMethod || '',
+      paymentSenderAmount: sender?.paymentSenderAmount || '',
+      paymentReceiverMethod: sender?.paymentReceiverMethod || '',
+      paymentReceiverAmount: sender?.paymentReceiverAmount || '',
+      aymentReceiverAmountIsPercent: sender?.paymentReceiverAmountIsPercent,
+      services: {
+        cdType: isPaymentCash ? 'GET' : '',
+        cdAmount: isPaymentCash ? totalPrice : '',
+        cdCurrency: isPaymentCash ? 'BGN' : '',
+        cdPayOptions: {
+          client: {
+            name: isPaymentCash ? sender?.senderClient?.name : '',
+            phones: isPaymentCash ? sender?.senderClient?.phones : '',
+          },
+          method: isPaymentCash ? sender?.cdOptions?.method : '',
+          BIC: isPaymentCash ? sender?.cdOptions?.bic : '',
+          IBAN: isPaymentCash ? sender?.cdOptions?.iban : '',
+          bankCurrency: isPaymentCash ? 'BGN' : '',
+          payDays: isPaymentCash ? 3 : '',
+          // "payWeekdays":"monday"
+          officeCode:
+            sender?.senderOfficeCode && isPaymentCash
+              ? sender?.senderOfficeCode
+              : '',
+        },
+      },
+      instructions: {
+        returnInstructionParams: {
+          type: 'return',
+          returnParcelDestination: 'office',
+          returnParcelPaymentSide: 'receiver',
+          returnParcelReceiverOfficeCode: '',
+        },
+      },
     },
-    mode: 'calculate',
+    // mode: !paymentMethod ? 'calculate' : 'validate',
+    mode:
+      paymentMethod && !create
+        ? 'validate'
+        : !!paymentMethod && !!create && 'create',
   };
 
   try {
-    console.log(
-      'EKONT CALCULATE PRICE----->:',
-      JSON.stringify(labelData, null, 2),
-    );
+    console.log('VALIDATE LABEL----->:', JSON.stringify(labelData, null, 2));
 
     const res = await fetch(
       `${ekontUrl}/Shipments/LabelService.createLabel.json`,
@@ -91,14 +135,12 @@ export const calculateLabel = async (
       },
     );
 
-    console.log('CALCULATE RES-->:', JSON.stringify(res, null, 2));
-
     if (!res.ok) {
-      console.error(res);
-      throw new Error(`Econt API calculateLabel error:`);
+      throw new Error(`Econt API calculateLabel error`);
     }
 
     const data = await res.json();
+    // console.log('Label----> ', data);
     return data;
   } catch (error) {
     console.error('Error calculating label:', error);

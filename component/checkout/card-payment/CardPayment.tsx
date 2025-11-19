@@ -8,6 +8,8 @@ import stripePromise from '@/lib/stripePromise';
 export const CardPayment = ({ paymentMethod }: { paymentMethod: string }) => {
   const { totalPrice, clientSecret } = useCart();
 
+  console.log('CARD PAYMENT - client secret', clientSecret);
+
   const optionsElements = useMemo(() => {
     return {
       clientSecret: clientSecret || '',

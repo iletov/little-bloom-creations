@@ -17,14 +17,12 @@ export const POST = async (req: NextRequest) => {
     };
 
     for (const [key, value] of Object.entries(requiredFields)) {
-      if (body[key]) {
-        for (const field of value) {
-          if (!body[key][field] || !body[key]) {
-            return NextResponse.json(
-              { error: `Missing ${field} in ${key}` },
-              { status: 400 },
-            );
-          }
+      for (const field of value) {
+        if (!body[key][field] || !body[key]) {
+          return NextResponse.json(
+            { error: `Missing ${field} in ${key}` },
+            { status: 400 },
+          );
         }
       }
     }

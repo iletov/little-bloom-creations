@@ -52,12 +52,12 @@ export default function CheckoutPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          cartItems: items,
+          // cartItems: items,
           metadata,
-          existingPaymentIntentId: paymentIntentId ?? null,
           amount: convertToSubCurrency(totalPrice),
-          orderDetails: addressFormData,
-          orderMethods,
+          existingPaymentIntentId: paymentIntentId ?? null,
+          // orderDetails: addressFormData,
+          // orderMethods,
         }),
       });
       const data = await response.json();
@@ -66,7 +66,7 @@ export default function CheckoutPage() {
         setAlertMessage({
           title: 'Възникна грешка',
           message:
-            'Изглежда имаме проблем с плащането, моля изберете друг метод за плащане.',
+            'Изглежда имаме проблем с плащането, моля изберете друг метод.',
         });
         setShowAlert(true);
       }
@@ -85,7 +85,6 @@ export default function CheckoutPage() {
   const handleCashPayment = async () => {
     setPaymentMethod('cash');
     setIsDissabled(false);
-    console.log('Payment Cash button clicked!');
 
     // check the quantity
     // const stockErrors = await checkQuantity({ cartItems: items });

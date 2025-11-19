@@ -86,12 +86,7 @@ export const CheckoutForm = () => {
         senderData,
         guestFormData,
         addressFormData,
-        totalPrice,
         ekontMethod,
-      );
-      console.log(
-        'calculateDeliveryCost',
-        calculateDeliveryCost?.label?.totalPrice,
       );
 
       setDeliveryCost(calculateDeliveryCost?.label?.totalPrice || 0);
@@ -101,8 +96,6 @@ export const CheckoutForm = () => {
       setDeliveryCostFlag(false);
     }
   };
-
-  console.log('GUEST FORM', deliveryCostFlag, deliveryCost, addressFormData);
 
   const handleUpdateOnBlur = <K extends keyof AddressFormDataType>(
     key: K,

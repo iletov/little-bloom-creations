@@ -32,7 +32,7 @@ export const validateAddress = async (data: any) => {
   );
 
   const validated = await res.json();
-  console.log('validate address', validated);
+  // console.log('validate address', validated);
 
   return validated;
 };

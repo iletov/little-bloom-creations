@@ -18,6 +18,7 @@ import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { calculateLabel } from '@/actions/ekont/calculateLabel';
 import { AlertBox } from '@/component/modals/AlertBox';
 import { useSenderInfo } from '@/hooks/useSenderInfo';
+import { createLabel } from '@/actions/ekont/createLabel';
 
 interface Props {
   // groupedItems: GroupedCartItem[];
@@ -27,11 +28,10 @@ interface Props {
 }
 
 export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
-  console.log('paymentMethod - CARD', paymentMethod);
+  const stripe = useStripe();
 
   const { senderData } = useSenderInfo();
   const { ekontMethod } = useSenderDetails();
-  const stripe = useStripe();
   const elements = useElements();
   const {
     errorState,
@@ -65,32 +65,13 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
       return;
     }
 
-    // check the quantity
-    const stockErrors = await checkQuantity({ cartItems: groupedItems });
-
-    if (stockErrors) {
-      console.log('stockErrors', stockErrors);
-
-      const errorMessage = stockErrors
-        .map(
-          error =>
-            `${error.name} is out of stock. Available stock: ${error.stock}`,
-        )
-        .join(', ');
-
-      setAlertMessage({ title: 'Error', message: errorMessage });
-      setShowAlert(true);
-      setLoading(false);
-      return;
-    }
-
     // clear the payment intent id
     dispatchPaymentIntentId(null);
 
     if (!senderData || !addressFormData || !ekontMethod) {
       return 0;
     }
-    const validate = await calculateLabel(
+    const validate = await createLabel(
       senderData,
       guestFormData,
       addressFormData,

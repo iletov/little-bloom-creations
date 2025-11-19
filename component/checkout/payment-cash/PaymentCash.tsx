@@ -1,7 +1,7 @@
 'use client';
 import { cancelPaymentIntent } from '@/actions/cancelPaymentIntent';
 import { checkQuantity } from '@/actions/checkQuantity';
-import { calculateLabel } from '@/actions/ekont/calculateLabel';
+import { createLabel } from '@/actions/ekont/createLabel';
 import { Loader } from '@/component/loader/Loader';
 import { AlertBox } from '@/component/modals/AlertBox';
 import { Button } from '@/components/ui/button';
@@ -63,8 +63,8 @@ export const PaymentCash = ({
         return 0;
       }
 
-      // const validate = await calculateLabel(
-      //   // await calculateLabel(
+      // const validate = await createLabel(
+      //   // await createLabel(
       //   senderData,
       //   guestFormData,
       //   addressFormData,

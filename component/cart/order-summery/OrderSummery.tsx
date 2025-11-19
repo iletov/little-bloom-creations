@@ -75,7 +75,7 @@ export const OrderSummery = () => {
       if (ekontMethod === 'ekont-courier') {
         const isAddressValid = await validateAddress(addressFormData);
 
-        console.log('VALIDATION', isAddressValid?.validationStatus);
+        // console.log('VALIDATION', isAddressValid?.validationStatus);
 
         if (!isAddressValid?.validationStatus) {
           console.log('isAddressValid', isAddressValid);
