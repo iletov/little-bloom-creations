@@ -15,7 +15,6 @@ import { Button } from '@/components/ui/button';
 import { checkQuantity } from '@/actions/checkQuantity';
 // import { useSenderInfo } from '@/hooks/useSenderInfo';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
-import { calculateLabel } from '@/actions/ekont/calculateLabel';
 import { AlertBox } from '@/component/modals/AlertBox';
 import { useSenderInfo } from '@/hooks/useSenderInfo';
 import { createLabel } from '@/actions/ekont/createLabel';
@@ -106,7 +105,6 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
 
     if (error) {
       setErrorMessage(error.message);
-    } else {
     }
 
     setLoading(false);
@@ -133,7 +131,7 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
         <Button
           variant={'default'}
           onClick={handleSubmit}
-          className={`py-4 px-4 rounded-md min-w-[135px] bg-darkGold hover:bg-darkGold/80 text-foreground
+          className={`py-4 px-4 min-w-[135px]
             ${disabledBtn ? 'opacity-70 cursor-not-allowed' : ''}`}
           disabled={disabledBtn}>
           {loading ? <Loader /> : <span>Pay</span>}

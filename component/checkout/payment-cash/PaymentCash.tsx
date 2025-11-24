@@ -22,7 +22,7 @@ export const PaymentCash = ({
   isDissabled: boolean;
   paymentMethod: string;
 }) => {
-  console.log('paymentMethod - CASH', paymentMethod);
+  console.log('paymentMethod -', paymentMethod);
   const { senderData } = useSenderInfo();
   const { ekontMethod } = useSenderDetails();
   const {
@@ -33,10 +33,12 @@ export const PaymentCash = ({
     guestFormData,
     items,
     paymentIntentId,
+    dispatchPaymentIntentId,
   } = useCart();
 
   const [isLoading, setIsLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [dataSuccess, setDataSuccess] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState({ title: '', message: '' });
 
   const router = useRouter();
@@ -55,23 +57,32 @@ export const PaymentCash = ({
         const cancelPaymentInted = await cancelPaymentIntent({
           paymentIntentId,
         });
+
+        dispatchPaymentIntentId(null);
         console.log(cancelPaymentInted);
       }
 
       if (!senderData || !addressFormData || !ekontMethod) {
         console.error('Missing required data SENDER, ADDRESS, EKONT METHOD');
+
+        setAlertMessage({
+          title: 'Възникна грешка',
+          message: 'Липсват потребителски данни',
+        });
+        setShowAlert(true);
+
         return 0;
       }
 
-      // const validate = await createLabel(
-      //   // await createLabel(
-      //   senderData,
-      //   guestFormData,
-      //   addressFormData,
-      //   totalPrice,
-      //   ekontMethod,
-      //   paymentMethod,
-      // );
+      // validate label in Ekont
+      const validate = await createLabel(
+        senderData,
+        guestFormData,
+        addressFormData,
+        totalPrice,
+        ekontMethod,
+        paymentMethod,
+      );
 
       const res = await fetch('/api/place-order-cash', {
         method: 'POST',
@@ -89,23 +100,34 @@ export const PaymentCash = ({
 
       const data = await res.json();
 
+      if (!data.success) {
+        setDataSuccess(false);
+        setAlertMessage({
+          title: 'Възникна грешка',
+          message: data?.error,
+        });
+        setShowAlert(true);
+      }
+
       if (!res.ok) {
-        throw new Error('Response is not ok', data?.message);
+        console.log('Response is not ok', data?.error);
       }
 
       if (data.error) {
-        throw new Error(data.error.message);
+        throw new Error(data.error);
       }
 
       console.log('Order placed successfully!', data);
 
-      // if (validate?.label.totalPrice) {
-      //   setAlertMessage({
-      //     title: 'Успешно направена поръчка!',
-      //     message: 'Вашата поръчка беше успешно направена!',
-      //   });
-      //   setShowAlert(true);
-      // }
+      setDataSuccess(true);
+
+      if (validate?.label.totalPrice) {
+        setAlertMessage({
+          title: 'Успешно направена поръчка!',
+          message: 'Вашата поръчка беше успешно направена!',
+        });
+        setShowAlert(true);
+      }
     } catch (error) {
       console.error('Error submiting cash order', error);
     } finally {
@@ -113,9 +135,9 @@ export const PaymentCash = ({
     }
   };
 
-  const closeAlert = () => {
+  const closeAlert = (data: boolean) => {
     setShowAlert(false);
-    router.push(`/success?order_number=${metadata.orderNumber}`);
+    if (data) router.push(`/success?order_number=${metadata.orderNumber}`);
   };
 
   return (
@@ -132,7 +154,7 @@ export const PaymentCash = ({
         <AlertBox
           title={alertMessage.title}
           description={alertMessage.message}
-          reset={closeAlert}
+          reset={() => closeAlert(dataSuccess)}
         />
       )}
     </section>

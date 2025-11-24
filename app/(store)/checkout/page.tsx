@@ -33,14 +33,15 @@ export default function CheckoutPage() {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ title: '', message: '' });
 
-  // console.log('CHECKOUT - ITEMS', items);
+  console.log('CHECKOUT PAGE', paymentIntentId);
 
   const handleCardPayment = async () => {
-    setPaymentMethod('card');
+    setPaymentMethod('bank');
 
     const orderMethods = {
       deliveryMethod: ekontMethod,
-      paymentMethod: 'card',
+      paymentMethod: 'bank',
+      deliveryCost: deliveryCost,
     };
 
     try {
@@ -52,12 +53,12 @@ export default function CheckoutPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          // cartItems: items,
+          cartItems: items,
           metadata,
           amount: convertToSubCurrency(totalPrice),
           existingPaymentIntentId: paymentIntentId ?? null,
-          // orderDetails: addressFormData,
-          // orderMethods,
+          orderDetails: addressFormData,
+          orderMethods,
         }),
       });
       const data = await response.json();
@@ -108,7 +109,7 @@ export default function CheckoutPage() {
   const handlePaymentChange = (value: string) => {
     if (value === 'cash') {
       handleCashPayment();
-    } else if (value === 'card') {
+    } else if (value === 'bank') {
       handleCardPayment();
     }
   };
@@ -160,10 +161,10 @@ export default function CheckoutPage() {
               </Label>
             </div>
             <div className="flex">
-              <RadioGroupItem value="card" id="card" className="sr-only" />
+              <RadioGroupItem value="bank" id="bank" className="sr-only" />
               <Label
-                htmlFor="card"
-                className={`${paymentMethod === 'card' ? 'shadow-md border-green-5' : ''}  ${lableStyles}`}>
+                htmlFor="bank"
+                className={`${paymentMethod === 'bank' ? 'shadow-md border-green-5' : ''}  ${lableStyles}`}>
                 <CreditCard size={24} />
                 <span>С карта - онлайн</span>
               </Label>
@@ -178,7 +179,7 @@ export default function CheckoutPage() {
             isDissabled={isDissabled}
             paymentMethod={paymentMethod}
           />
-        ) : paymentMethod === 'card' ? (
+        ) : paymentMethod === 'bank' ? (
           <CardPayment paymentMethod={paymentMethod} />
         ) : null}
       </div>

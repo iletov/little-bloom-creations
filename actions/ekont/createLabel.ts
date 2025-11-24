@@ -69,7 +69,7 @@ export const createLabel = async (
       },
       receiverAddress,
       senderDeliveryType: sender?.senderDeliveryType,
-      senderOfficeCode: isPickup ? sender?.senderOfficeCode : '',
+      senderOfficeCode: sender?.senderOfficeCode,
       receiverOfficeCode: receiver?.officeCode || '',
       receiverDeliveryType: isPickup ? 'office' : 'delivery',
       payAfterAccept: sender?.payAfterAccept,
@@ -77,32 +77,39 @@ export const createLabel = async (
       packCount: 1,
       shipmentType: 'PACK',
       weight: 5,
-      shipmentDescription: sender?.shipmentDescription || '',
+      shipmentDescription: sender?.shipmentDescription || '18273187246',
       paymentSenderMethod: sender?.paymentSenderMethod || '',
       paymentSenderAmount: sender?.paymentSenderAmount || '',
       paymentReceiverMethod: sender?.paymentReceiverMethod || '',
       paymentReceiverAmount: sender?.paymentReceiverAmount || '',
       aymentReceiverAmountIsPercent: sender?.paymentReceiverAmountIsPercent,
-      services: {
+      services: isPaymentCash && {
         cdType: isPaymentCash ? 'GET' : '',
         cdAmount: isPaymentCash ? totalPrice : '',
-        cdCurrency: isPaymentCash ? 'BGN' : '',
-        cdPayOptions: {
-          client: {
-            name: isPaymentCash ? sender?.senderClient?.name : '',
-            phones: isPaymentCash ? sender?.senderClient?.phones : '',
-          },
-          method: isPaymentCash ? sender?.cdOptions?.method : '',
-          BIC: isPaymentCash ? sender?.cdOptions?.bic : '',
-          IBAN: isPaymentCash ? sender?.cdOptions?.iban : '',
-          bankCurrency: isPaymentCash ? 'BGN' : '',
-          payDays: isPaymentCash ? 3 : '',
-          // "payWeekdays":"monday"
-          officeCode:
-            sender?.senderOfficeCode && isPaymentCash
-              ? sender?.senderOfficeCode
-              : '',
-        },
+        cdCurrency: isPaymentCash ? 'EUR' : '',
+
+        cdPayOptionsTemplate: !sender?.cdPayOptionsVariants
+          ? sender?.cdPayOptionsTemplate
+          : '',
+
+        cdPayOptions: sender?.cdPayOptionsVariants
+          ? {
+              client: {
+                name: isPaymentCash ? sender?.senderClient?.name : '',
+                phones: isPaymentCash ? sender?.senderClient?.phones : '',
+              },
+              method: isPaymentCash ? sender?.cdOptions?.method : '',
+              BIC: isPaymentCash ? sender?.cdOptions?.bic : '',
+              IBAN: isPaymentCash ? sender?.cdOptions?.iban : '',
+              bankCurrency: isPaymentCash ? 'EUR' : '',
+              payDays: isPaymentCash ? 1 : '',
+              // "payWeekdays":"monday"
+              officeCode:
+                sender?.senderOfficeCode && isPaymentCash
+                  ? sender?.senderOfficeCode
+                  : '',
+            }
+          : '',
       },
       instructions: {
         returnInstructionParams: {
@@ -140,7 +147,7 @@ export const createLabel = async (
     }
 
     const data = await res.json();
-    // console.log('Label----> ', data);
+    console.log('Label----> ', data);
     return data;
   } catch (error) {
     console.error('Error calculating label:', error);

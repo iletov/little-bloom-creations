@@ -49,7 +49,7 @@ export const CancelPayment = ({
 
   return (
     <div>
-      <Button variant={'ghost'} onClick={handleCancelPayment}>
+      <Button variant={'pink'} onClick={handleCancelPayment}>
         {loading && !err ? <Loader /> : <span>Cancel Payment</span>}
       </Button>
       {err && <p className="text-red-500">{err}</p>}

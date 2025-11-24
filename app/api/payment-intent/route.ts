@@ -1,5 +1,7 @@
 import { CartItem } from '@/app/store/features/cart/cartSlice';
+import { convertToSubCurrency } from '@/lib/convertAmount';
 import { userCheckout } from '@/lib/db/userCheckout';
+import { createClient } from '@/lib/supabaseServer';
 import { backendClient } from '@/sanity/lib/backendClient';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -18,28 +20,35 @@ export type GroupedCartItem = {
 };
 
 export const POST = async (req: NextRequest) => {
-  const { metadata, amount, existingPaymentIntentId } = await req.json();
+  const supabase = await createClient();
+  const {
+    cartItems,
+    metadata,
+    amount,
+    existingPaymentIntentId,
+    orderDetails,
+    orderMethods,
+  } = await req.json();
 
   console.log('SERVER - EXISTING PID----->', existingPaymentIntentId);
   console.log('====================');
   console.log('New TOTAL Amount', amount);
   console.log('====================');
 
+  if (!cartItems || !metadata || !amount || !orderDetails || !orderMethods) {
+    return NextResponse.json(
+      { error: 'Missing required data! Cannot create payment intent' },
+      { status: 400 },
+    );
+  }
+
+  console.log(
+    'ITEMS SENT TO PURCHASE ORDER:',
+    JSON.stringify(cartItems, null, 2),
+  );
+
   try {
-    //validation
-
-    // const itemsWithoutPrice = cartItems.filter(
-    //   (item: GroupedCartItem) => !item.product.price,
-    // );
-
-    // if (itemsWithoutPrice.length > 0) {
-    //   return NextResponse.json(
-    //     { error: "Some items don't have price" },
-    //     { status: 400 },
-    //   );
-    // }
-
-    // get/create customer
+    // create stripe customer
 
     const customers = await stripe.customers.list({
       email: metadata.customerEmail,
@@ -52,7 +61,7 @@ export const POST = async (req: NextRequest) => {
       customerId = customers.data[0].id;
     }
 
-    //Check for existing payment intent and if neccessary update it
+    //STEP 1 - Check for existing payment intent and if neccessary update it
 
     if (existingPaymentIntentId) {
       try {
@@ -73,6 +82,8 @@ export const POST = async (req: NextRequest) => {
             },
           );
 
+          console.log('PaymentIntent UPDATED:', updatedPaymentIntent.id);
+
           return NextResponse.json({
             clientSecret: updatedPaymentIntent.client_secret,
             paymentIntentId: updatedPaymentIntent.id,
@@ -83,9 +94,11 @@ export const POST = async (req: NextRequest) => {
       }
     }
 
+    // STEP 2 - create payment intent
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
-      currency: 'bgn',
+      currency: 'eur',
       automatic_payment_methods: { enabled: true },
       customer: customerId,
       // customer_creation: customerId ? undefined : 'always',
@@ -93,8 +106,52 @@ export const POST = async (req: NextRequest) => {
       metadata: metadata,
       // items: JSON.stringify(lineItems),
       receipt_email: metadata.customerEmail,
-      description: `${metadata.orderNumber} for ${metadata.customerName}`,
+      description: `Order for ${metadata.customerName} - ${amount} EUR`,
     });
+
+    // console.log('PaymentIntent created:', paymentIntent.id);
+
+    // StEP 3 - store order data in pending_orders table in supabase
+
+    const neccessaryItems = cartItems.map((item: any) => ({
+      sku: item?.product.sku,
+      quantity: item?.quantity,
+      personalization: item?.personalisation,
+      variant_sku: item?.product?.variant?.sku ?? null,
+      variant_name: item?.product?.variant?.name ?? null,
+    }));
+
+    const { data: pendingOrder, error: dbError } = await supabase
+      .from('pending_orders')
+      .insert({
+        stripe_payment_intent_id: paymentIntent.id,
+        cart_items: neccessaryItems,
+        order_details: orderDetails,
+        metadata,
+        order_methods: orderMethods,
+      })
+      .select()
+      .single();
+
+    if (dbError) {
+      console.log('Failed to store pending order:', dbError);
+      return NextResponse.json(
+        { error: 'Failed to store pending order' },
+        { status: 500 },
+      );
+    }
+
+    // webhook event tracking order
+
+    await supabase.from('webhook_events').insert({
+      stripe_payment_intent: paymentIntent.id,
+      event_type: 'payment_initiated',
+      status: 'pending',
+    });
+
+    console.log('Pending order stored:', pendingOrder.id);
+
+    //  END - return client secret
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,

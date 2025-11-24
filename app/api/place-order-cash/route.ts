@@ -5,14 +5,14 @@ export const POST = async (req: NextRequest) => {
   const supabase = await createClient();
   const body = await req.json();
 
-  // console.log(
-  //   'ITEMS SENT TO PURCHASE ORDER:',
-  //   JSON.stringify(body.orderMethods, null, 2),
-  // );
+  console.log(
+    'ITEMS SENT TO PURCHASE ORDER:',
+    JSON.stringify(body.cartItems, null, 2),
+  );
 
   try {
     const requiredFields = {
-      metadata: ['customerName', 'customerEmail'],
+      metadata: ['customerName', 'customerEmail', 'orderNumber'],
       orderDetails: ['country', 'city', 'postalCode', 'phoneNumber'],
     };
 
@@ -30,7 +30,7 @@ export const POST = async (req: NextRequest) => {
     const dbItems = body.cartItems.map((item: any) => ({
       sku: item?.product.sku,
       quantity: item?.quantity,
-      personalization: item?.personalization,
+      personalization: item?.personalisation,
       variant_sku: item?.product?.variant?.sku ?? null,
       variant_name: item?.product?.variant?.name ?? null,
     }));
@@ -38,6 +38,7 @@ export const POST = async (req: NextRequest) => {
     const shippingDetails = {
       email: body.metadata?.customerEmail,
       full_name: body.metadata?.customerName,
+      order_number: body?.metadata?.orderNumber,
 
       //from orderDetails
       phone: body.orderDetails?.phoneNumber,
@@ -56,11 +57,14 @@ export const POST = async (req: NextRequest) => {
       delivery_cost: body?.orderMethods?.deliveryCost,
     };
 
+    //call purchase_produc rpc function from supabase
+
     const { data, error } = await supabase.rpc('purchase_order', {
       p_user_id: body.metadata?.supabaseUserId ?? null,
       p_items: dbItems,
       p_shipping: shippingDetails,
       p_order_methods: orderMethods,
+      p_stripe_payment_intent: null,
     });
 
     if (error) {
@@ -78,8 +82,14 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    if (data) {
-      console.log('RETURNED DATA', data);
+    // --> update order status to confirmed (paid)
+    const { error: statusError } = await supabase.rpc('update_order_status', {
+      p_order_id: data.order_id,
+      p_new_status: 'confirmed',
+    });
+
+    if (statusError) {
+      console.error(' Failed to update status', statusError);
     }
 
     return NextResponse.json(

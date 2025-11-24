@@ -63,7 +63,7 @@ export const calculateLabel = async (
       },
       receiverAddress,
       senderDeliveryType: sender?.senderDeliveryType,
-      senderOfficeCode: isPickup ? sender?.senderOfficeCode : '',
+      senderOfficeCode: sender?.senderOfficeCode,
       receiverOfficeCode: receiver?.officeCode || '',
       receiverDeliveryType: isPickup ? 'office' : 'delivery',
       packCount: 1,
@@ -91,14 +91,14 @@ export const calculateLabel = async (
       },
     );
 
-    console.log('CALCULATE RES-->:', JSON.stringify(res, null, 2));
-
     if (!res.ok) {
       console.error(res);
       throw new Error(`Econt API calculateLabel error:`);
     }
 
     const data = await res.json();
+    console.log('CALCULATE RES-->:', data);
+
     return data;
   } catch (error) {
     console.error('Error calculating label:', error);
