@@ -70,7 +70,7 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
     if (!senderData || !addressFormData || !ekontMethod) {
       return 0;
     }
-    const validate = await createLabel(
+    const ekontValidate = await createLabel(
       senderData,
       guestFormData,
       addressFormData,
@@ -79,7 +79,7 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
       paymentMethod,
     );
 
-    if (validate?.label.totalPrice) {
+    if (ekontValidate?.label.totalPrice) {
       setAlertMessage({
         title: 'Успешно направена поръчка!',
         message: 'Вашата поръчка беше успешно направена!',
@@ -99,7 +99,8 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
       elements,
       clientSecret: clientSecret ?? '',
       confirmParams: {
-        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?payment_intent=${clientSecret}&order_number=${metadata.orderNumber}`,
+        // return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?payment_intent=${clientSecret}&order_number=${metadata.orderNumber}`,
+        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?order_number=${metadata.orderNumber}`,
       },
     });
 
@@ -127,6 +128,7 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
           </>
         )}
       </form>
+
       <div className="flex gap-3 mt-3">
         <Button
           variant={'default'}
@@ -138,6 +140,7 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
         </Button>
 
         <CancelPayment
+          disable={loading}
           // paymentIntentId={paymentIntentId as string}
           path={pathToRedirect}
         />
@@ -146,6 +149,7 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
         )}
         {errorState && <div className="text-purple-500 mt-2">{errorState}</div>}
       </div>
+
       {showAlert && (
         <AlertBox
           title={alertMessage.title}

@@ -38,7 +38,10 @@ export const PaymentCash = ({
 
   const [isLoading, setIsLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
-  const [dataSuccess, setDataSuccess] = useState<boolean>(false);
+  const [response, setResponse] = useState({
+    success: false,
+    order_number: '',
+  });
   const [alertMessage, setAlertMessage] = useState({ title: '', message: '' });
 
   const router = useRouter();
@@ -101,7 +104,6 @@ export const PaymentCash = ({
       const data = await res.json();
 
       if (!data.success) {
-        setDataSuccess(false);
         setAlertMessage({
           title: 'Възникна грешка',
           message: data?.error,
@@ -117,14 +119,18 @@ export const PaymentCash = ({
         throw new Error(data.error);
       }
 
-      console.log('Order placed successfully!', data);
-
-      setDataSuccess(true);
+      setResponse(data);
 
       if (validate?.label.totalPrice) {
         setAlertMessage({
           title: 'Успешно направена поръчка!',
           message: 'Вашата поръчка беше успешно направена!',
+        });
+        setShowAlert(true);
+      } else {
+        setAlertMessage({
+          title: 'Възникна грешка',
+          message: 'Вашата поръчка не беше направена.',
         });
         setShowAlert(true);
       }
@@ -135,10 +141,13 @@ export const PaymentCash = ({
     }
   };
 
-  const closeAlert = (data: boolean) => {
+  const closeAlert = () => {
     setShowAlert(false);
-    if (data) router.push(`/success?order_number=${metadata.orderNumber}`);
   };
+
+  if (!showAlert && response?.success) {
+    router.push(`/success?order_number=${response?.order_number}`);
+  }
 
   return (
     <section>
@@ -154,7 +163,7 @@ export const PaymentCash = ({
         <AlertBox
           title={alertMessage.title}
           description={alertMessage.message}
-          reset={() => closeAlert(dataSuccess)}
+          reset={() => closeAlert()}
         />
       )}
     </section>

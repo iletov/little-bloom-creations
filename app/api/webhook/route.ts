@@ -52,27 +52,37 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  //SUCCESS
+
   if (event.type === 'payment_intent.succeeded') {
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
 
-    console.log('Payment succeeded:', paymentIntent.id);
+    console.log(
+      '---Payment succeeded:-->',
+      paymentIntent.id,
+      paymentIntent.metadata.orderNumber,
+    );
 
     try {
       // check if order allready exists
       const { data: existingOrder } = await supabase
         .from('orders')
         .select('id')
-        .eq('stripe_payment_intent', paymentIntent.id)
+        // .eq('stripe_payment_intent', paymentIntent.id)
+        .eq('order_number', paymentIntent.metadata.orderNumber)
         .single();
 
       if (existingOrder) {
-        console.log('Order already exists:', paymentIntent.id);
+        console.log(
+          '---Order already exists--!!!',
+          paymentIntent.metadata.orderNumber,
+        );
 
         //update webhook status
         await supabase
           .from('webhook_events')
           .update({ status: 'success', order_id: existingOrder?.id })
-          .eq('stripe_payment_intent', paymentIntent.id);
+          .eq('order_number', paymentIntent.metadata.orderNumber);
 
         return NextResponse.json({
           received: true,
@@ -85,7 +95,7 @@ export async function POST(req: NextRequest) {
       const { data: pendingOrder, error: fetchError } = await supabase
         .from('pending_orders')
         .select('*')
-        .eq('stripe_payment_intent_id', paymentIntent.id)
+        .eq('order_number', paymentIntent.metadata.orderNumber)
         .single();
 
       if (fetchError || !pendingOrder) {
@@ -99,7 +109,7 @@ export async function POST(req: NextRequest) {
             status: 'failed',
             error_message: 'Pending order not found',
           })
-          .eq('stripe_payment_intent', paymentIntent.id);
+          .eq('order_number', paymentIntent.metadata.orderNumber);
 
         throw new Error('Pending order data not found');
       }
@@ -162,7 +172,7 @@ export async function POST(req: NextRequest) {
         await supabase
           .from('webhook_events')
           .update({ status: 'failed', error_message: errorMessage })
-          .eq('stripe_payment_intent', paymentIntent.id);
+          .eq('order_number', paymentIntent.metadata.orderNumber);
 
         const refund = await stripe.refunds.create({
           payment_intent: paymentIntent.id,
@@ -180,7 +190,7 @@ export async function POST(req: NextRequest) {
             status: 'refunded',
             error_message: `Refunded: ${errorMessage}`,
           })
-          .eq('stripe_payment_intent_id', paymentIntent.id);
+          .eq('order_number', paymentIntent.metadata.orderNumber);
 
         throw new Error(errorMessage);
       }
@@ -195,7 +205,7 @@ export async function POST(req: NextRequest) {
             status: 'failed',
             error_message: rpcError.message,
           })
-          .eq('stripe_payment_intent', paymentIntent.id);
+          .eq('order_number', paymentIntent.metadata.orderNumber);
 
         // refund
 
@@ -230,7 +240,7 @@ export async function POST(req: NextRequest) {
           status: 'success',
           order_id: orderData.order_id,
         })
-        .eq('stripe_payment_intent', paymentIntent.id);
+        .eq('order_number', paymentIntent.metadata.orderNumber);
 
       // delete pending order
 
@@ -239,6 +249,7 @@ export async function POST(req: NextRequest) {
       console.log('Order processing complete:', {
         order_id: orderData.order_id,
         payment_intent: paymentIntent.id,
+        order_number: paymentIntent.metadata.orderNumber,
         amount: (paymentIntent.amount / 100).toFixed(2),
       });
 
@@ -253,9 +264,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  //FAILED
+
   if (event.type === 'payment_intent.payment_failed') {
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
-    console.log('Payment failed:', paymentIntent.id);
+    console.log('Payment failed:', paymentIntent.metadata.orderNumber);
 
     // upodate webhook event
 
@@ -265,16 +278,19 @@ export async function POST(req: NextRequest) {
         status: 'failed',
         error_message: paymentIntent.last_payment_error?.message,
       })
-      .eq('stripe_payment_intent', paymentIntent.id);
+      .eq('order_number', paymentIntent.metadata.orderNumber);
 
     //clean pending_order
 
     await supabase
       .from('pending_orders')
       .delete()
-      .eq('stripe_payment_intent_id', paymentIntent.id);
+      .eq('order_number', paymentIntent.metadata.orderNumber);
 
-    console.log('Pending order cleaned up:', paymentIntent.id);
+    console.log(
+      'Pending order cleaned up:',
+      paymentIntent.metadata.orderNumber,
+    );
   }
 
   if (event.type === 'charge.refunded') {

@@ -5,10 +5,10 @@ export const POST = async (req: NextRequest) => {
   const supabase = await createClient();
   const body = await req.json();
 
-  console.log(
-    'ITEMS SENT TO PURCHASE ORDER:',
-    JSON.stringify(body.cartItems, null, 2),
-  );
+  // console.log(
+  //   'ITEMS SENT TO PURCHASE ORDER:',
+  //   JSON.stringify(body.cartItems, null, 2),
+  // );
 
   try {
     const requiredFields = {
@@ -58,7 +58,6 @@ export const POST = async (req: NextRequest) => {
     };
 
     //call purchase_produc rpc function from supabase
-
     const { data, error } = await supabase.rpc('purchase_order', {
       p_user_id: body.metadata?.supabaseUserId ?? null,
       p_items: dbItems,
@@ -67,8 +66,11 @@ export const POST = async (req: NextRequest) => {
       p_stripe_payment_intent: null,
     });
 
+    console.log('Call after purchase_order--->>', data);
+
     if (error) {
       console.error('Supabase RPC error:', error);
+
       return NextResponse.json(
         { success: false, error: 'Database error', details: error.message },
         { status: 500 },
@@ -92,11 +94,25 @@ export const POST = async (req: NextRequest) => {
       console.error(' Failed to update status', statusError);
     }
 
+    // update webhook event with success
+    await supabase
+      .from('webhook_events')
+      .insert({
+        stripe_payment_intent: null,
+        order_number: body.metadata.orderNumber,
+        order_id: data.order_id,
+        event_type: 'payment_initiated',
+        status: 'success',
+      })
+      .select()
+      .single();
+
     return NextResponse.json(
       {
         success: true,
         order_id: data.order_id,
         total_amount: data.total_amount,
+        order_number: data.order_number,
       },
       { status: 200 },
     );

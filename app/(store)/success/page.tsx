@@ -1,29 +1,26 @@
 // app/success/page.tsx
 'use client';
 
+import { useCart } from '@/hooks/useCart';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function SuccessPage() {
   const searchParams = useSearchParams();
-  const paymentIntent = searchParams.get('payment_intent');
+  const orderNumber = searchParams.get('order_number');
 
   const [status, setStatus] = useState('loading');
   const [order, setOrder] = useState<any>(null);
   const [error, setError] = useState('');
   const [isPolling, setIsPolling] = useState(true);
 
-  useEffect(() => {
-    if (!paymentIntent) {
-      setError('Invalid payment intent');
-      setStatus('error');
-      return;
-    }
+  const { dispatchPaymentIntentId } = useCart();
 
+  useEffect(() => {
     const checkWebhookStatus = async () => {
       try {
         const response = await fetch(
-          `/api/webhook-status?payment_intent=${paymentIntent}`,
+          `/api/webhook-status?order_number=${orderNumber}`,
         );
         const data = await response.json();
 
@@ -54,18 +51,20 @@ export default function SuccessPage() {
     // Initial check
     checkWebhookStatus();
 
-    // Poll every 2 seconds for up to 30 seconds
+    // Poll every 2 seconds for up to 10 seconds
     const interval = setInterval(checkWebhookStatus, 2000);
     const timeout = setTimeout(() => {
       setIsPolling(false);
       clearInterval(interval);
-    }, 30000);
+    }, 10000);
 
     return () => {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [paymentIntent]);
+  }, [orderNumber]);
+
+  dispatchPaymentIntentId(null);
 
   // Success state
   if (status === 'success') {
@@ -84,10 +83,16 @@ export default function SuccessPage() {
                 <span className="text-gray-600">Order ID:</span>
                 <span className="font-mono font-semibold">{order?.id}</span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Order Number:</span>
+                <span className="font-mono font-semibold">
+                  {order?.order_number}
+                </span>
+              </div>
 
               <div className="flex justify-between">
                 <span className="text-gray-600">Amount:</span>
-                <span className="font-semibold">{order?.total_amount} BGN</span>
+                <span className="font-semibold">{order?.total_amount} EUR</span>
               </div>
 
               <div className="flex justify-between">
@@ -134,10 +139,6 @@ export default function SuccessPage() {
             We're creating your order and reducing stock. This usually takes a
             few seconds...
           </p>
-
-          <p className="text-sm text-gray-500 mt-4">
-            Payment Intent: {paymentIntent}
-          </p>
         </div>
       </div>
     );
@@ -175,10 +176,6 @@ export default function SuccessPage() {
               Continue Shopping
             </button>
           </div>
-
-          <p className="text-xs text-gray-500 mt-6">
-            Payment Intent: {paymentIntent}
-          </p>
         </div>
       </div>
     );

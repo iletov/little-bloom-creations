@@ -42,10 +42,10 @@ export const POST = async (req: NextRequest) => {
     );
   }
 
-  console.log(
-    'ITEMS SENT TO PURCHASE ORDER:',
-    JSON.stringify(cartItems, null, 2),
-  );
+  // console.log(
+  //   'ITEMS SENT TO PURCHASE ORDER:',
+  //   JSON.stringify(cartItems, null, 2),
+  // );
 
   try {
     // create stripe customer
@@ -125,6 +125,7 @@ export const POST = async (req: NextRequest) => {
       .from('pending_orders')
       .insert({
         stripe_payment_intent_id: paymentIntent.id,
+        order_number: metadata.orderNumber,
         cart_items: neccessaryItems,
         order_details: orderDetails,
         metadata,
@@ -145,6 +146,7 @@ export const POST = async (req: NextRequest) => {
 
     await supabase.from('webhook_events').insert({
       stripe_payment_intent: paymentIntent.id,
+      order_number: metadata.orderNumber,
       event_type: 'payment_initiated',
       status: 'pending',
     });

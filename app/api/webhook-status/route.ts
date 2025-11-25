@@ -7,11 +7,11 @@ export async function GET(request: Request) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const paymentIntent = searchParams.get('payment_intent');
+    const orderNumber = searchParams.get('order_number');
 
-    if (!paymentIntent) {
+    if (!orderNumber) {
       return NextResponse.json(
-        { error: 'Missing payment_intent parameter' },
+        { error: 'Missing order_number parameter' },
         { status: 400 },
       );
     }
@@ -20,8 +20,10 @@ export async function GET(request: Request) {
     const { data: webhookEvent, error } = await supabase
       .from('webhook_events')
       .select('*')
-      .eq('stripe_payment_intent', paymentIntent)
+      .eq('order_number', orderNumber)
       .single();
+    // .limit(1)
+    // .maybeSingle();
 
     if (error) {
       console.error('Error fetching webhook event:', error);
@@ -35,13 +37,14 @@ export async function GET(request: Request) {
     if (webhookEvent.status === 'success' && webhookEvent.order_id) {
       const { data: order } = await supabase
         .from('orders')
-        .select('id, total_amount, created_at')
+        .select('id, total_amount, created_at, order_number')
         .eq('id', webhookEvent.order_id)
         .single();
 
       return NextResponse.json({
         status: 'success',
         order: order,
+        order_number: webhookEvent?.order_number,
         message: 'Order created successfully!',
       });
     }
@@ -50,6 +53,7 @@ export async function GET(request: Request) {
     if (webhookEvent.status === 'failed') {
       return NextResponse.json({
         status: 'failed',
+        order_number: webhookEvent?.order_number,
         error: webhookEvent.error_message,
         message: `Order creation failed: ${webhookEvent.error_message}`,
       });
@@ -59,6 +63,7 @@ export async function GET(request: Request) {
     if (webhookEvent.status === 'refunded') {
       return NextResponse.json({
         status: 'refunded',
+        order_number: webhookEvent?.order_number,
         error: webhookEvent.error_message,
         message: `Payment refunded: ${webhookEvent.error_message}`,
       });
@@ -67,6 +72,7 @@ export async function GET(request: Request) {
     // Still pending (webhook hasnt processed yet)
     return NextResponse.json({
       status: 'pending',
+      order_number: webhookEvent?.order_number,
       message: 'Processing your order. Please wait...',
     });
   } catch (error: any) {
