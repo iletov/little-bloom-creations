@@ -15,11 +15,22 @@ export const ekontType = defineType({
     defineField({
       name: 'senderClient',
       title: 'Sender Client',
+      description: 'senderClient',
       type: 'object',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
       fields: [
         {
           name: 'name',
           title: 'Име на подателя - (Фирма)',
+          type: 'string',
+          validation: Rule => Rule.required(),
+        },
+        {
+          name: 'nameEn',
+          title: 'Име на подателя - (Фирма) - EN',
           type: 'string',
           validation: Rule => Rule.required(),
         },
@@ -38,8 +49,14 @@ export const ekontType = defineType({
         {
           name: 'juridicalEntity',
           title: 'juridical Entity',
-          type: 'number',
-          description: '0 - физично лице, 1 - юридично лице',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Юридическо лице', value: '1' },
+              { title: 'Физическо лице', value: '0' },
+            ],
+          },
+          description: 'juridicalEntity - 0, 1',
         },
         {
           name: 'ein',
@@ -49,33 +66,64 @@ export const ekontType = defineType({
         },
         {
           name: 'ddsEinPrefix',
-          title: 'DDS Префикс на БУЛСТАТ',
+          title: 'ДДС Префикс на БУЛСТАТ',
           type: 'string',
           initialValue: 'BG',
         },
         {
           name: 'ddsEin',
-          title: 'DDS БУЛСТАТ',
+          title: 'ДДС БУЛСТАТ',
           type: 'string',
           description: 'BG123456789',
         },
+      ],
+    }),
+    defineField({
+      name: 'senderAgent',
+      title: 'Упълномощено лице',
+      description: 'senderAgent',
+      type: 'object',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
+      fields: [
         {
-          name: 'molName',
-          title: 'Име на МОЛ',
+          name: 'name',
+          title: 'Име',
           type: 'string',
+          validation: Rule => Rule.required(),
         },
         {
-          name: 'molEGN',
-          title: 'ЕГН на МОЛ',
+          name: 'nameEn',
+          title: 'Име - EN',
           type: 'string',
         },
+        // {
+        //   name: 'phones',
+        //   title: 'Телефонни номера',
+        //   type: 'array',
+        //   of: [{ type: 'string' }],
+        //   validation: Rule => Rule.required(),
+        // },
+        // {
+        //   name: 'email',
+        //   title: 'Имейл',
+        //   type: 'string',
+        //   validation: Rule => Rule.required(),
+        // },
       ],
     }),
 
     defineField({
       name: 'senderAddress',
       title: 'Адрес на подателя',
+      description: 'senderAddress',
       type: 'object',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
       fields: [
         {
           name: 'city',
@@ -117,14 +165,14 @@ export const ekontType = defineType({
       initialValue: 'office',
       validation: Rule => Rule.required(),
       description:
-        'Какъв да е типа на доставката - от офис или чрез заявка за куриер. Към момента е възможно изпращане от офис.',
+        'Какъв да е типа на доставката - от офис или чрез заявка за куриер. Към момента е възможно изпращане от офис. - senderDeliveryType',
     }),
     defineField({
       name: 'senderOfficeCode',
       title: 'Код на офис, от който се изпраща',
       type: 'string',
       initialValue: '5803',
-      description: 'Офис Сан Стефано - 5803',
+      description: 'Офис Сан Стефано - 5803 - senderOfficeCode',
       validation: Rule => Rule.required(),
     }),
 
@@ -140,13 +188,19 @@ export const ekontType = defineType({
       name: 'cdPayOptionsTemplate',
       title: 'Шаблон за опции за наложен платеж',
       type: 'string',
-      description: 'попълва се номер на споразуменито за наложен платеж',
+      description:
+        'попълва се номер на споразуменито за наложен платеж - cdPayOptionsTemplate',
       hidden: ({ parent }) => parent?.cdPayOptionsVariants,
     }),
     defineField({
       name: 'cdOptions',
       title: 'Опции за наложен платеж',
+      description: 'cdOptions',
       type: 'object',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
       fields: [
         {
           name: 'method',
@@ -198,6 +252,7 @@ export const ekontType = defineType({
     defineField({
       name: 'payAfterAccept',
       title: 'Опция "Плати след приемане"',
+      description: 'payAfterAccept',
       type: 'string',
       options: {
         list: [
@@ -209,6 +264,7 @@ export const ekontType = defineType({
     defineField({
       name: 'payAfterTest',
       title: 'Опция "Плати след тест"',
+      description: 'payAfterTest',
       type: 'string',
       options: {
         list: [
@@ -220,11 +276,13 @@ export const ekontType = defineType({
     defineField({
       name: 'shipmentDescription',
       title: 'Описание на доставката',
+      description: 'shipmentDescription',
       type: 'string',
     }),
     defineField({
       name: 'paymentSenderMethod',
       title: 'Метод на плащане на подателя',
+      description: 'paymentSenderMethod',
       type: 'string',
       options: {
         list: [
@@ -262,6 +320,10 @@ export const ekontType = defineType({
       name: 'returnInstructionParams',
       title: 'Инструкции за връщане',
       type: 'object',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
       fields: [
         {
           name: 'type',

@@ -60,6 +60,16 @@ export const createLabel = async (
     label: {
       senderClient: {
         name: sender?.senderClient?.name,
+        nameEn: sender?.senderClient?.nameEn,
+        phones: senderPhones,
+        email: sender?.senderClient?.email,
+        juridicalEntity: sender?.senderClient?.juridicalEntity,
+        ein: sender?.senderClient?.ein,
+        ddsEinPrefix: sender?.senderClient?.ddsEinPrefix,
+        ddsEin: sender?.senderClient?.ddsEin,
+      },
+      senderAgent: {
+        name: sender?.senderAgent?.name,
         phones: senderPhones,
       },
       senderAddress,
@@ -72,8 +82,8 @@ export const createLabel = async (
       senderOfficeCode: sender?.senderOfficeCode,
       receiverOfficeCode: receiver?.officeCode || '',
       receiverDeliveryType: isPickup ? 'office' : 'delivery',
-      payAfterAccept: sender?.payAfterAccept,
-      payAfterTest: sender?.payAfterTest,
+      payAfterAccept: isPaymentCash ? sender?.payAfterAccept : 0,
+      payAfterTest: isPaymentCash ? sender?.payAfterTest : 0,
       packCount: 1,
       shipmentType: 'PACK',
       weight: 5,
@@ -88,9 +98,8 @@ export const createLabel = async (
         cdAmount: isPaymentCash ? totalPrice : '',
         cdCurrency: isPaymentCash ? 'EUR' : '',
 
-        cdPayOptionsTemplate: !sender?.cdPayOptionsVariants
-          ? sender?.cdPayOptionsTemplate
-          : '',
+        cdPayOptionsTemplate:
+          !sender?.cdPayOptionsVariants && sender?.cdPayOptionsTemplate,
 
         cdPayOptions: sender?.cdPayOptionsVariants
           ? {

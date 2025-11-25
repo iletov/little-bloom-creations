@@ -13,7 +13,7 @@ import { convertToSubCurrency } from '@/lib/convertAmount';
 import { create } from 'domain';
 import { redirect, useRouter } from 'next/navigation';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export const PaymentCash = ({
   isDissabled,
@@ -145,9 +145,11 @@ export const PaymentCash = ({
     setShowAlert(false);
   };
 
-  if (!showAlert && response?.success) {
-    router.push(`/success?order_number=${response?.order_number}`);
-  }
+  useEffect(() => {
+    if (response?.success && !showAlert) {
+      router.push(`/success?order_number=${response.order_number}`);
+    }
+  }, [response, showAlert]);
 
   return (
     <section>
