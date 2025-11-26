@@ -10,8 +10,13 @@ export type ProductWithSize = Product & {
 export interface CartItem {
   product: Product;
   quantity: number;
-  cartId: string;
-  personalisation?: any;
+  // cartId: string;
+  personalisation?: {
+    productId: string;
+    addMainText: string;
+    textColor: string;
+    name: string;
+  };
 }
 
 interface CartState {
@@ -76,16 +81,32 @@ export const cartSlice = createSlice({
       const { product, personalisation } = action.payload;
 
       state.items.push({
-        cartId: crypto.randomUUID(),
+        // cartId: crypto.randomUUID(),
         product: product as Product,
-        personalisation: personalisation,
+        personalisation: { productId: crypto.randomUUID(), ...personalisation },
         quantity: 1,
       });
+    },
+    updateItem: (
+      state,
+      action: PayloadAction<{ productId: string | null; personalisation: any }>,
+    ) => {
+      const { productId, personalisation } = action.payload;
+
+      const item = state.items.find(
+        item => item.personalisation?.productId === productId,
+      );
+
+      if (item) {
+        item.personalisation = { ...item.personalisation, ...personalisation };
+      }
     },
 
     removeItem: (state, action: PayloadAction<string>) => {
       const cartItemId = action.payload;
-      state.items = state.items.filter(item => item.cartId !== cartItemId);
+      state.items = state.items.filter(
+        item => item.personalisation?.productId !== cartItemId,
+      );
     },
 
     clearCart: state => {
@@ -149,5 +170,5 @@ export const selectTotalItems = (state: RootState) => {
 
 export const selectGroupedItems = (state: RootState) => state.cart.items;
 
-export const { addItem, removeItem, clearCart } = cartSlice.actions;
+export const { addItem, updateItem, removeItem, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

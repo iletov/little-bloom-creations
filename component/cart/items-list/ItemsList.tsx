@@ -1,12 +1,9 @@
-// import { EsotericaStore, MusicStore } from '@/sanity.types';
 import { urlFor } from '@/sanity/lib/image';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { Reference } from 'sanity';
-import AddToCartButton from '../add-to-cart-button/AddToCartButton';
 import { Pencil, X } from 'lucide-react';
-import { calculateDiscountAmount } from '@/lib/discountamount';
 import { ProductsPrice } from '@/component/products/ProductsPrice';
 import Link from 'next/link';
 import ClearCartButton from '../clear-cart-button/ClearCartButton';
@@ -16,8 +13,9 @@ type ItemsListProps = {
   group: {
     product: any;
     quantity: number;
-    cartId: string;
+    // cartId: string;
     personalisation?: {
+      productId: string;
       addMainText: string;
       textColor: string;
       name: string;
@@ -30,7 +28,10 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
   return (
     <article className=" flex w-full border-b-[1px] rounded-md hover:bg-green-1/20 transition easy-in-out py-4 px-4 gap-8 font-montserrat">
       <Link
-        href={`/product/${group.product.slug?.current}`}
+        href={{
+          pathname: `/product/${group.product.slug?.current}`,
+          query: { productId: group?.personalisation?.productId },
+        }}
         className="flex gap-10 cursor-pointer pr-4  flex-1">
         <div
           className="w-auto h-44 rounded-md overflow-hidden"
@@ -56,17 +57,17 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
               <span
                 className={cn(
                   'capitalize justify-self-start',
-                  group.personalisation?.addMainText === 'italic' && 'italic',
+                  group?.personalisation?.addMainText === 'italic' && 'italic',
                 )}>
-                {group.personalisation?.addMainText
-                  ? group.personalisation?.addMainText
+                {group?.personalisation?.addMainText
+                  ? group?.personalisation?.addMainText
                   : 'No Text'}
               </span>
             </p>
             <span className="grid grid-cols-2 gap-8">
               Име:{' '}
               <span className="uppercase justify-self-start">
-                {group.personalisation?.name}
+                {group?.personalisation?.name}
               </span>
             </span>
             <span className="grid grid-cols-2 gap-8">
@@ -74,21 +75,33 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
               <span
                 className={cn(
                   'cacpitalize justify-self-start ml-1 px-5 py-[0.5px] rounded-xl',
-                  group.personalisation?.textColor === 'gold'
+                  group?.personalisation?.textColor === 'gold'
                     ? 'bg-yellow-400'
                     : 'bg-slate-400 text-white',
                 )}>
-                {group.personalisation?.textColor}
+                {group?.personalisation?.textColor}
               </span>
             </span>
           </div>
         </div>
       </Link>
-      <PriceItem group={group} checkout={checkout} />
-      <ClearCartButton
-        cartId={group?.cartId}
-        className={cn(checkout && 'self-center')}
-      />
+      <div className="flex flex-col gap-8">
+        <div className="flex gap-8">
+          <PriceItem group={group} checkout={checkout} />
+          <ClearCartButton
+            productId={group?.personalisation?.productId as string}
+            className={cn(checkout && 'self-center')}
+          />
+        </div>
+        <Link
+          href={{
+            pathname: `/product/${group.product.slug?.current}`,
+          }}
+          className="text-[1.4rem] border-2 px-4 py-2 rounded-lg hover:bg-white self-start">
+          {' '}
+          Add new item
+        </Link>
+      </div>
     </article>
   );
 };

@@ -11,6 +11,8 @@ export default function CartComponent() {
 
   const { items } = useCart();
 
+  console.log('CART', items);
+
   useEffect(() => {
     setIsClient(true);
   }, []);

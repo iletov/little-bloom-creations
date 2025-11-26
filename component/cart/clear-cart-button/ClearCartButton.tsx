@@ -6,17 +6,17 @@ import { Trash } from 'lucide-react';
 import React from 'react';
 
 type ClearButtonProps = {
-  cartId: string;
+  productId: string;
   className?: string;
 };
 
-const ClearCartButton = ({ cartId, className }: ClearButtonProps) => {
+const ClearCartButton = ({ productId, className }: ClearButtonProps) => {
   const { removeItem } = useCart();
 
   return (
     <>
       <Button
-        onClick={() => removeItem(cartId)}
+        onClick={() => removeItem(productId)}
         className={cn(
           ' px-[unset] py-[unset] w-12 h-12 bg-pink-1 hover:bg-[unset] rounded-full hover:ring-offset-pink-5 hover:ring-pink-5',
           className,

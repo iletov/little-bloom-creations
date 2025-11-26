@@ -1,10 +1,7 @@
-import { PortableTextContainer } from '@/component/portabletext-container/PortableTextContainer';
 import ProductContainer from '@/component/products/ProductContainer';
 import SectionRenderer from '@/component/section-renderer/SectionRenderer';
-import Todo from '@/component/todo-supabase/Todo';
 import { getProductBySlug, getProducts } from '@/sanity/lib/fetch/fetchData';
 import { getProductBySku } from '@/supabase/lib/getProductBySku';
-
 import { notFound } from 'next/navigation';
 import React from 'react';
 
@@ -28,16 +25,14 @@ export default async function ProductPage({ params }: Props) {
   const sanityData = await getProductBySlug(slug);
   if (!sanityData) return notFound();
 
-  // console.log(`Product/${slug} ->`, product);
-
   const supabaseData = await getProductBySku(sanityData?.sku as string);
-
-  // console.log('Supabase Data', supabaseData);
 
   const data = {
     ...sanityData,
     ...supabaseData,
   };
+
+  console.log('PRODUCTS', sanityData);
 
   return (
     <>

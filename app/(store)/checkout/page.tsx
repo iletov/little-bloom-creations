@@ -9,7 +9,6 @@ import { useCart } from '@/hooks/useCart';
 import { ItemsList } from '@/component/cart/items-list/ItemsList';
 import { convertToSubCurrency } from '@/lib/convertAmount';
 import { Separator } from '@/component/separator/Separator';
-import { checkQuantity } from '@/actions/checkQuantity';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { AlertBox } from '@/component/modals/AlertBox';
 
@@ -32,8 +31,6 @@ export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ title: '', message: '' });
-
-  console.log('CHECKOUT PAGE', paymentIntentId);
 
   const handleCardPayment = async () => {
     setPaymentMethod('bank');

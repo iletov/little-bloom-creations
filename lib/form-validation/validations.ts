@@ -47,6 +47,7 @@ export const contactSchema = z.object({
 });
 
 export const personlisedFormSchema = z.object({
+  // productId: z.string(),
   addMainText: z
     .union([
       z.enum(['regular', 'italic']),

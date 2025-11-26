@@ -7,7 +7,7 @@ import {
   selectItemCount,
   selectTotalItems,
   selectGroupedItems,
-  ProductWithSize,
+  updateItem,
   removeItem,
 } from '@/app/store/features/cart/cartSlice';
 
@@ -63,6 +63,9 @@ export const useCart = () => {
     addItem: (product: any, personalisation: any) =>
       dispatch(addItem({ product, personalisation })),
     // addPaymentIntent: (intent: string) => dispatch(addPaymentIntent(intent)),
+    updateItem: (productId: string | null, personalisation: any) =>
+      dispatch(updateItem({ productId, personalisation })),
+
     removeItem: (product: string) => dispatch(removeItem(product)),
     clearCart: () => dispatch(clearCart()),
     getItemCount: (productId: string, size?: string) =>
@@ -81,8 +84,8 @@ export const useCart = () => {
       dispatch(saveAddressData(state)),
     setDeliveryCost: (state: number) => dispatch(setDeliveryCost(state)),
     clearFormData: () => dispatch(clearFormData()),
-    updateAddresData: (state: AddressFormData) =>
-      dispatch(updateAddresData(state)),
+    updateAddresData: (state: AddressFormData | Partial<AddressFormData>) =>
+      dispatch(updateAddresData(state as AddressFormData)),
     updateGuestData: (state: GuestFormData) => dispatch(updateGuestData(state)),
     setDeliveryCostFlag: (state: boolean) => dispatch(deliveryCostFlag(state)),
   };

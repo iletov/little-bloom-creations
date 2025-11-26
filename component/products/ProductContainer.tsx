@@ -2,7 +2,6 @@ import React from 'react';
 import { PortableTextContainer } from '../portabletext-container/PortableTextContainer';
 import Image from 'next/image';
 import { urlFor } from '@/sanity/lib/image';
-import AddToCartButton from '../cart/add-to-cart-button/AddToCartButton';
 import ProductForm from './ProductForm';
 
 const ProductContainer = ({ data }: any) => {

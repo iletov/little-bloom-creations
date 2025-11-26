@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { useCart } from '@/hooks/useCart';
 
@@ -22,6 +22,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/component/loader/Loader';
 import { cn } from '@/lib/utils';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export interface City {
   id: string;
@@ -75,6 +76,8 @@ export const CheckoutForm = () => {
     },
   });
 
+  console.log(addressForm.getValues(), addressFormData);
+
   const labelValidation = async () => {
     // setIsLoading(true);
     setDeliveryCostFlag(true);
@@ -95,12 +98,37 @@ export const CheckoutForm = () => {
     }
   };
 
-  const handleUpdateOnBlur = <K extends keyof AddressFormDataType>(
-    key: K,
-    value: AddressFormDataType[K],
-  ) => {
-    updateAddresData({ [key]: value } as AddressFormDataType);
+  const formValues = addressForm.watch();
+  const debouncedValues = useDebounce(formValues, 500);
+  const lastSavedRef = useRef<string>('');
+
+  useEffect(() => {
+    const valuesString = JSON.stringify(debouncedValues);
+
+    // Only update if values actually changed
+    if (valuesString !== lastSavedRef.current) {
+      lastSavedRef.current = valuesString;
+      updateAddresData(debouncedValues);
+    }
+  }, [debouncedValues]);
+
+  // Immediate save on blur (bypasses debounce)
+  const handleImmediateSave = () => {
+    const values = addressForm.getValues();
+    const valuesString = JSON.stringify(values);
+
+    if (valuesString !== lastSavedRef.current) {
+      lastSavedRef.current = valuesString;
+      updateAddresData(values);
+    }
   };
+
+  // const handleUpdateOnBlur = <K extends keyof AddressFormDataType>(
+  //   key: K,
+  //   value: AddressFormDataType[K],
+  // ) => {
+  //   updateAddresData({ [key]: value } as AddressFormDataType);
+  // };
 
   const handleUpdateGuestOnBlur = () => {
     updateGuestData(guestForm.getValues());
@@ -173,9 +201,10 @@ export const CheckoutForm = () => {
             {...addressForm.register('phoneNumber')}
             placeholder="Телефон"
             className="input_styles"
-            onBlur={e => {
-              handleUpdateOnBlur('phoneNumber', e.target.value);
-            }}
+            onBlur={handleImmediateSave}
+            // onBlur={e => {
+            //   handleUpdateOnBlur('phoneNumber', e.target.value);
+            // }}
           />
           {addressForm.formState.errors.phoneNumber && (
             <ErrorMessage
@@ -187,9 +216,10 @@ export const CheckoutForm = () => {
             {...addressForm.register('postalCode')}
             placeholder="Пощенски код"
             className="input_styles"
-            onBlur={e => {
-              handleUpdateOnBlur('postalCode', e.target.value);
-            }}
+            onBlur={handleImmediateSave}
+            // onBlur={e => {
+            //   handleUpdateOnBlur('postalCode', e.target.value);
+            // }}
           />
           {addressForm.formState.errors.postalCode && (
             <ErrorMessage
@@ -206,25 +236,28 @@ export const CheckoutForm = () => {
                 {...addressForm.register('street')}
                 placeholder="Улица"
                 className="input_styles"
-                onBlur={e => {
-                  handleUpdateOnBlur('street', e.target.value);
-                }}
+                onBlur={handleImmediateSave}
+                // onBlur={e => {
+                //   handleUpdateOnBlur('street', e.target.value);
+                // }}
               />
               <Input
                 {...addressForm.register('streetNumber')}
                 placeholder="Номер на улицата"
                 className="input_styles"
-                onBlur={e => {
-                  handleUpdateOnBlur('streetNumber', e.target.value);
-                }}
+                onBlur={handleImmediateSave}
+                // onBlur={e => {
+                //   handleUpdateOnBlur('streetNumber', e.target.value);
+                // }}
               />
               <Input
                 {...addressForm.register('other')}
                 placeholder="Друго"
                 className="input_styles"
-                onBlur={e => {
-                  handleUpdateOnBlur('other', e.target.value);
-                }}
+                onBlur={handleImmediateSave}
+                // onBlur={e => {
+                //   handleUpdateOnBlur('other', e.target.value);
+                // }}
               />
             </>
           ) : null}

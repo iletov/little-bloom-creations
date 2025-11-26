@@ -4,7 +4,6 @@
 import { useCart } from '@/hooks/useCart';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
 
 async function checkWebhookStatus(orderNumber: string) {
   const response = await fetch(
