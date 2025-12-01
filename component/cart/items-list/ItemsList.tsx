@@ -1,3 +1,4 @@
+'use client';
 import { urlFor } from '@/sanity/lib/image';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -8,6 +9,7 @@ import { ProductsPrice } from '@/component/products/ProductsPrice';
 import Link from 'next/link';
 import ClearCartButton from '../clear-cart-button/ClearCartButton';
 import { cn } from '@/lib/utils';
+import { useCart } from '@/hooks/useCart';
 
 type ItemsListProps = {
   group: {
@@ -108,13 +110,18 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
 
 const PriceItem = ({ group, checkout }: ItemsListProps) => {
   const router = useRouter();
+
+  const finalPrice = group?.product?.variant_price
+    ? group.product.variant_price
+    : group.product.price;
+
   return (
     <>
       {!checkout ? (
         <span className=" flex flex-col items-end">
           {/* <AddToCartButton product={group?.product as any} cartItem={group} /> */}
           <div className="px-2">
-            <ProductsPrice product={group.product} />
+            <ProductsPrice price={finalPrice} />
           </div>
         </span>
       ) : (

@@ -9,6 +9,8 @@ import {
   selectGroupedItems,
   updateItem,
   removeItem,
+  updateVariants,
+  selectVariants,
 } from '@/app/store/features/cart/cartSlice';
 
 import { RootState } from '@/app/store/store';
@@ -58,13 +60,17 @@ export const useCart = () => {
     addressFormData: useSelector(selectAddressFormData),
     deliveryCost: useSelector(selectDeliveryCost),
     deliveryCostFlag: useSelector(selectDeliveryCostFlag),
+    variants: useSelector(selectVariants),
 
     //methods
     addItem: (product: any, personalisation: any) =>
       dispatch(addItem({ product, personalisation })),
     // addPaymentIntent: (intent: string) => dispatch(addPaymentIntent(intent)),
-    updateItem: (productId: string | null, personalisation: any) =>
-      dispatch(updateItem({ productId, personalisation })),
+    updateItem: (
+      productId: string | null,
+      product: any,
+      personalisation: any,
+    ) => dispatch(updateItem({ productId, product, personalisation })),
 
     removeItem: (product: string) => dispatch(removeItem(product)),
     clearCart: () => dispatch(clearCart()),
@@ -88,5 +94,6 @@ export const useCart = () => {
       dispatch(updateAddresData(state as AddressFormData)),
     updateGuestData: (state: GuestFormData) => dispatch(updateGuestData(state)),
     setDeliveryCostFlag: (state: boolean) => dispatch(deliveryCostFlag(state)),
+    updateVariants: (state: any) => dispatch(updateVariants(state)),
   };
 };

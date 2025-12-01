@@ -29,10 +29,11 @@ export const POST = async (req: NextRequest) => {
 
     const dbItems = body.cartItems.map((item: any) => ({
       sku: item?.product.sku,
+      name: item?.product.name,
       quantity: item?.quantity,
       personalization: item?.personalisation,
-      variant_sku: item?.product?.variant?.sku ?? null,
-      variant_name: item?.product?.variant?.name ?? null,
+      variant_sku: item?.product?.variant_sku ?? null,
+      variant_name: item?.product?.variant_name ?? null,
     }));
 
     const shippingDetails = {

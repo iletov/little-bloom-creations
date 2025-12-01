@@ -120,6 +120,7 @@ export async function POST(req: NextRequest) {
 
       const dbItems = pendingOrder.cart_items.map((item: any) => ({
         sku: item?.sku,
+        name: item?.name,
         quantity: item?.quantity,
         personalization: item?.personalization,
         variant_sku: item?.variant_sku ?? null,

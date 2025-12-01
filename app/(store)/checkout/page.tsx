@@ -72,6 +72,12 @@ export default function CheckoutPage() {
       if (data?.clientSecret) {
         dispatchClientSecret(data?.clientSecret);
         dispatchPaymentIntentId(data?.paymentIntentId);
+
+        console.log(
+          `# Payment Intent created successfuly! Cart Items are send to backend`,
+          items,
+        );
+        console.log('# Response : ', data);
       }
     } catch (error: any) {
       console.error('Error creating checkout session', error);

@@ -22,7 +22,6 @@ export const PaymentCash = ({
   isDissabled: boolean;
   paymentMethod: string;
 }) => {
-  console.log('paymentMethod -', paymentMethod);
   const { senderData } = useSenderInfo();
   const { ekontMethod } = useSenderDetails();
   const {
@@ -122,6 +121,8 @@ export const PaymentCash = ({
       setResponse(data);
 
       if (validate?.label.totalPrice) {
+        console.log(`# Send Cart Items successfuly to the backend:`, data);
+
         setAlertMessage({
           title: 'Успешно направена поръчка!',
           message: 'Вашата поръчка беше успешно направена!',

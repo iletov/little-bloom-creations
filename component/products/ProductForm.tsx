@@ -7,7 +7,7 @@ import {
   personlisedFormSchema,
 } from '@/lib/form-validation/validations';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ErrorMessage } from '../checkout/checkout-forms/ErrorMessage';
 import { Button } from '@/components/ui/button';
@@ -16,17 +16,67 @@ import CustomCheckbox from '../checkbox-container/CustomCheckbox';
 import { toast } from 'sonner';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CartIcon2 } from '../icons/icons';
+import { Slug } from '@/sanity.types';
 
-const ProductForm = ({ product }: { product: any }) => {
+export interface Variant {
+  id: string;
+  parent_sku: string;
+  product_id: string;
+  variant_sku: string;
+  variant_name: string;
+  variant_type?: string;
+  current_stock: number;
+  price_adjustment: number;
+  is_active: boolean;
+  variantImages?: any;
+  color: string;
+}
+
+interface Product {
+  id: string;
+  slug: Slug;
+  sku: string;
+  name: string;
+  price: number;
+  images: any[];
+  variants?: Variant[];
+}
+
+const ProductForm = ({ product }: { product: Product }) => {
+  const { addItem, updateItem, variants, items } = useCart();
+
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { addItem, updateItem, items } = useCart();
 
+  //check if the product is already in the cart
   const productId = searchParams.get('productId');
 
   const item = items.find(
     item => item.personalisation?.productId === productId,
   );
+
+  //add product to cart and check if it is a variant of the product
+
+  const images = variants?.images ?? product?.images ?? null;
+  const isInStock = variants ? variants?.current_stock > 0 : true;
+
+  // const variantImages = variants ?
+  //   ? variants?.
+
+  const cartItems = {
+    id: variants?.id ?? product.id,
+    slug: product?.slug,
+    sku: product.sku,
+    name: product.name,
+    price: product.price,
+    quantity: 1,
+    images,
+    variant_sku: variants?.variant_sku ?? null,
+    variant_name: variants?.variant_name ?? null,
+    variant_price: variants?.price ?? null,
+  };
+
+  console.log('Product Form ->', cartItems);
 
   const personalisedForm = useForm<PersonlisedFormDataType>({
     resolver: zodResolver(personlisedFormSchema),
@@ -57,14 +107,20 @@ const ProductForm = ({ product }: { product: any }) => {
   //watch form values for changes
   const formValues = personalisedForm.watch();
 
-  const hasChanges = item?.personalisation
+  const hasCartItemsChanges = item?.product
+    ? cartItems.variant_name !== item.product.variant_name
+    : false;
+
+  const hasPersonalisationChanges = item?.personalisation
     ? formValues.addMainText !== item.personalisation.addMainText ||
       formValues.textColor !== item.personalisation.textColor ||
       formValues.name !== item.personalisation.name
     : false;
 
+  const hasChanges = hasCartItemsChanges || hasPersonalisationChanges;
+
   const handleSaveChanges = (data: PersonlisedFormDataType) => {
-    updateItem(productId, data);
+    updateItem(productId, cartItems, data);
     toast.success('Changes saved', {
       description: 'Continue to your cart.',
       action: {
@@ -78,7 +134,7 @@ const ProductForm = ({ product }: { product: any }) => {
   };
 
   const onSubmit = (data: PersonlisedFormDataType) => {
-    addItem(product, data);
+    addItem(cartItems, data);
     toast.success('Item added to cart', {
       description: 'Now go to your cart.',
       action: {
@@ -108,7 +164,7 @@ const ProductForm = ({ product }: { product: any }) => {
             <Input
               type="radio"
               value={'regular'}
-              className="peer sr-only"
+              className="peer hidden"
               {...personalisedForm.register('addMainText')}
             />
             <CustomCheckbox />
@@ -119,7 +175,7 @@ const ProductForm = ({ product }: { product: any }) => {
               type="radio"
               value={'italic'}
               placeholder="Color"
-              className="peer sr-only"
+              className="peer hidden"
               {...personalisedForm.register('addMainText')}
             />
             <CustomCheckbox />
@@ -132,7 +188,7 @@ const ProductForm = ({ product }: { product: any }) => {
             <Input
               type="radio"
               value={'no-text'}
-              className="peer sr-only"
+              className="peer hidden"
               {...personalisedForm.register('addMainText')}
             />
             <CustomCheckbox />
@@ -169,7 +225,7 @@ const ProductForm = ({ product }: { product: any }) => {
               type="radio"
               value={'gold'}
               placeholder="Color"
-              className="peer sr-only"
+              className="peer hidden"
               {...personalisedForm.register('textColor')}
             />
             <CustomCheckbox />
@@ -180,7 +236,7 @@ const ProductForm = ({ product }: { product: any }) => {
               type="radio"
               value={'silver'}
               placeholder="Color"
-              className="peer sr-only"
+              className="peer hidden"
               {...personalisedForm.register('textColor')}
             />
             <CustomCheckbox />

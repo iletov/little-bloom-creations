@@ -156,7 +156,7 @@ export const createLabel = async (
     }
 
     const data = await res.json();
-    console.log('Label----> ', data);
+    console.log('Label----> ', data?.label?.shipmentNumber);
     return data;
   } catch (error) {
     console.error('Error calculating label:', error);

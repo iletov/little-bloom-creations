@@ -81,7 +81,7 @@ export const productType = defineType({
       name: 'inStock',
       title: 'In Stock',
       type: 'boolean',
-      hidden: ({ parent }) => parent?.hasVariants,
+      // hidden: ({ parent }) => parent?.hasVariants,
       initialValue: true,
     }),
 
@@ -89,15 +89,15 @@ export const productType = defineType({
       name: 'stock',
       title: 'In stock quantity',
       type: 'number',
-      hidden: ({ parent }) => !parent?.inStock || parent?.hasVariants,
-      validation: Rule => Rule.min(0),
+      hidden: ({ parent }) => !parent?.inStock,
+      // validation: Rule => Rule.min(0),
     }),
 
     defineField({
       name: 'sku',
       title: 'SKU',
       type: 'string',
-      hidden: ({ parent }) => parent?.hasVariants,
+      // hidden: ({ parent }) => parent?.hasVariants,
     }),
 
     // Product details

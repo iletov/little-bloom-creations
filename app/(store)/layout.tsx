@@ -13,6 +13,7 @@ import StoreProvider from '../store/StoreProvider';
 import { Toaster } from '@/components/ui/sonner';
 import Header from '@/component/header/Header';
 import QueryProvider from './query-provider';
+import LayoutWrapper from './query-wrapper';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -104,7 +105,7 @@ export default async function RootLayout({
     <html lang="en">
       <body
         className={`${monsieurLa.variable}  ${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased tracking-tight font-sans flex flex-col min-h-screen light `}>
-        <QueryProvider>
+        <LayoutWrapper>
           <StoreProvider>
             <main className="flex flex-col">
               <Header />
@@ -116,7 +117,7 @@ export default async function RootLayout({
             <SanityLive />
             <Toaster />
           </StoreProvider>
-        </QueryProvider>
+        </LayoutWrapper>
       </body>
     </html>
   );

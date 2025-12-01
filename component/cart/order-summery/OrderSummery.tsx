@@ -49,25 +49,25 @@ export const OrderSummery = () => {
       setMetadata(metadata);
 
       if (!user) {
-        const isGuseValid = guestSchema.safeParse(guestFormData);
-        if (!isGuseValid.success) {
+        const isGuestValid = guestSchema.safeParse(guestFormData);
+        if (!isGuestValid.success) {
           setShowAlert(true);
           setAlertMessage({
             title: 'Error Guest',
-            message: isGuseValid.error.issues[0]?.message,
+            message: isGuestValid.error.issues[0]?.message,
           });
           return;
         }
       }
 
-      const isAddressValid = fullAddress.safeParse(addressFormData);
-      if (!isAddressValid.success) {
+      const isAddressFormValid = fullAddress.safeParse(addressFormData);
+      if (!isAddressFormValid.success) {
         setShowAlert(true);
         setAlertMessage({
           title: 'Error Address',
-          message: isAddressValid.error.issues[0]?.message,
+          message: isAddressFormValid.error.issues[0]?.message,
         });
-        console.log(isAddressValid);
+        console.log(isAddressFormValid);
 
         return;
       }
@@ -75,7 +75,7 @@ export const OrderSummery = () => {
       if (ekontMethod === 'ekont-courier') {
         const isAddressValid = await validateAddress(addressFormData);
 
-        // console.log('VALIDATION', isAddressValid?.validationStatus);
+        console.log('#Validating address...', isAddressValid?.validationStatus);
 
         if (!isAddressValid?.validationStatus) {
           console.log('isAddressValid', isAddressValid);
@@ -91,9 +91,22 @@ export const OrderSummery = () => {
           isAddressValid?.validationStatus === 'processed ';
 
         if (continueToCheckout) {
+          console.log(
+            `# Validating status 'Address' - ${isAddressValid.validationStatus}`,
+          );
+          console.log(
+            `# Sending 'Metadata' to checkout with method '${ekontMethod}'`,
+            metadata,
+          );
+
           router.push('/checkout');
         }
       } else if (ekontMethod === 'ekont-office') {
+        console.log(
+          `# Sending 'Metadata' to checkout with method '${ekontMethod}'`,
+          metadata,
+        );
+
         router.push('/checkout');
       }
     } catch (error) {
