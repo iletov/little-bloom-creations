@@ -38,8 +38,9 @@ export const productVariantType = defineType({
       options: {
         list: [
           { title: 'Blue', value: 'blue' },
-          { title: 'Pink', value: 'pink' },
-          { title: 'General', value: 'general' },
+          { title: 'Red', value: 'red' },
+          { title: 'Green', value: 'green' },
+          { title: 'Yellow', value: 'yellow' },
         ],
       },
     }),

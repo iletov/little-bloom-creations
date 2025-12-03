@@ -42,7 +42,9 @@ const SlideBannerSection = ({ data }: SlideBannerSectionProps) => {
             <PortableTextContainer data={data?.description} />
             {data?.button?.text || data?.button?.url ? (
               <Button className="bg-green-5 text-green-1">
-                <Link href={data?.button?.url ?? ''}>{data?.button?.text}</Link>
+                <Link href={data?.button?.slug?.current ?? ''}>
+                  {data?.button?.text}
+                </Link>
               </Button>
             ) : null}
           </header>

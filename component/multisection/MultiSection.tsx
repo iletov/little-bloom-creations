@@ -101,7 +101,7 @@ const MultiSection = ({ data }: MultiSectionProps) => {
               className="mt-[2rem] text-[1.6rem] leading-[1.4] text-inherit"
             />
             <Link
-              href={`/${item?.button?.url}`}
+              href={item?.button?.slug?.current ?? '/'}
               className={cn('w-full   mt-[3rem] ')}>
               <Button variant={'ghost'} className="">
                 {item.button?.text}

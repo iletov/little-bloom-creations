@@ -85,7 +85,7 @@ const TabSection = ({ data }: TabSectionProps) => {
 
                 <div>
                   <Button variant={'ghost'} className="">
-                    <Link href={`/${activeItem?.button?.url}`}>
+                    <Link href={activeItem?.button?.slug?.current ?? ''}>
                       {activeItem?.button?.text}
                     </Link>
                   </Button>

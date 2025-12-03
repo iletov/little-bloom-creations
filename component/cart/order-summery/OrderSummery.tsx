@@ -35,6 +35,8 @@ export const OrderSummery = () => {
   // console.log('ORDER SUMMERY - USER', user, metadata);
   const router = useRouter();
 
+  console.log('TOTAL PRICE->', totalPrice);
+
   const handleCheckOut = async () => {
     try {
       const metadata: Metadata = {

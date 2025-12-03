@@ -217,9 +217,9 @@ export const sectionType = defineType({
               description: 'Optional caption for the image',
             },
             {
-              name: 'url',
+              name: 'slug',
               title: 'URL',
-              type: 'string',
+              type: 'slug',
             },
           ],
         },
@@ -265,7 +265,7 @@ export const sectionType = defineType({
               type: 'object',
               fields: [
                 { name: 'text', title: 'Button Text', type: 'string' },
-                { name: 'url', title: 'Button URL', type: 'string' },
+                { name: 'slug', title: 'Button URL', type: 'slug' },
               ],
             },
           ],
@@ -284,7 +284,7 @@ export const sectionType = defineType({
       type: 'object',
       fields: [
         { name: 'text', title: 'Button Text', type: 'string' },
-        { name: 'url', title: 'Button URL', type: 'string' },
+        { name: 'slug', title: 'Button URL', type: 'slug' },
       ],
       hidden: ({ parent }) =>
         ![

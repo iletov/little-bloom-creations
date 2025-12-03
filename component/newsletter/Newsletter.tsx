@@ -15,8 +15,10 @@ type NewsletterProps = {
     backgroundImage: ImagesType;
     mobileImage: ImagesType;
     button?: {
-      text?: string;
-      url?: string;
+      text: string;
+      slug: {
+        current: string;
+      };
     };
     backgroundColor?: string | undefined;
   };

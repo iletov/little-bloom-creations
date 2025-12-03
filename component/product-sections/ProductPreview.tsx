@@ -7,6 +7,7 @@ import { PortableTextContainer } from '../portabletext-container/PortableTextCon
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import HighlightedHeading from '../heading-description/HighlightedHeading';
+import Link from 'next/link';
 
 type ProductPreviewProps = {
   data: {
@@ -16,8 +17,10 @@ type ProductPreviewProps = {
     position: string;
     description: descriptionType;
     button?: {
-      text?: string;
-      url?: string;
+      text: string;
+      slug: {
+        current: string;
+      };
     };
   };
 };
@@ -86,7 +89,9 @@ const ProductPreview = ({ data }: ProductPreviewProps) => {
             />
             <div>
               <Button variant={'ghost'} className="mt-[4rem]">
-                {data?.button?.text}
+                <Link href={data?.button?.slug?.current ?? '/'}>
+                  {data?.button?.text}
+                </Link>
               </Button>
             </div>
           </header>

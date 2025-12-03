@@ -152,23 +152,32 @@ export const selectCartState = (state: RootState) => state.cart;
 export const selectCartItems = (state: RootState) => state.cart.items;
 
 export const selectTotalPrice = (state: RootState) => {
-  return state.cart.items.reduce(
-    (acc, item) =>
+  return state.cart.items.reduce((acc, item) => {
+    const price = item?.product?.price ?? 0;
+    const variantPrice = item?.product?.variant_price ?? 0;
+    const discount = item?.product?.discount ?? 0;
+
+    if (variantPrice) {
+      return (
+        acc +
+        calculateDiscountAmount({
+          price: variantPrice,
+          discount,
+        }) *
+          item.quantity
+      );
+    }
+
+    return (
       acc +
       calculateDiscountAmount({
-        price: item?.product?.price ?? 0,
-        discount: item?.product?.discount ?? 0,
+        price,
+        discount,
       }) *
-        item.quantity,
-    0,
-  );
+        item.quantity
+    );
+  }, 0);
 };
-// export const selectTotalPrice = (state: RootState) => {
-//   return state.cart.items.reduce(
-//     (acc, item) => acc + (item.product.price ?? 0) * item.quantity,
-//     0,
-//   );
-// };
 
 // export const selectPaymentIntent = (state: RootState) =>
 //   state.cart.paymentIntent;

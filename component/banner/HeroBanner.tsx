@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import HighlightedHeading from '../heading-description/HighlightedHeading';
+import { Slug } from '@/sanity.types';
 
 interface HeroBannerProps {
   data: {
@@ -17,7 +18,9 @@ interface HeroBannerProps {
     size?: string;
     button?: {
       text?: string;
-      url?: string;
+      slug?: {
+        current: string | null | undefined;
+      };
     };
   };
 }
@@ -68,7 +71,9 @@ const HeroBanner = ({ data }: HeroBannerProps) => {
               className="text-end text-pink-1"
             />
             <Button className="justify-self-end ">
-              <Link href={data?.button?.url ?? '/'}>{data?.button?.text}</Link>
+              <Link href={data?.button?.slug?.current ?? '/'}>
+                {data?.button?.text}
+              </Link>
             </Button>
           </div>
         </header>

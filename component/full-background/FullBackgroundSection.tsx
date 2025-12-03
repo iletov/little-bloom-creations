@@ -6,6 +6,7 @@ import { PortableTextContainer } from '../portabletext-container/PortableTextCon
 import { Button } from '@/components/ui/button';
 import SocialMedComponent from '../social-media/SocialMedComponent';
 import HighlightedHeading from '../heading-description/HighlightedHeading';
+import Link from 'next/link';
 
 interface FullBackgroundProps {
   data: {
@@ -15,7 +16,9 @@ interface FullBackgroundProps {
     backgroundImages?: ImagesType[];
     button?: {
       text?: string;
-      url?: string;
+      slug?: {
+        current: string | null | undefined;
+      };
     };
   };
 }
@@ -49,7 +52,11 @@ const FullBackgroundSection = ({ data }: FullBackgroundProps) => {
               className="text-inherit "
             />
           </header>
-          <Button className="z-10">{data?.button?.text}</Button>
+          <Button className="z-10">
+            <Link href={data?.button?.slug?.current ?? '/'}>
+              {data?.button?.text}
+            </Link>
+          </Button>
         </div>
       </div>
     </section>

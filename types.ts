@@ -50,7 +50,9 @@ export type ImagesType = {
   hotspot?: SanityImageHotspot;
   title?: string;
   alt?: string;
-  url?: string;
+  slug?: {
+    current: string;
+  };
   crop?: SanityImageCrop;
   _type: 'image';
   _key: string;
@@ -64,7 +66,9 @@ export type ListItems = {
   image?: ImagesType;
   button?: {
     text: string;
-    url: string;
+    slug: {
+      current: string;
+    };
   };
 };
 

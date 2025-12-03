@@ -19,7 +19,7 @@ const CategoryCards = ({ data }: CategoryCardsProps) => {
         <div className="grid grid-cols-3 items-center ">
           {data?.backgroundImages?.map((image: ImagesType, index: number) => (
             <Link
-              href={`/${image?.url}`}
+              href={image?.slug?.current ?? ''}
               key={index}
               className="aspect-square relative mask-image">
               <div className="absolute font-monsieurLa text-[3.8rem] py-[rem] top-1/2 -translate-y-[50%] left-1/2 -translate-x-1/2 w-full z-10 border-y-[1px] bg-pink-9 text-center">
