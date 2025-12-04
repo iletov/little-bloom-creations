@@ -55,14 +55,16 @@ export const OfficeDropdown = ({
   const [searchQuery, setSearchQuery] = useState('');
 
   const { cities } = useCities();
-  const { senderData } = useSenderInfo();
-  const { searchForCity, selectedOffice, setSelectedOffice, ekontMethod } =
+  // const { senderData } = useSenderInfo();
+  const { searchForCity, selectedOffice, setSelectedOffice } =
     useSenderDetails();
   const { updateAddresData, setDeliveryCost } = useCart();
 
   const selectedCityData = cities?.find(
     city => searchForCity.toLowerCase() === city.name.toLowerCase(),
   );
+
+  console.log('selectedCityData', selectedCityData);
 
   const { offices, isLoading, error } = useOffices(
     selectedCityData?.country?.code3,

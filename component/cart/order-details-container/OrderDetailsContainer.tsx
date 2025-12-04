@@ -58,12 +58,7 @@ export const OrderDetailsContainer = () => {
             </Label>
           </div>
           <div className={`space-x-2`}>
-            <RadioGroupItem
-              value="ekont-courier"
-              id="ekont-courier"
-
-              // className="sr-only"
-            />
+            <RadioGroupItem value="ekont-courier" id="ekont-courier" />
             <Label
               htmlFor="ekont-courier"
               className={` space-x-2 cursor-pointer`}>

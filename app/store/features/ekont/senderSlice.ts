@@ -7,7 +7,7 @@ const ekontSenderSlice = createSlice({
   initialState: {
     senderDetails: [],
     deliveryMethod: '' as string,
-    searchForCity: '' as string,
+    searchForCity: '' as any,
     selectedOffice: '' as any,
   },
   reducers: {
@@ -17,7 +17,7 @@ const ekontSenderSlice = createSlice({
     setDeliveryMethod: (state, action: PayloadAction<string>) => {
       state.deliveryMethod = action.payload;
     },
-    setSearchForCity: (state, action: PayloadAction<string>) => {
+    setSearchForCity: (state, action: PayloadAction<any>) => {
       state.searchForCity = action.payload;
     },
     setSelectedOffice: (state, action: PayloadAction<any>) => {

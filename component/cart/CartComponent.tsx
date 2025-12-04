@@ -10,7 +10,7 @@ export default function CartComponent() {
   const [isClient, setIsClient] = useState(false);
 
   const { items } = useCart();
-  console.log('# CART COMPONENT', items);
+  // console.log('# CART COMPONENT', items);
 
   useEffect(() => {
     setIsClient(true);
@@ -37,7 +37,7 @@ export default function CartComponent() {
     );
 
   return (
-    <section className="">
+    <section>
       <div className="section_wrapper pt-40  font-montserrat xl:px-32 space-y-5 md:flex gap-10 xl:gap-10 mb-[30rem] lg:mb-[24rem]">
         <div className="flex-[1.1] lg:mt-5 px-3">
           <div className="  bg-secondaryPurple/15 rounded-lg shadow-md">

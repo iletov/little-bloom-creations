@@ -36,7 +36,7 @@ export interface City {
 }
 
 export const CheckoutForm = () => {
-  console.log('RENDERED CHECKOUT FORM');
+  // console.log('RENDERED CHECKOUT FORM');
   const { user } = useAuth();
   const {
     saveGuestData,

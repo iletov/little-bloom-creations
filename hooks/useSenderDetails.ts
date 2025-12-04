@@ -25,7 +25,7 @@ export const useSenderDetails = () => {
     setSenderDetails: (state: EkontSenderDetails) =>
       dispatch(setSenderDetails(state)),
     setEkontMethod: (state: string) => dispatch(setDeliveryMethod(state)),
-    setSearchForCity: (state: string) => dispatch(setSearchForCity(state)),
+    setSearchForCity: (state: any) => dispatch(setSearchForCity(state)),
     setSelectedOffice: (state: any) => dispatch(setSelectedOffice(state)),
   };
 };
