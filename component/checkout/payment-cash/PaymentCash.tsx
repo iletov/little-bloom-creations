@@ -23,7 +23,7 @@ export const PaymentCash = ({
   paymentMethod: string;
 }) => {
   const { senderData } = useSenderInfo();
-  const { ekontMethod } = useSenderDetails();
+  const { deliveryMethod } = useSenderDetails();
   const {
     totalPrice,
     deliveryCost,
@@ -46,7 +46,7 @@ export const PaymentCash = ({
   const router = useRouter();
 
   const orderMethods = {
-    deliveryMethod: ekontMethod,
+    deliveryMethod: deliveryMethod,
     paymentMethod: paymentMethod,
     deliveryCost: deliveryCost,
   };
@@ -64,7 +64,7 @@ export const PaymentCash = ({
         console.log(cancelPaymentInted);
       }
 
-      if (!senderData || !addressFormData || !ekontMethod) {
+      if (!senderData || !addressFormData || !deliveryMethod) {
         console.error('Missing required data SENDER, ADDRESS, EKONT METHOD');
 
         setAlertMessage({
@@ -82,7 +82,7 @@ export const PaymentCash = ({
         guestFormData,
         addressFormData,
         totalPrice,
-        ekontMethod,
+        deliveryMethod,
         paymentMethod,
       );
 

@@ -22,7 +22,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/component/loader/Loader';
 import { cn } from '@/lib/utils';
-import { useDebounce } from '@/hooks/useDebounce';
 
 export interface City {
   id: string;
@@ -51,7 +50,7 @@ export const CheckoutForm = () => {
   } = useCart();
 
   const { senderData } = useSenderInfo();
-  const { ekontMethod } = useSenderDetails();
+  const { deliveryMethod } = useSenderDetails();
 
   const guestForm = useForm<GuestFormDataType>({
     resolver: zodResolver(guestSchema),
@@ -86,7 +85,7 @@ export const CheckoutForm = () => {
         senderData,
         guestFormData,
         addressFormData,
-        ekontMethod,
+        deliveryMethod,
       );
 
       setDeliveryCost(calculateDeliveryCost?.label?.totalPrice || 0);
@@ -229,7 +228,7 @@ export const CheckoutForm = () => {
           {/* CITY DROPDOWN MENU */}
           <CityDropdown />
 
-          {ekontMethod === 'ekont-courier' ? (
+          {deliveryMethod === 'ekont-delivery' ? (
             <>
               <Input
                 {...addressForm.register('street')}
@@ -267,7 +266,7 @@ export const CheckoutForm = () => {
           )}
         </form>
       </div>
-      {ekontMethod === 'ekont-office' ? <OfficeDropdown /> : null}
+      {deliveryMethod === 'ekont-office' ? <OfficeDropdown /> : null}
 
       <Button
         variant="default"

@@ -13,7 +13,7 @@ import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { AlertBox } from '@/component/modals/AlertBox';
 
 export default function CheckoutPage() {
-  const { ekontMethod } = useSenderDetails();
+  const { deliveryMethod } = useSenderDetails();
   const {
     items,
     totalPrice,
@@ -36,7 +36,7 @@ export default function CheckoutPage() {
     setPaymentMethod('bank');
 
     const orderMethods = {
-      deliveryMethod: ekontMethod,
+      deliveryMethod: deliveryMethod,
       paymentMethod: 'bank',
       deliveryCost: deliveryCost,
     };

@@ -54,7 +54,7 @@ export const OfficeDropdown = ({
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { cities } = useCities();
+  const { cities } = useCities(false);
   // const { senderData } = useSenderInfo();
   const { searchForCity, selectedOffice, setSelectedOffice } =
     useSenderDetails();

@@ -18,13 +18,13 @@ export const useSenderDetails = () => {
 
   return {
     senderDetails: useSelector(selectSenderDetails),
-    ekontMethod: useSelector(selectDeliveryMethod),
+    deliveryMethod: useSelector(selectDeliveryMethod),
     searchForCity: useSelector(selectSearchForCity),
     selectedOffice: useSelector(selectedOffice),
 
     setSenderDetails: (state: EkontSenderDetails) =>
       dispatch(setSenderDetails(state)),
-    setEkontMethod: (state: string) => dispatch(setDeliveryMethod(state)),
+    setDeliveryMethod: (state: string) => dispatch(setDeliveryMethod(state)),
     setSearchForCity: (state: any) => dispatch(setSearchForCity(state)),
     setSelectedOffice: (state: any) => dispatch(setSelectedOffice(state)),
   };

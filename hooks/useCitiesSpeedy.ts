@@ -17,10 +17,10 @@ const citiesFetcher = async (url: string) => {
   return response.json();
 };
 
-export function useCities(enabled: boolean = true) {
+export function useSpeedyCities(enabled: boolean = true) {
   const { data, error, isLoading, isFetching, refetch } = useQuery<City[]>({
-    queryKey: ['cities', 'ekont'],
-    queryFn: () => citiesFetcher('/api/ekont-get-cities'),
+    queryKey: ['speedy-cities', 'speedy'],
+    queryFn: () => citiesFetcher('/api/speedy-get-cities'),
     enabled: enabled,
     staleTime: 24 * 60 * 60 * 1000, // 24 hours - data considered fresh
     gcTime: 24 * 60 * 60 * 1000, // 24 hours - cache retention time (formerly cacheTime)
@@ -30,10 +30,10 @@ export function useCities(enabled: boolean = true) {
   });
 
   return {
-    cities: data,
-    isLoading,
-    isError: error,
-    isFetching,
-    refetchEkont: refetch,
+    speedyCities: data,
+    isLoadingSpeedyCities: isLoading,
+    isErrorSpeedyCities: error,
+    isFetchingSpeedyCities: isFetching,
+    refetchSpeedyCities: refetch,
   };
 }

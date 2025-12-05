@@ -17,7 +17,7 @@ export const CityDropdown = () => {
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { cities, isLoading } = useCities();
+  const { cities, isLoading } = useCities(false);
   const { searchForCity, setSearchForCity, setSelectedOffice } =
     useSenderDetails();
 

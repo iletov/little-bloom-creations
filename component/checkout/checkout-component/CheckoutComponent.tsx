@@ -30,7 +30,7 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
   const stripe = useStripe();
 
   const { senderData } = useSenderInfo();
-  const { ekontMethod } = useSenderDetails();
+  const { deliveryMethod } = useSenderDetails();
   const elements = useElements();
   const {
     errorState,
@@ -67,7 +67,7 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
     // clear the payment intent id
     dispatchPaymentIntentId(null);
 
-    if (!senderData || !addressFormData || !ekontMethod) {
+    if (!senderData || !addressFormData || !deliveryMethod) {
       return 0;
     }
     const ekontValidate = await createLabel(
@@ -75,7 +75,7 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
       guestFormData,
       addressFormData,
       totalPrice,
-      ekontMethod,
+      deliveryMethod,
       paymentMethod,
     );
 

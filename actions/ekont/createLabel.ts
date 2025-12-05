@@ -14,7 +14,7 @@ export const createLabel = async (
   const auth = Buffer.from(`${ekontApiKey}`).toString('base64');
 
   const isDelivery =
-    deliveryMethod === 'ekont-courier' || deliveryMethod === 'delivery';
+    deliveryMethod === 'ekont-delivery' || deliveryMethod === 'delivery';
   const isPickup =
     deliveryMethod === 'ekont-office' || deliveryMethod === 'office';
   const isPaymentCash = paymentMethod === 'cash';

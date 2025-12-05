@@ -10,7 +10,7 @@ export const calculateLabel = async (
   const ekontUrl = process.env.EKONT_API_URL;
   const auth = Buffer.from(`${ekontApiKey}`).toString('base64');
 
-  const isDelivery = deliveryMethod === 'ekont-courier';
+  const isDelivery = deliveryMethod === 'ekont-delivery';
   const isPickup = deliveryMethod === 'ekont-office';
 
   const receiverFullName =

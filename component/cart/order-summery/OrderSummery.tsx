@@ -20,8 +20,8 @@ export const OrderSummery = () => {
 
   const { user } = useAuth();
 
-  const { isLoading } = useCities();
-  const { ekontMethod } = useSenderDetails();
+  const { isLoading } = useCities(false);
+  const { deliveryMethod } = useSenderDetails();
   const {
     deliveryCost,
     deliveryCostFlag,
@@ -32,10 +32,7 @@ export const OrderSummery = () => {
     setMetadata,
   } = useCart();
 
-  // console.log('ORDER SUMMERY - USER', user, metadata);
   const router = useRouter();
-
-  console.log('TOTAL PRICE->', totalPrice);
 
   const handleCheckOut = async () => {
     try {
@@ -74,7 +71,7 @@ export const OrderSummery = () => {
         return;
       }
 
-      if (ekontMethod === 'ekont-courier') {
+      if (deliveryMethod === 'ekont-delivery') {
         const isAddressValid = await validateAddress(addressFormData);
 
         console.log('#Validating address...', isAddressValid?.validationStatus);
@@ -97,15 +94,15 @@ export const OrderSummery = () => {
             `# Validating status 'Address' - ${isAddressValid.validationStatus}`,
           );
           console.log(
-            `# Sending 'Metadata' to checkout with method '${ekontMethod}'`,
+            `# Sending 'Metadata' to checkout with method '${deliveryMethod}'`,
             metadata,
           );
 
           router.push('/checkout');
         }
-      } else if (ekontMethod === 'ekont-office') {
+      } else if (deliveryMethod === 'ekont-office') {
         console.log(
-          `# Sending 'Metadata' to checkout with method '${ekontMethod}'`,
+          `# Sending 'Metadata' to checkout with method '${deliveryMethod}'`,
           metadata,
         );
 

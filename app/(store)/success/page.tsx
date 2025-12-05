@@ -17,6 +17,7 @@ async function checkWebhookStatus(orderNumber: string) {
   return response.json();
 }
 
+
 export default function SuccessPage() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get('order_number');
