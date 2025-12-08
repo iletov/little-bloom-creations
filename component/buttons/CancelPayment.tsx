@@ -9,12 +9,14 @@ import { useCart } from '@/hooks/useCart';
 
 type CancelPaymentIntentProps = {
   // paymentIntentId: string;
+  disable?: any;
   path?: string;
 };
 
 export const CancelPayment = ({
   // paymentIntentId,
   path,
+  disable,
 }: CancelPaymentIntentProps) => {
   const router = useRouter();
   const { paymentIntentId, dispatchPaymentIntentId } = useCart();
@@ -49,7 +51,7 @@ export const CancelPayment = ({
 
   return (
     <div>
-      <Button variant={'destructive'} onClick={handleCancelPayment}>
+      <Button disabled={disable} variant={'pink'} onClick={handleCancelPayment}>
         {loading && !err ? <Loader /> : <span>Cancel Payment</span>}
       </Button>
       {err && <p className="text-red-500">{err}</p>}

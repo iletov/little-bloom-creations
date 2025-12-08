@@ -1,18 +1,19 @@
 'use client';
 import { cancelPaymentIntent } from '@/actions/cancelPaymentIntent';
 import { checkQuantity } from '@/actions/checkQuantity';
-import { calculateLabel } from '@/actions/ekont/calculateLabel';
+import { createLabel } from '@/actions/ekont/createLabel';
 import { Loader } from '@/component/loader/Loader';
 import { AlertBox } from '@/component/modals/AlertBox';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/useCart';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { useSenderInfo } from '@/hooks/useSenderInfo';
+// import { useSenderInfo } from '@/hooks/useSenderInfo';
 import { convertToSubCurrency } from '@/lib/convertAmount';
 import { create } from 'domain';
 import { redirect, useRouter } from 'next/navigation';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export const PaymentCash = ({
   isDissabled,
@@ -21,27 +22,33 @@ export const PaymentCash = ({
   isDissabled: boolean;
   paymentMethod: string;
 }) => {
-  console.log('paymentMethod - CASH', paymentMethod);
   const { senderData } = useSenderInfo();
-  const { ekontMethod } = useSenderDetails();
+  const { deliveryMethod } = useSenderDetails();
   const {
     totalPrice,
+    deliveryCost,
     metadata,
     addressFormData,
     guestFormData,
-    groupedItems,
+    items,
     paymentIntentId,
+    dispatchPaymentIntentId,
   } = useCart();
 
   const [isLoading, setIsLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [response, setResponse] = useState({
+    success: false,
+    order_number: '',
+  });
   const [alertMessage, setAlertMessage] = useState({ title: '', message: '' });
 
   const router = useRouter();
 
   const orderMethods = {
-    deliveryMethod: ekontMethod,
+    deliveryMethod: deliveryMethod,
     paymentMethod: paymentMethod,
+    deliveryCost: deliveryCost,
   };
 
   const handleOrderSubmit = async () => {
@@ -52,19 +59,30 @@ export const PaymentCash = ({
         const cancelPaymentInted = await cancelPaymentIntent({
           paymentIntentId,
         });
+
+        dispatchPaymentIntentId(null);
         console.log(cancelPaymentInted);
       }
 
-      if (!senderData || !addressFormData || !ekontMethod) {
+      if (!senderData || !addressFormData || !deliveryMethod) {
+        console.error('Missing required data SENDER, ADDRESS, EKONT METHOD');
+
+        setAlertMessage({
+          title: 'Възникна грешка',
+          message: 'Липсват потребителски данни',
+        });
+        setShowAlert(true);
+
         return 0;
       }
 
-      const validate = await calculateLabel(
+      // validate label in Ekont
+      const validate = await createLabel(
         senderData,
         guestFormData,
         addressFormData,
         totalPrice,
-        ekontMethod,
+        deliveryMethod,
         paymentMethod,
       );
 
@@ -74,9 +92,9 @@ export const PaymentCash = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          cartItems: groupedItems,
+          cartItems: items,
           metadata,
-          amount: convertToSubCurrency(totalPrice),
+          // amount: convertToSubCurrency(totalPrice),
           orderDetails: addressFormData,
           orderMethods,
         }),
@@ -84,34 +102,55 @@ export const PaymentCash = ({
 
       const data = await res.json();
 
+      if (!data.success) {
+        setAlertMessage({
+          title: 'Възникна грешка',
+          message: data?.error,
+        });
+        setShowAlert(true);
+      }
+
       if (!res.ok) {
-        throw new Error(data.message);
+        console.log('Response is not ok', data?.error);
       }
 
       if (data.error) {
-        throw new Error(data.error.message);
+        throw new Error(data.error);
       }
 
-      // console.log('Order placed successfully!', data);
+      setResponse(data);
 
       if (validate?.label.totalPrice) {
+        console.log(`# Send Cart Items successfuly to the backend:`, data);
+
         setAlertMessage({
           title: 'Успешно направена поръчка!',
           message: 'Вашата поръчка беше успешно направена!',
         });
         setShowAlert(true);
+      } else {
+        setAlertMessage({
+          title: 'Възникна грешка',
+          message: 'Вашата поръчка не беше направена.',
+        });
+        setShowAlert(true);
       }
     } catch (error) {
       console.error('Error submiting cash order', error);
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const closeAlert = () => {
     setShowAlert(false);
-    router.push(`/success?order_number=${metadata.orderNumber}`);
   };
+
+  useEffect(() => {
+    if (response?.success && !showAlert) {
+      router.push(`/success?order_number=${response.order_number}`);
+    }
+  }, [response, showAlert]);
 
   return (
     <section>
@@ -120,14 +159,14 @@ export const PaymentCash = ({
         variant={'default'}
         onClick={handleOrderSubmit}
         aria-label="Submit order"
-        className={`w-full sm:w-auto min-w-[135px] py-4 mt-4 bg-darkGold hover:bg-darkGold/80 text-foreground ${isDissabled && 'cursor-not-allowed opacity-70 '} `}>
+        className={`w-full sm:w-auto min-w-[135px] py-4 mt-4 ${isDissabled && 'cursor-not-allowed opacity-70 '} `}>
         {isLoading ? <Loader /> : isDissabled ? 'Без наличност' : `Поръчай`}
       </Button>
       {showAlert && (
         <AlertBox
           title={alertMessage.title}
           description={alertMessage.message}
-          reset={closeAlert}
+          reset={() => closeAlert()}
         />
       )}
     </section>

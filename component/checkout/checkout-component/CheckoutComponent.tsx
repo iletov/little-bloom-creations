@@ -13,10 +13,11 @@ import { useCart } from '@/hooks/useCart';
 import { CancelPayment } from '../../buttons/CancelPayment';
 import { Button } from '@/components/ui/button';
 import { checkQuantity } from '@/actions/checkQuantity';
-import { useSenderInfo } from '@/hooks/useSenderInfo';
+// import { useSenderInfo } from '@/hooks/useSenderInfo';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
-import { calculateLabel } from '@/actions/ekont/calculateLabel';
 import { AlertBox } from '@/component/modals/AlertBox';
+import { useSenderInfo } from '@/hooks/useSenderInfo';
+import { createLabel } from '@/actions/ekont/createLabel';
 
 interface Props {
   // groupedItems: GroupedCartItem[];
@@ -26,11 +27,10 @@ interface Props {
 }
 
 export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
-  console.log('paymentMethod - CARD', paymentMethod);
+  const stripe = useStripe();
 
   const { senderData } = useSenderInfo();
-  const { ekontMethod } = useSenderDetails();
-  const stripe = useStripe();
+  const { deliveryMethod } = useSenderDetails();
   const elements = useElements();
   const {
     errorState,
@@ -64,41 +64,22 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
       return;
     }
 
-    // check the quantity
-    const stockErrors = await checkQuantity({ cartItems: groupedItems });
-
-    if (stockErrors) {
-      console.log('stockErrors', stockErrors);
-
-      const errorMessage = stockErrors
-        .map(
-          error =>
-            `${error.name} is out of stock. Available stock: ${error.stock}`,
-        )
-        .join(', ');
-
-      setAlertMessage({ title: 'Error', message: errorMessage });
-      setShowAlert(true);
-      setLoading(false);
-      return;
-    }
-
     // clear the payment intent id
     dispatchPaymentIntentId(null);
 
-    if (!senderData || !addressFormData || !ekontMethod) {
+    if (!senderData || !addressFormData || !deliveryMethod) {
       return 0;
     }
-    const validate = await calculateLabel(
+    const ekontValidate = await createLabel(
       senderData,
       guestFormData,
       addressFormData,
       totalPrice,
-      ekontMethod,
+      deliveryMethod,
       paymentMethod,
     );
 
-    if (validate?.label.totalPrice) {
+    if (ekontValidate?.label.totalPrice) {
       setAlertMessage({
         title: 'Успешно направена поръчка!',
         message: 'Вашата поръчка беше успешно направена!',
@@ -118,13 +99,13 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
       elements,
       clientSecret: clientSecret ?? '',
       confirmParams: {
-        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?payment_intent=${clientSecret}&order_number=${metadata.orderNumber}`,
+        // return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?payment_intent=${clientSecret}&order_number=${metadata.orderNumber}`,
+        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?order_number=${metadata.orderNumber}`,
       },
     });
 
     if (error) {
       setErrorMessage(error.message);
-    } else {
     }
 
     setLoading(false);
@@ -147,17 +128,19 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
           </>
         )}
       </form>
+
       <div className="flex gap-3 mt-3">
         <Button
           variant={'default'}
           onClick={handleSubmit}
-          className={`py-4 px-4 rounded-md min-w-[135px] bg-darkGold hover:bg-darkGold/80 text-foreground
+          className={`py-4 px-4 min-w-[135px]
             ${disabledBtn ? 'opacity-70 cursor-not-allowed' : ''}`}
           disabled={disabledBtn}>
           {loading ? <Loader /> : <span>Pay</span>}
         </Button>
 
         <CancelPayment
+          disable={loading}
           // paymentIntentId={paymentIntentId as string}
           path={pathToRedirect}
         />
@@ -166,6 +149,7 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
         )}
         {errorState && <div className="text-purple-500 mt-2">{errorState}</div>}
       </div>
+
       {showAlert && (
         <AlertBox
           title={alertMessage.title}

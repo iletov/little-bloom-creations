@@ -17,7 +17,7 @@
 //   orderNumber: string;
 //   customerName: string;
 //   customerEmail: string;
-//   clerkUserId: string;
+//   supabaseUserId: string;
 // };
 
 // type GroupedCartItem = {

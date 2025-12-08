@@ -1,22 +1,29 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { UseFormReturn } from 'react-hook-form';
+import React, { useEffect, useRef, useState } from 'react';
+import { useForm, UseFormReturn } from 'react-hook-form';
 import { useCart } from '@/hooks/useCart';
-import { useUser } from '@clerk/nextjs';
+
 import { Input } from '@/components/ui/input';
 import { ErrorMessage } from './ErrorMessage';
 import { CityDropdown } from '../dropdown-results/CityDropdown';
-import { useCities } from '@/hooks/useCities';
 import {
   AddressFormDataType,
+  fullAddress,
   fullAddressType,
   GuestFormDataType,
+  guestSchema,
 } from '@/lib/form-validation/validations';
 import { OfficeDropdown } from '../dropdown-results/OfficeDropdown';
 import { calculateLabel } from '@/actions/ekont/calculateLabel';
-import { senderInfo } from '@/actions/ekont/senderDetails';
-import useSWR from 'swr';
+import { useAuth } from '@/hooks/useAuth';
 import { useSenderInfo } from '@/hooks/useSenderInfo';
+import { useSenderDetails } from '@/hooks/useSenderDetails';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@/components/ui/button';
+import { Loader } from '@/component/loader/Loader';
+import { cn } from '@/lib/utils';
+import { OfficeDropdownSpeedy } from '../dropdown-results/OfficeDropdownSpeedy';
+import { calculateLabelSpeedy } from '@/actions/ekont/calculateLabelSpeedy';
 
 export interface City {
   id: string;
@@ -29,100 +36,114 @@ export interface City {
   // Add other properties as needed
 }
 
-type FormDataType = {
-  deliveryMethod: string | null;
-  guestForm: UseFormReturn<GuestFormDataType>;
-  addressForm: UseFormReturn<fullAddressType>;
-  onAddressFormSubmitAction: (data: AddressFormDataType) => void;
-};
-
-export const CheckoutForm = ({
-  deliveryMethod,
-  guestForm,
-  addressForm,
-  onAddressFormSubmitAction: onAddressFormSubmit,
-}: FormDataType) => {
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [citySearchTerm, setCitySearchTerm] = useState('');
-  const [officeCode, setOfficeCode] = useState('');
-  const { user } = useUser();
-  const [isDeliveryCost, setIsDeliveryCost] = useState(false);
+export const CheckoutForm = () => {
+  // console.log('RENDERED CHECKOUT FORM');
+  const { user } = useAuth();
   const {
     saveGuestData,
     guestFormData,
     addressFormData,
     saveAddressData,
-    totalPrice,
     setDeliveryCost,
-    deliveryCost,
+    updateAddresData,
+    updateGuestData,
+    deliveryCostFlag,
+    setDeliveryCostFlag,
   } = useCart();
-  const { cities, isLoading, isError } = useCities();
+
   const { senderData } = useSenderInfo();
-  // console.log('USER CART--->', guestFormData, addressFormData);
+  const { deliveryMethod, selectedCity } = useSenderDetails();
 
-  useEffect(() => {
-    if (isDeliveryCost) {
-      calculateAndSetDeliveryCost().then(res => {
-        setDeliveryCost(res);
-        setIsDeliveryCost(false); // Reset the flag after calculation
-      });
+  // console.log('# --Selected City-->', selectedCity);
+
+  const isEkont =
+    deliveryMethod === 'ekont-office' || deliveryMethod === 'ekont-delivery';
+  const isSpeedy =
+    deliveryMethod === 'speedy-pickup' || deliveryMethod === 'speedy-delivery';
+
+  const guestForm = useForm<GuestFormDataType>({
+    resolver: zodResolver(guestSchema),
+    defaultValues: {
+      firstName: guestFormData?.firstName || '',
+      lastName: guestFormData?.lastName || '',
+      email: guestFormData?.email || '',
+    },
+  });
+
+  const addressForm = useForm<fullAddressType>({
+    resolver: zodResolver(fullAddress),
+
+    defaultValues: {
+      country: 'България',
+      city: addressFormData?.city || '',
+      street: addressFormData?.street || '',
+      streetNumber: addressFormData?.streetNumber || '',
+      other: addressFormData?.other || '',
+      postalCode: addressFormData?.postalCode || '',
+      phoneNumber: addressFormData?.phoneNumber || '',
+      officeCode: addressFormData?.officeCode || '',
+    },
+  });
+
+  const labelValidation = async () => {
+    // setIsLoading(true);
+    setDeliveryCostFlag(true);
+
+    let calculateDeliveryCost: any;
+
+    try {
+      if (isEkont) {
+        calculateDeliveryCost = await calculateLabel(
+          senderData,
+          guestFormData,
+          addressFormData,
+          deliveryMethod,
+        );
+
+        setDeliveryCost(calculateDeliveryCost?.label?.totalPrice || 0);
+      }
+
+      if (isSpeedy) {
+        calculateDeliveryCost = await calculateLabelSpeedy(
+          deliveryMethod,
+          addressFormData?.officeCode,
+          selectedCity?.id,
+        );
+
+        setDeliveryCost(calculateDeliveryCost?.price?.total || 0);
+      }
+
+      // console.log('# --calculateDeliveryCost-->', calculateDeliveryCost);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setDeliveryCostFlag(false);
     }
-  }, [isDeliveryCost]);
-
-  const calculateAndSetDeliveryCost = async () => {
-    if (!senderData || !addressFormData || !deliveryMethod) {
-      return 0;
-    }
-
-    const calculateDeliveryCost = await calculateLabel(
-      senderData,
-      guestFormData,
-      addressFormData,
-      totalPrice,
-      deliveryMethod,
-    );
-
-    return calculateDeliveryCost?.label?.totalPrice || 0;
   };
 
-  const handleSelectCities = async (city: City) => {
-    addressForm.setValue('city', city.name, { shouldValidate: true });
-    setCitySearchTerm(city.name);
-    const deliveryFormValid = await addressForm.trigger();
-    if (deliveryFormValid) {
-      saveAddressData(addressForm.getValues());
-    }
-    if (deliveryMethod === 'ekont-courier') {
-      setIsDeliveryCost(true);
-    }
-    setShowDropdown(false);
+  const handleUpdateOnBlur = <K extends keyof AddressFormDataType>(
+    key: K,
+    value: AddressFormDataType[K],
+  ) => {
+    updateAddresData({ [key]: value } as AddressFormDataType);
   };
 
-  const selectedCityData = cities?.find(
-    city => citySearchTerm.toLowerCase() === city.name.toLowerCase(),
-  );
+  const handleUpdateGuestOnBlur = () => {
+    updateGuestData(guestForm.getValues());
+  };
+
+  const onAddressFormSubmit = (data: AddressFormDataType) => {
+    saveAddressData(data);
+  };
 
   const onGuestFormSubmit = (data: GuestFormDataType) => {
     saveGuestData(data);
   };
 
-  const handleSelectOffice = async (office: any) => {
-    setOfficeCode(office.code);
-    addressForm.setValue('officeCode', office.code, { shouldValidate: true });
-    const deliveryFormValid = await addressForm.trigger();
-    const guestformValid = await guestForm.trigger();
-    if (deliveryFormValid) {
-      saveAddressData(addressForm.getValues());
-      // saveGuestData(guestForm.getValues());
-    }
-
-    setIsDeliveryCost(true);
-  };
-
   return (
     <div className="my-5 md:my-10 w-full relative space-y-6">
       <div className="">
-        <h4 className="text-lg mb-3 border-b-[2px] pb-2 font-montserrat">
+        <h4 className="mb-3 border-b-[2px] pb-2 font-montserrat">
           Лични данни
         </h4>
         <form
@@ -135,6 +156,7 @@ export const CheckoutForm = ({
             {...guestForm.register('firstName')}
             placeholder="Име"
             className="input_styles"
+            onBlur={handleUpdateGuestOnBlur}
           />
           {guestForm.formState.errors.firstName && (
             <ErrorMessage
@@ -145,6 +167,7 @@ export const CheckoutForm = ({
             {...guestForm.register('lastName')}
             placeholder="Фамилия"
             className="input_styles"
+            onBlur={handleUpdateGuestOnBlur}
           />
           {guestForm.formState.errors.lastName && (
             <ErrorMessage
@@ -156,6 +179,7 @@ export const CheckoutForm = ({
               {...guestForm.register('email')}
               placeholder="Имейл"
               className="input_styles"
+              onBlur={handleUpdateGuestOnBlur}
             />
           )}
 
@@ -165,7 +189,7 @@ export const CheckoutForm = ({
         </form>
       </div>
       <div className="">
-        <h4 className="text-lg mb-3 border-b-[2px] w-fit pb-2 font-montserrat">
+        <h4 className="mb-3 border-b-[2px] w-fit pb-2 font-montserrat">
           Адрес за доставка
         </h4>
         <form
@@ -175,6 +199,10 @@ export const CheckoutForm = ({
             {...addressForm.register('phoneNumber')}
             placeholder="Телефон"
             className="input_styles"
+            // onBlur={handleImmediateSave}
+            onBlur={e => {
+              handleUpdateOnBlur('phoneNumber', e.target.value);
+            }}
           />
           {addressForm.formState.errors.phoneNumber && (
             <ErrorMessage
@@ -186,6 +214,10 @@ export const CheckoutForm = ({
             {...addressForm.register('postalCode')}
             placeholder="Пощенски код"
             className="input_styles"
+            // onBlur={handleImmediateSave}
+            onBlur={e => {
+              handleUpdateOnBlur('postalCode', e.target.value);
+            }}
           />
           {addressForm.formState.errors.postalCode && (
             <ErrorMessage
@@ -193,33 +225,38 @@ export const CheckoutForm = ({
             />
           )}
 
-          <CityDropdown
-            form={addressForm}
-            cities={cities || []}
-            searchTerm={citySearchTerm}
-            setSearchTerm={setCitySearchTerm}
-            onSelect={handleSelectCities}
-            isLoading={isLoading}
-          />
+          {/* CITY DROPDOWN MENU */}
+          <CityDropdown />
 
-          {deliveryMethod === 'ekont-courier' ? (
+          {deliveryMethod === 'ekont-delivery' ||
+          deliveryMethod === 'speedy-delivery' ? (
             <>
               <Input
                 {...addressForm.register('street')}
                 placeholder="Улица"
                 className="input_styles"
-                // onFocus={handleStreetFocus}
+                // onBlur={handleImmediateSave}
+                onBlur={e => {
+                  handleUpdateOnBlur('street', e.target.value);
+                }}
               />
               <Input
                 {...addressForm.register('streetNumber')}
                 placeholder="Номер на улицата"
                 className="input_styles"
+                // onBlur={handleImmediateSave}
+                onBlur={e => {
+                  handleUpdateOnBlur('streetNumber', e.target.value);
+                }}
               />
               <Input
                 {...addressForm.register('other')}
                 placeholder="Друго"
                 className="input_styles"
-                // onBlur={handleStreetFocus}
+                // onBlur={handleImmediateSave}
+                onBlur={e => {
+                  handleUpdateOnBlur('other', e.target.value);
+                }}
               />
             </>
           ) : null}
@@ -230,13 +267,16 @@ export const CheckoutForm = ({
           )}
         </form>
       </div>
-      {deliveryMethod === 'ekont-office' ? (
-        <OfficeDropdown
-          {...addressForm.register('officeCode')}
-          selectedCityData={selectedCityData}
-          onOfficeSelect={handleSelectOffice}
-        />
-      ) : null}
+      {deliveryMethod === 'ekont-office' ? <OfficeDropdown /> : null}
+
+      {deliveryMethod === 'speedy-pickup' ? <OfficeDropdownSpeedy /> : null}
+
+      <Button
+        variant="default"
+        onClick={labelValidation}
+        className={cn(deliveryCostFlag && 'hover:bg-green-1 min-w-[126.7px]')}>
+        {deliveryCostFlag ? <Loader /> : 'Validate'}
+      </Button>
     </div>
   );
 };

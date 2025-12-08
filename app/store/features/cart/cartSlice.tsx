@@ -1,20 +1,27 @@
-import { EsotericaStore, MusicStore } from '@/sanity.types';
+// import { EsotericaStore, MusicStore } from '@/sanity.types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../store';
 import { calculateDiscountAmount } from '@/lib/discountamount';
 
-type Product = MusicStore | EsotericaStore;
+type Product = any;
 export type ProductWithSize = Product & {
   size?: string;
 };
 export interface CartItem {
   product: Product;
   quantity: number;
-  size?: string;
+  // cartId: string;
+  personalisation?: {
+    productId: string;
+    addMainText: string;
+    textColor: string;
+    name: string;
+  };
 }
 
 interface CartState {
   items: CartItem[];
+  variants?: any;
   // paymentIntent: string;
   // addItem: (product: Product) => void
   // removeItem: (productId: string) => void
@@ -58,6 +65,7 @@ const loadInitialState = () => {
 
   return {
     items: [],
+    variants: {},
     // paymentIntent: '',
   };
 };
@@ -68,80 +76,53 @@ export const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    // addItem: (state, action: PayloadAction<MusicStore>) => {
-    //   const newItem = action.payload;
-    //   const existingItem = state.items.find(
-    //     item => item.product._id === newItem._id,
-    //   );
+    addItem: (
+      state,
+      action: PayloadAction<{ product: Product; personalisation: any }>,
+    ) => {
+      const { product, personalisation } = action.payload;
 
-    //   if (existingItem) {
-    //     state.items = state.items.map(item =>
-    //       item.product._id === newItem._id
-    //         ? { ...item, quantity: item.quantity + 1 }
-    //         : item,
-    //     );
-    //   } else {
-    //     state.items.push({ product: newItem, quantity: 1 });
-    //   }
+      state.items.push({
+        // cartId: crypto.randomUUID(),
+        product: product as Product,
+        personalisation: { productId: crypto.randomUUID(), ...personalisation },
+        quantity: 1,
+      });
+    },
+    updateItem: (
+      state,
+      action: PayloadAction<{
+        productId: string | null;
+        product?: Product;
+        personalisation: any;
+      }>,
+    ) => {
+      const { productId, product, personalisation } = action.payload;
 
-    addItem: (state, action: PayloadAction<ProductWithSize>) => {
-      const newItem = action.payload;
-      // Find existing item with same ID AND size
-      const existingItem = state.items.find(
-        item => item.product._id === newItem._id && item.size === newItem.size,
+      const item = state.items.find(
+        item => item.personalisation?.productId === productId,
       );
 
-      if (existingItem) {
-        state.items = state.items.map(item =>
-          item.product._id === newItem._id && item.size === newItem.size
-            ? { ...item, quantity: item.quantity + 1 }
-            : item,
-        );
-      } else {
-        // Extract size from the product and store it separately
-        const { size, ...productWithoutSize } = newItem;
-        state.items.push({
-          product: productWithoutSize as Product,
-          quantity: 1,
-          size: size,
-        });
+      if (item) {
+        if (product) {
+          item.product = product;
+        }
+
+        if (personalisation) {
+          item.personalisation = {
+            ...item.personalisation,
+            ...personalisation,
+          };
+        }
       }
     },
 
-    removeItem: (
-      state,
-      action: PayloadAction<{ productId: string; size?: string }>,
-    ) => {
-      const { productId, size } = action.payload;
-
-      state.items = state.items.reduce((acc, item) => {
-        if (item.product._id === productId && item.size === size) {
-          if (item.quantity > 1) {
-            acc.push({ ...item, quantity: item.quantity - 1 });
-          }
-        } else {
-          acc.push(item);
-        }
-        return acc;
-      }, [] as CartItem[]);
+    removeItem: (state, action: PayloadAction<string>) => {
+      const cartItemId = action.payload;
+      state.items = state.items.filter(
+        item => item.personalisation?.productId !== cartItemId,
+      );
     },
-
-    // removeItem: (state, action: PayloadAction<string>) => {
-    //   state.items = state.items.reduce((acc, item) => {
-    //     if (item.product._id === action.payload) {
-    //       if (item.quantity > 1) {
-    //         acc.push({ ...item, quantity: item.quantity - 1 });
-    //       }
-    //     } else {
-    //       acc.push(item);
-    //     }
-    //     return acc;
-    //   }, [] as CartItem[]);
-
-    //   // if (typeof window !== 'undefined') {
-    //   //   localStorage.setItem('cart', JSON.stringify(state));
-    //   // }
-    // },
 
     clearCart: state => {
       state.items = [];
@@ -150,6 +131,9 @@ export const cartSlice = createSlice({
       //   localStorage.removeItem('cart');
       //   // localStorage.removeItem('getPaymentIntent');
       // }
+    },
+    updateVariants: (state, action: PayloadAction<{ variants: any }>) => {
+      state.variants = action.payload;
     },
   },
 });
@@ -168,23 +152,32 @@ export const selectCartState = (state: RootState) => state.cart;
 export const selectCartItems = (state: RootState) => state.cart.items;
 
 export const selectTotalPrice = (state: RootState) => {
-  return state.cart.items.reduce(
-    (acc, item) =>
+  return state.cart.items.reduce((acc, item) => {
+    const price = item?.product?.price ?? 0;
+    const variantPrice = item?.product?.variant_price ?? 0;
+    const discount = item?.product?.discount ?? 0;
+
+    if (variantPrice) {
+      return (
+        acc +
+        calculateDiscountAmount({
+          price: variantPrice,
+          discount,
+        }) *
+          item.quantity
+      );
+    }
+
+    return (
       acc +
       calculateDiscountAmount({
-        price: item?.product?.price ?? 0,
-        discount: item?.product?.discount ?? 0,
+        price,
+        discount,
       }) *
-        item.quantity,
-    0,
-  );
+        item.quantity
+    );
+  }, 0);
 };
-// export const selectTotalPrice = (state: RootState) => {
-//   return state.cart.items.reduce(
-//     (acc, item) => acc + (item.product.price ?? 0) * item.quantity,
-//     0,
-//   );
-// };
 
 // export const selectPaymentIntent = (state: RootState) =>
 //   state.cart.paymentIntent;
@@ -192,33 +185,20 @@ export const selectTotalPrice = (state: RootState) => {
 export const selectItemCount = (
   state: RootState,
   productId: string,
-  size?: string,
+  // size?: string,
 ) => {
-  const item = state.cart.items.find(
-    item => item.product._id === productId && item.size === size,
-  );
+  const item = state.cart.items.find(item => item.product.id === productId);
   return item ? item.quantity : 0;
 };
 
-export const selectTotalItems = (state: RootState, size?: string) => {
+export const selectTotalItems = (state: RootState) => {
   return state.cart.items.reduce((total, item) => total + item.quantity, 0);
 };
 
 export const selectGroupedItems = (state: RootState) => state.cart.items;
 
-// export const selectGroupedItems = (state: RootState) => {
-//   return Object.values(
-//     state.cart.items.reduce((groups: { [key: string]: CartItem }, item) => {
-//       const id = item.product._id;
-//       if (!groups[id]) {
-//         groups[id] = item;
-//       } else {
-//         groups[id].quantity += item.quantity;
-//       }
-//       return groups;
-//     }, {})
-//   );
-// };
+export const selectVariants = (state: RootState) => state.cart.variants;
 
-export const { addItem, removeItem, clearCart } = cartSlice.actions;
+export const { addItem, updateItem, removeItem, clearCart, updateVariants } =
+  cartSlice.actions;
 export default cartSlice.reducer;

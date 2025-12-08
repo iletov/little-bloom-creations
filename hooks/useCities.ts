@@ -1,5 +1,6 @@
+'use client';
 import { City } from '@/component/checkout/checkout-forms/CheckoutForm';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 
 const citiesFetcher = async (url: string) => {
   const response = await fetch(url, {
@@ -7,7 +8,6 @@ const citiesFetcher = async (url: string) => {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ countryCode: 'BGR' }),
   });
 
   if (!response.ok) {
@@ -17,24 +17,23 @@ const citiesFetcher = async (url: string) => {
   return response.json();
 };
 
-export function useCities() {
-  // Use SWR to fetch and cache the data
-  const { data, error, isLoading, isValidating } = useSWR<City[]>(
-    '/api/ekont-get-cities',
-    citiesFetcher,
-    {
-      // Cache configuration for static data
-      revalidateOnFocus: false, // Don't refetch when window regains focus
-      revalidateIfStale: false, // Don't automatically revalidate stale data
-      revalidateOnReconnect: false, // Don't revalidate on reconnect
-      dedupingInterval: 86400000, // Cache for 24 hours (in milliseconds)
-    },
-  );
+export function useCities(enabled: boolean = true) {
+  const { data, error, isLoading, isFetching, refetch } = useQuery<City[]>({
+    queryKey: ['cities', 'ekont'],
+    queryFn: () => citiesFetcher('/api/ekont-get-cities'),
+    enabled: enabled,
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours - data considered fresh
+    gcTime: 24 * 60 * 60 * 1000, // 24 hours - cache retention time (formerly cacheTime)
+    // refetchOnWindowFocus: false,
+    // refetchOnReconnect: false,
+    // refetchOnMount: false,
+  });
 
   return {
     cities: data,
     isLoading,
     isError: error,
-    isValidating,
+    isFetching,
+    refetchEkont: refetch,
   };
 }

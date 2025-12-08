@@ -1,44 +1,22 @@
-import { senderInfo } from '@/actions/ekont/senderDetails';
-import useSWR from 'swr';
+'use client';
 
-const fetcher = async () => {
-  const data = await senderInfo();
-  return data[0];
+import { useQuery } from '@tanstack/react-query';
+
+const fetchSanity = async () => {
+  const res = await fetch('/api/sanity-data');
+
+  if (!res.ok) throw new Error('Failed to fetch data from API route');
+  return res.json();
 };
 
-export const useSenderInfo = () => {
-  const { data, isLoading, error } = useSWR('sender-info', fetcher);
+export function useSenderInfo() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['senderInfo'],
+    queryFn: fetchSanity,
+    staleTime: 24 * 60 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
 
-  return {
-    senderData: data,
-    isLoading,
-    isError: error,
-  };
-};
-
-// import { senderInfo } from '@/actions/ekont/senderDetails';
-// import useSWR from 'swr';
-
-// const fetcher = async () => {
-//   const data = await senderInfo();
-//   return Array.isArray(data) && data.length > 0 ? data[0] : null;
-// };
-
-// export const useSenderInfo = () => {
-//   // Add a timestamp to the key to force a fresh request every time
-//   const timeStamp = Date.now();
-
-//   const { data, isLoading, error } = useSWR(`sender-info`, fetcher, {
-//     revalidateOnFocus: false, // Don't revalidate when window gets focus
-//     revalidateOnReconnect: false, // Don't revalidate on reconnect
-//     refreshInterval: 0, // Don't auto refresh
-//     dedupingInterval: 0, // Don't dedupe requests
-//     shouldRetryOnError: false, // Optional: whether to retry on errors
-//   });
-
-//   return {
-//     senderData: data,
-//     isLoading,
-//     isError: error,
-//   };
-// };
+  return { senderData: data, isLoading, error };
+}

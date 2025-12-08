@@ -1,5 +1,7 @@
 import { CartItem } from '@/app/store/features/cart/cartSlice';
+import { convertToSubCurrency } from '@/lib/convertAmount';
 import { userCheckout } from '@/lib/db/userCheckout';
+import { createClient } from '@/lib/supabaseServer';
 import { backendClient } from '@/sanity/lib/backendClient';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -9,7 +11,7 @@ export type Metadata = {
   orderNumber: string;
   customerName: string;
   customerEmail: string | undefined;
-  clerkUserId: string;
+  supabaseUserId: string | null;
 };
 
 export type GroupedCartItem = {
@@ -18,13 +20,14 @@ export type GroupedCartItem = {
 };
 
 export const POST = async (req: NextRequest) => {
+  const supabase = await createClient();
   const {
     cartItems,
     metadata,
     amount,
+    existingPaymentIntentId,
     orderDetails,
     orderMethods,
-    existingPaymentIntentId,
   } = await req.json();
 
   console.log('SERVER - EXISTING PID----->', existingPaymentIntentId);
@@ -32,74 +35,20 @@ export const POST = async (req: NextRequest) => {
   console.log('New TOTAL Amount', amount);
   console.log('====================');
 
+  if (!cartItems || !metadata || !amount || !orderDetails || !orderMethods) {
+    return NextResponse.json(
+      { error: 'Missing required data! Cannot create payment intent' },
+      { status: 400 },
+    );
+  }
+
+  // console.log(
+  //   'ITEMS SENT TO PURCHASE ORDER:',
+  //   JSON.stringify(cartItems, null, 2),
+  // );
+
   try {
-    //validation
-
-    const itemsWithoutPrice = cartItems.filter(
-      (item: GroupedCartItem) => !item.product.price,
-    );
-
-    if (itemsWithoutPrice.length > 0) {
-      return NextResponse.json(
-        { error: "Some items don't have price" },
-        { status: 400 },
-      );
-    }
-
-    //Check the products stock and quantity
-
-    const productIds = cartItems?.map(
-      (item: GroupedCartItem) => item.product._id,
-    );
-
-    const products = await backendClient.fetch(
-      `*[_type in ["musicStore", "esotericaStore"] && _id in $productIds]`,
-      { productIds },
-    );
-
-    if (products.length !== productIds.length) {
-      // console.log('Product not found');
-
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-    }
-
-    const stockErrors: { id: string; name: string; stock: number }[] = [];
-
-    for (const product of products) {
-      const productId = product._id;
-      // console.log('productId', productId);
-
-      const cartItemsStock = cartItems?.find(
-        (item: GroupedCartItem) => item?.product?._id === productId,
-      );
-
-      // console.log('INTET---->', products);
-      // console.log('cartItemsStock---->', cartItemsStock);
-
-      if (product?.stock < cartItemsStock?.quantity || product?.stock < 1) {
-        stockErrors.push({
-          id: productId,
-          name: product.Name,
-          stock: product.stock,
-        });
-      }
-    }
-
-    if (stockErrors.length > 0) {
-      return NextResponse.json(
-        {
-          error: `Item(s) ${stockErrors
-            .map(error => `${error.name} (Stock: ${error.stock})`)
-            .join(', ')} have no stock or are less than your order quantity.`,
-        },
-        { status: 400 },
-      );
-    }
-    // console.log('ERROR-------', stockErrors);
-
-    if (stockErrors.length) return;
-
-    // get/create customer
+    // create stripe customer
 
     const customers = await stripe.customers.list({
       email: metadata.customerEmail,
@@ -112,7 +61,7 @@ export const POST = async (req: NextRequest) => {
       customerId = customers.data[0].id;
     }
 
-    //Check for existing payment intent and if neccessary update it
+    //STEP 1 - Check for existing payment intent and if neccessary update it
 
     if (existingPaymentIntentId) {
       try {
@@ -133,6 +82,8 @@ export const POST = async (req: NextRequest) => {
             },
           );
 
+          console.log('PaymentIntent UPDATED:', updatedPaymentIntent.id);
+
           return NextResponse.json({
             clientSecret: updatedPaymentIntent.client_secret,
             paymentIntentId: updatedPaymentIntent.id,
@@ -143,9 +94,11 @@ export const POST = async (req: NextRequest) => {
       }
     }
 
+    // STEP 2 - create payment intent
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
-      currency: 'bgn',
+      currency: 'eur',
       automatic_payment_methods: { enabled: true },
       customer: customerId,
       // customer_creation: customerId ? undefined : 'always',
@@ -153,62 +106,55 @@ export const POST = async (req: NextRequest) => {
       metadata: metadata,
       // items: JSON.stringify(lineItems),
       receipt_email: metadata.customerEmail,
-      description: `${metadata.orderNumber} for ${metadata.customerName}`,
+      description: `Order for ${metadata.customerName} - ${amount} EUR`,
     });
 
-    // console.log('Payment intent created! ------->', paymentIntent.id);
+    // console.log('PaymentIntent created:', paymentIntent.id);
 
-    // Transform cart items with proper Sanity references
-    const sanityProducts = cartItems?.map((item: any) => ({
-      _key: crypto.randomUUID(),
-      product: {
-        _type: 'reference',
-        _ref: item.product._id,
-      },
-      quantity: item.quantity || 0,
-      selectedSize: item.size || '',
+    // StEP 3 - store order data in pending_orders table in supabase
+
+    const neccessaryItems = cartItems.map((item: any) => ({
+      sku: item?.product.sku,
+      name: item?.product.name,
+      quantity: item?.quantity,
+      personalization: item?.personalisation,
+      variant_sku: item?.product?.variant_sku ?? null,
+      variant_name: item?.product?.variant_name ?? null,
     }));
 
-    //Save user data for ekont order
-    const userData = {
-      metadata: metadata,
-      amount: amount,
-      orderDetails: orderDetails,
-      orderMethods: orderMethods,
-    };
-    await userCheckout(userData);
+    const { data: pendingOrder, error: dbError } = await supabase
+      .from('pending_orders')
+      .insert({
+        stripe_payment_intent_id: paymentIntent.id,
+        order_number: metadata.orderNumber,
+        cart_items: neccessaryItems,
+        order_details: orderDetails,
+        metadata,
+        order_methods: orderMethods,
+      })
+      .select()
+      .single();
 
-    await backendClient.create({
-      _type: 'order',
-      orderNumber: metadata.orderNumber,
-      stripePaymentIntentId: paymentIntent.id,
-      customerDetails: {
-        customerName: metadata.customerName,
-        customerEmail: metadata.customerEmail,
-        customerPhone: orderDetails.phoneNumber,
-      },
-      stripeCustomerId: undefined,
-      clerkUserId: metadata.clerkUserId,
-      currency: 'BGN',
-      deliveryMethod: orderMethods?.deliveryMethod || '',
-      paymentMethod: orderMethods?.paymentMethod || '',
-      // amountDiscount: total_details?.amount_discount
-      //   ? total_details.amount_discount / 100
-      //   : 0,
-      customerAddress: {
-        country: orderDetails.country,
-        city: orderDetails.city,
-        officeCode: orderDetails.officeCode,
-        zip: orderDetails.postalCode,
-        street: orderDetails.street,
-        streetNumber: orderDetails.streetNumber,
-        other: orderDetails.other,
-      },
-      products: sanityProducts,
-      totalPrice: amount ? amount / 100 : 0,
+    if (dbError) {
+      console.log('Failed to store pending order:', dbError);
+      return NextResponse.json(
+        { error: 'Failed to store pending order' },
+        { status: 500 },
+      );
+    }
+
+    // webhook event tracking order
+
+    await supabase.from('webhook_events').insert({
+      stripe_payment_intent: paymentIntent.id,
+      order_number: metadata.orderNumber,
+      event_type: 'payment_initiated',
       status: 'pending',
-      orderDate: new Date().toISOString(),
     });
+
+    console.log('Pending order stored:', pendingOrder.id);
+
+    //  END - return client secret
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,

@@ -1,41 +1,51 @@
-import { TagIcon } from '@sanity/icons';
-import { Bookmark } from 'lucide-react';
 import { defineField, defineType } from 'sanity';
 
-export const categoryType = defineType({
+export const categoryType = defineField({
   name: 'category',
-  title: 'Категории',
+  title: 'Category',
   type: 'document',
-  icon: Bookmark as any,
   fields: [
     defineField({
-      name: 'title',
+      name: 'name',
+      title: 'Category Name',
       type: 'string',
-    }),
-    defineField({
-      name: 'type',
-      title: 'Тип',
-      type: 'array',
-      of: [{ type: 'reference', to: { type: 'tag' } }],
+      validation: rule => rule.required(),
     }),
     defineField({
       name: 'slug',
+      title: 'Slug',
       type: 'slug',
       options: {
-        source: 'title',
+        source: 'name',
+        maxLength: 96,
       },
+      validation: rule => rule.required(),
     }),
     defineField({
       name: 'description',
-      type: 'text',
+      title: 'Description',
+      type: 'blockContent',
+    }),
+    defineField({
+      name: 'image',
+      title: 'Category Image',
+      type: 'image',
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: 'skuPrefix',
+      title: 'SKU Prefix',
+      type: 'string',
+      description:
+        'Example: DRY for Diaries, GFT for Gift Cards, INV for Invitations',
+      validation: rule => rule.max(3).uppercase(),
     }),
   ],
-
-  // preview
   preview: {
     select: {
-      title: 'title',
-      description: 'description',
+      title: 'name',
+      subtitle: 'skuPrefix',
+      media: 'image',
     },
   },
 });

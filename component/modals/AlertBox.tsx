@@ -29,7 +29,7 @@ export const AlertBox = ({
   };
 
   return (
-    <div className="section_wrapper">
+    <div className="section_wrapper ">
       <AlertDialog defaultOpen={true}>
         <AlertDialogContent>
           <AlertDialogHeader>

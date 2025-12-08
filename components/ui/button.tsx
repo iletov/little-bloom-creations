@@ -5,27 +5,24 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[1rem] text-[1.6rem] font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-[1.6rem] [&_svg]:shrink-0',
   {
     variants: {
       variant: {
-        primery:
-          'bg-mango text-primary-foreground shadow hover:opacity-80 transition-all duration-200',
+        primery: 'text-primary-foreground shadow hover:opacity-80',
         default:
-          'bg-primary text-primary-foreground shadow hover:bg-primary/90',
-        destructive:
-          'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
-        outline:
-          'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
+          'bg-green-1 text-green-dark hover:text-green-0 shadow hover:bg-green-5 hover:ring-0 hover:ring-green-5 hover:ring-offset-4 hover:ring-offset-green-1 ',
+        pink: 'bg-pink-9 text-pink-1 shadow  hover:ring-1 hover:ring-pink-9 hover:ring-offset-1 hover:ring-offset-pink-1',
+        outline: 'bg-green-5 shadow-md',
         secondary:
           'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
         ghost:
-          'border-[2px] border-white/70 hover:border-accent-foreground duration-200 px-8 py-5 shadow-lg hover:text-accent-foreground rounded-full',
-        hoverBlue: 'hover:bg-darkBlue hover:text-accent-foreground',
+          ' bg-pink-1 duration-200 px-8 py-5 shadow-md text-green-9 rounded-[1rem] hover:ring-1 hover:ring-pink-5/50 ',
+
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
-        default: 'h-9 px-4 py-2',
+        default: 'h-[4rem] px-12 py-3',
         sm: 'h-8 rounded-md px-3 text-xs',
         lg: 'h-10 rounded-md px-8',
         icon: 'h-9 w-9',

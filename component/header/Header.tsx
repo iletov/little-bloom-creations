@@ -1,128 +1,209 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { SearchIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
+import {
+  AnimatePresence,
+  motion,
+  useMotionValueEvent,
+  useScroll,
+} from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { SearchBarMotion } from '../search-bar/SearchBarMotion';
-import { AnimatePresence, motion } from 'motion/react';
-import { Sidebar } from '../sidebar-component/Sidebar';
-import SubHeadingMenu from './SubHeadingMenu';
+import Image from 'next/image';
+import { CartIcon, CartIcon2, HomeIcon } from '../icons/icons';
+import Dropdown from './Dropdown';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { useCart } from '@/hooks/useCart';
+import dynamic from 'next/dynamic';
+import CartButton from '../cart/cart-button/CartButton';
+import { useIsClient } from '@/hooks/useIsClient';
 
-const Header = ({ data }: { data: any }) => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+interface HeaderProps {
+  label: string;
+  href: string;
+  items?:
+    | {
+        label: string;
+        href: string;
+      }[]
+    | undefined;
+}
 
-  // const itemsCount = items.reduce((total, item) => total + item.quantity, 0);
+const Header = () => {
+  const [hoveredItem, setHoveredItem] = useState<number | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+  const [isSticky, setIsSticky] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
+  const { user, loading, signOut } = useAuth();
+  const { totalItems } = useCart();
 
-    window.addEventListener('scroll', handleScroll);
-    setIsClient(true);
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
+  const { scrollY } = useScroll();
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  // if (user !== null) {
+  //   console.log('USER', user);
+  // }
 
-  if (!isClient) return null;
+  useMotionValueEvent(scrollY, 'change', latest => {
+    if (latest > 200) {
+      setIsSticky(true);
+    } else if (latest < 80) {
+      setIsSticky(false);
+    }
+  });
 
-  console.log('Social Media', data?.social);
+  const navItems = [
+    {
+      label: 'Categories',
+      href: 'categories',
+      items: [
+        {
+          label: 'diaries',
+          desc: 'Consectetur adipisicing elit.',
+          href: 'diaries',
+        },
+        {
+          label: 'cards',
+          desc: 'Lorem ipsum dolor sit.',
+          href: 'cards',
+        },
+        {
+          label: 'Other',
+          desc: 'Lorem sit amet consectetur.',
+          href: 'other',
+        },
+      ],
+    },
+    { label: 'Pricing', href: 'pricing' },
+    { label: 'About', href: 'about' },
+    { label: 'Contact', href: 'contact' },
+    { label: 'Blog', href: 'blog' },
+  ];
+
+  const navigationContainer = navItems.map(
+    (item: HeaderProps, index: number) => (
+      <motion.li
+        key={index + 'navmenu'}
+        className="px-6 py-2 relative"
+        onMouseEnter={() => {
+          setHoveredItem(index);
+          if (item.items) {
+            setOpenDropdown(index);
+          }
+        }}
+        onMouseLeave={() => {
+          setHoveredItem(null);
+          setOpenDropdown(null);
+        }}>
+        {hoveredItem === index && (
+          <motion.div
+            className="absolute inset-0 w-full h-full bg-green-5 rounded-[0.8rem] -z-10"
+            layoutId="navbar-hover-bg"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{
+              type: 'spring',
+              stiffness: 400,
+              damping: 25,
+              opacity: { duration: 0.3 },
+            }}
+          />
+        )}
+        <Link className="z-20" href={`/${item?.href}`}>
+          <motion.p
+            className={cn(
+              'transition duration-200',
+              hoveredItem === index && 'text-white',
+            )}
+            // whileHover={{ scale: 1.035 }}
+          >
+            {item?.label}
+          </motion.p>
+        </Link>
+
+        {/* Dropdown */}
+        <Dropdown data={item} openDropdown={openDropdown} index={index} />
+      </motion.li>
+    ),
+  );
 
   return (
-    <header className={cn('transition-colors duration-300 z-50 sticky top-0')}>
-      <div
-        className={cn(
-          ' gap-3 py-3 px-3 border-b-[1px] border-secondaryPurple shadow-sm transition-colors duration-300 z-50 sticky top-0',
-          isScrolled
-            ? 'bg-primaryPurple/90 backdrop-blur-md will-change-transform'
-            : 'bg-primaryPurple',
-        )}>
-        <div className="max-w-[1366px] mx-auto flex sm:flex-row items-center text-sm text-foreground">
-          <div className="flex w-auto relative p-1">
-            <Sidebar data={data?.navigation} socialMediaIcons={data?.social} />
-          </div>
-          <Link
-            href={'/'}
-            className=" flex justify-center md:justify-start w-full md:mx-[initial] md:ml-4 items-center text-[1.5rem] md:text-xl font-play font-bold uppercase order-2 md:order-1">
-            {data?.headerAndFooter?.header}
+    <>
+      <motion.nav className="relative bg-pink-1 text-green-dark grid justify-items-center text-[1.8rem] pt-[3.5rem] pb-[4rem]">
+        {/* <div className="text-[2.4rem] md:text-[4.2rem]">
+          <Link href={'/'}>
+            <Image src={'/logo-ctr.svg'} alt="logo" width={200} height={50} />
           </Link>
-          <div ref={wrapperRef} className="order-2 ml-auto">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className={cn(' top-4 right-3 md:right-20')}>
-              <Button
-                variant={'outline'}
-                className={cn(
-                  'w-6 h-[32px] rounded-full bg-transparent border-secondaryPurple',
-                  isOpen ? 'opacity-0' : '',
-                )}
-                onClick={() => setIsOpen(!isOpen)}>
-                <SearchIcon size={20} className="text-foreground" />
-              </Button>
-            </motion.div>
+        </div> */}
 
-            {isOpen && (
-              <div className="absolute right-0 left-0 md:left-[unset] md:right-10 top-[0.625rem] md:top-2.5 z-50  md:w-[32rem]">
-                {/* <AnimatePresence> */}
-                <motion.div
-                  key="search-bar-1"
-                  initial={{ opacity: 0, x: 130, y: 0, width: '10%' }}
-                  animate={{
-                    opacity: 1,
-                    x: 0,
-                    y: 0,
-                    width: '72%',
-                  }}
-                  exit={{ opacity: 0, x: -10, y: -10 }}
-                  transition={{ duration: 0.15 }}
-                  className="md:hidden mx-auto">
-                  <SearchBarMotion setIsOpenAction={setIsOpen} />
-                </motion.div>
-                <motion.div
-                  key="search-bar-2"
-                  initial={{ opacity: 0, x: 260, y: 0, width: '50%' }}
-                  animate={{
-                    opacity: 1,
-                    x: -40,
-                    y: 0,
-                    width: '100%',
-                    // width: '80%',
-                  }}
-                  transition={{ duration: 0.15 }}
-                  className="hidden md:block">
-                  <SearchBarMotion setIsOpenAction={setIsOpen} />
-                </motion.div>
-                {/* </AnimatePresence> */}
-              </div>
-            )}
+        <motion.section
+          layout
+          animate={{ scale: isSticky ? 1.03 : 1 }}
+          transition={{
+            type: 'spring',
+            stiffness: 300,
+            damping: 30,
+            duration: 0.5,
+          }}
+          className={cn(
+            'cursor-pointer gap-2 flex bg-white rounded-[0.8rem] border-[1px] z-20 relative',
+            isSticky
+              ? 'fixed top-[1rem] shadow-xl'
+              : 'absolute top-[9.5rem] shadow-lg',
+          )}>
+          <div className="flex">
+            <Link
+              href={'/'}
+              className={cn(
+                'grid bg-green-1 hover:bg-green-5 rounded-l-[0.8rem] hover:text-white transition duration-200 ease-in-out place-items-center px-[10px] border-r-[1px]',
+              )}>
+              {HomeIcon}
+            </Link>
+
+            <ul className="flex  py-2  items-center justify-center min-w-max">
+              {navigationContainer}
+            </ul>
           </div>
-        </div>
-      </div>
-      {/* <SubHeadingMenu
-        className={
-          isScrolled
-            ? 'bg-darkGold/80 backdrop-blur-md will-change-transform'
-            : 'bg-darkGold'
-        }
-      /> */}
-    </header>
+
+          <CartButton />
+
+          {/*====== AUTH COMPONENT ===== */}
+          {/* TODO: move the logic to a separate component */}
+
+          <motion.div
+            animate={{ scale: isSticky ? 1.03 : 1 }}
+            transition={{
+              type: 'spring',
+              stiffness: 300,
+              damping: 30,
+              duration: 0.5,
+            }}
+            className={cn(
+              ' cursor-pointer flex items-center justify-center z-20 bg-white rounded-full w-16 h-16 border-[2px] ',
+              isSticky
+                ? 'fixed top-[0.5rem] -right-[12%] shadow-xl'
+                : 'absolute top-[0.5rem] -right-[12%] shadow-lg',
+            )}>
+            {user ? (
+              <>
+                <button>
+                  <Image
+                    src={user?.user_metadata?.avatar_url}
+                    alt="avatar"
+                    width={30}
+                    height={30}
+                    className="rounded-full"
+                  />
+                </button>
+              </>
+            ) : (
+              <Link href="/login">X</Link>
+            )}
+          </motion.div>
+          {/* =========== */}
+        </motion.section>
+      </motion.nav>
+    </>
   );
 };
 

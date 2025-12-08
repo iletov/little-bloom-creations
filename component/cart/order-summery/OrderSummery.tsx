@@ -1,63 +1,158 @@
+'use client';
+import { validateAddress } from '@/actions/ekont/validateAddress';
+import { Metadata } from '@/app/api/payment-intent/route';
 import { Loader } from '@/component/loader/Loader';
+import { AlertBox } from '@/component/modals/AlertBox';
 import { Separator } from '@/component/separator/Separator';
 import { Button } from '@/components/ui/button';
-import React from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
+import { useCities } from '@/hooks/useCities';
+import { useSenderDetails } from '@/hooks/useSenderDetails';
+import { fullAddress, guestSchema } from '@/lib/form-validation/validations';
+import { X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 
-type OrderSummeryProps = {
-  totalItemsCount: number;
-  totalPrice: number;
-  loadingState: boolean;
-  handleCheckOut: () => void;
-  deliveryCost: number;
-};
+export const OrderSummery = () => {
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState({ title: '', message: '' });
 
-export const OrderSummery = ({
-  totalItemsCount,
-  totalPrice,
-  loadingState,
-  handleCheckOut,
-  deliveryCost,
-}: OrderSummeryProps) => {
+  const { user } = useAuth();
+
+  const { isLoading } = useCities(false);
+  const { deliveryMethod } = useSenderDetails();
+  const {
+    deliveryCost,
+    deliveryCostFlag,
+    totalItems,
+    totalPrice,
+    addressFormData,
+    guestFormData,
+    setMetadata,
+  } = useCart();
+
+  const router = useRouter();
+
+  const handleCheckOut = async () => {
+    try {
+      const metadata: Metadata = {
+        orderNumber: crypto.randomUUID(),
+        customerName:
+          user?.user_metadata?.name ??
+          guestFormData?.firstName + ' ' + guestFormData?.lastName,
+        customerEmail: user?.email ?? guestFormData?.email,
+
+        supabaseUserId: user?.id ?? null,
+      };
+      setMetadata(metadata);
+
+      if (!user) {
+        const isGuestValid = guestSchema.safeParse(guestFormData);
+        if (!isGuestValid.success) {
+          setShowAlert(true);
+          setAlertMessage({
+            title: 'Error Guest',
+            message: isGuestValid.error.issues[0]?.message,
+          });
+          return;
+        }
+      }
+
+      const isAddressFormValid = fullAddress.safeParse(addressFormData);
+      if (!isAddressFormValid.success) {
+        setShowAlert(true);
+        setAlertMessage({
+          title: 'Error Address',
+          message: isAddressFormValid.error.issues[0]?.message,
+        });
+        console.log(isAddressFormValid);
+
+        return;
+      }
+
+      if (deliveryMethod === 'ekont-delivery') {
+        const isAddressValid = await validateAddress(addressFormData);
+
+        console.log('#Validating address...', isAddressValid?.validationStatus);
+
+        if (!isAddressValid?.validationStatus) {
+          console.log('isAddressValid', isAddressValid);
+          setShowAlert(true);
+          setAlertMessage({
+            title: 'Error',
+            message: isAddressValid?.innerErrors[0].message,
+          });
+        }
+
+        const continueToCheckout =
+          isAddressValid?.validationStatus === 'normal' ||
+          isAddressValid?.validationStatus === 'processed ';
+
+        if (continueToCheckout) {
+          console.log(
+            `# Validating status 'Address' - ${isAddressValid.validationStatus}`,
+          );
+          console.log(
+            `# Sending 'Metadata' to checkout with method '${deliveryMethod}'`,
+            metadata,
+          );
+
+          router.push('/checkout');
+        }
+      } else if (deliveryMethod === 'ekont-office') {
+        console.log(
+          `# Sending 'Metadata' to checkout with method '${deliveryMethod}'`,
+          metadata,
+        );
+
+        router.push('/checkout');
+      }
+    } catch (error) {
+      console.error('Error submitting checkout form', error);
+    }
+    // setLoading(false);
+  };
+
   return (
-    <div
-      className="
-      z-50
-      w-full max-w-full mx-auto h-fit md:border-[1px]
-      font-montserrat
-      rounded-lg
-      shadow-
-      bg-primaryPurple
-      md:bg-secondaryPurple/15
-      space-y-1.5
-      md:space-y-3
-      px-6 py-4 
-      order-first 
-      fixed bottom-0 left-0 
-      lg:left-auto lg:sticky 
-      lg:top-24 lg:order-last ">
-      <h3 className="tex-[1rem] md:font-semibold">Резюме на поръчката:</h3>
-      <p className="flex justify-between">
-        <span className="text-[0.875rem]">Артикули:</span>
-        <span>х {totalItemsCount}</span>
-      </p>
-      <Separator />
-      <p className="flex justify-between">
-        <span className="text-[0.875rem]">Цена за доставка:</span>
-        <span>{deliveryCost} лв.</span>
-      </p>
-      <p className="flex justify-between mb-2 md:mb-6">
-        <span className="font-semibold text-[1.25rem]">Обща сума:</span>
-        <span className="font-semibold text-[1.25rem]">
-          {(totalPrice + deliveryCost).toFixed(2)} лв.
-        </span>
-      </p>
+    <>
+      <div
+        className="
+      z-50 w-full max-w-full mx-auto h-fit md:border-[1px] font-montserrat rounded-lg shadow-md bg-white space-y-1.5 md:space-y-3 px-6 py-4 order-first fixed bottom-0 left-0 lg:left-auto lg:sticky lg:top-[10rem] lg:order-last ">
+        <h3 className="md:font-semibold">Информация за поръчката:</h3>
+        <p className="flex justify-between text-[1.6rem]">
+          Артикули:
+          <span className="flex gap-1">
+            <X size={10} className="self-center" /> {totalItems}
+          </span>
+        </p>
+        <Separator />
+        <p className="flex justify-between text-[1.6rem]">
+          <span className="">Цена за доставка:</span>
+          <span>{deliveryCost} лв.</span>
+        </p>
+        <p className="flex justify-between mb-2 md:mb-6">
+          <span className="font-semibold text-[1.6rem]">Обща сума:</span>
+          <span className="font-semibold text-[1.6rem]">
+            {(totalPrice + deliveryCost).toFixed(2)} лв.
+          </span>
+        </p>
 
-      <Button
-        onClick={handleCheckOut}
-        variant="default"
-        className="w-full bg-secondaryPurple hover:bg-secondaryPurple/80 text-foreground">
-        {loadingState ? <Loader /> : 'Checkout'}
-      </Button>
-    </div>
+        <Button
+          disabled={deliveryCost === 0 || deliveryCostFlag}
+          onClick={handleCheckOut}
+          variant="default"
+          className="w-full">
+          {isLoading || deliveryCostFlag ? <Loader /> : 'Next'}
+        </Button>
+      </div>
+      {showAlert && (
+        <AlertBox
+          title={alertMessage.title}
+          description={alertMessage.message}
+          reset={() => setShowAlert(false)}
+        />
+      )}
+    </>
   );
 };
