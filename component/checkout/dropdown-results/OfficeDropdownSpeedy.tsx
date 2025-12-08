@@ -21,20 +21,19 @@ import { useCart } from '@/hooks/useCart';
 import { AddressFormData } from '@/app/store/features/stripe/stripeSlice';
 import { useSenderInfo } from '@/hooks/useSenderInfo';
 import { useSpeedyCities } from '@/hooks/useCitiesSpeedy';
+import { useOfficesSpeedy } from '@/hooks/useOfficesSpeedy';
 
-export interface Office {
+export interface OfficeSpeedy {
   id: string;
   name: string;
-  code: string;
-  hubCode: string;
   address: {
-    fullAddress: string;
-    city: {
-      postCode: string;
-    };
+    postCode: string;
+    fullAddressString: string;
   };
-  phones: string[];
-  emails: string[];
+  workingTimeFrom: string;
+  workingTimeTo: string;
+  workingTimeHalfFrom: string;
+  workingTimeHalfTo: string;
 }
 
 interface CustomDropdownProps {
@@ -44,7 +43,7 @@ interface CustomDropdownProps {
   // selectedCityData: City | undefined;
   // onOfficeSelect?: (office: Office) => void;
 }
-export const OfficeDropdown = ({
+export const OfficeDropdownSpeedy = ({
   // options,
   placeholder = 'Select option',
   className,
@@ -55,50 +54,53 @@ export const OfficeDropdown = ({
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // ekont
-  const { cities } = useCities(false);
   // speedy
   const { speedyCities } = useSpeedyCities(false);
 
   // const { senderData } = useSenderInfo();
   const { searchForCity, selectedOffice, setSelectedOffice, deliveryMethod } =
     useSenderDetails();
-  const { updateAddresData, setDeliveryCost } = useCart();
+  const { addressFormData, updateAddresData, setDeliveryCost } = useCart();
 
-  const selectedCityData = cities?.find(
+  const selectedCityData = speedyCities?.find(
     city => searchForCity.toLowerCase() === city.name.toLowerCase(),
   );
 
   console.log('# --selectedCityData-->', selectedCityData);
 
-  const { offices, isLoading, error } = useOffices(
-    selectedCityData?.country?.code3,
+  const {
+    speedyOffices,
+    isLoading: isLoadingSpeedy,
+    error: errorSpeedy,
+  } = useOfficesSpeedy(
     selectedCityData?.id,
-    deliveryMethod === 'ekont-office',
+    deliveryMethod === 'speedy-pickup',
   );
 
-  if (isLoading)
+  if (isLoadingSpeedy)
     return (
       <div className="flex justify-center">
         <Loader />
       </div>
     );
 
-  if (error) return <p>faild to load offices</p>;
+  if (errorSpeedy) return <p>faild to load offices</p>;
 
-  const handleSelectOffice = async (currentOffice: Office) => {
+  const handleSelectOffice = async (currentOffice: OfficeSpeedy) => {
     setSelectedOffice(currentOffice);
-    updateAddresData({ officeCode: currentOffice?.code } as AddressFormData);
+    updateAddresData({ officeCode: currentOffice?.id } as AddressFormData);
     // setDeliveryCostFlag(true);
     setDeliveryCost(0);
     setOpen(false);
   };
 
   const filteredOffices = searchQuery
-    ? offices?.filter(office =>
+    ? speedyOffices?.filter(office =>
         office.name.toLowerCase().includes(searchQuery.toLowerCase()),
       )
-    : offices;
+    : speedyOffices;
+
+  console.log('# --addressFormData-->', addressFormData);
 
   return (
     <section className=" w-full relative space-y-2">
@@ -119,7 +121,7 @@ export const OfficeDropdown = ({
             {selectedOffice ? (
               <p className="flex gap-2 ">
                 <span>{selectedOffice.name}</span>
-                <span>({selectedOffice.code})</span>
+                <span>({selectedOffice.id})</span>
               </p>
             ) : (
               <p className="text-white">{placeholder}</p>
@@ -141,7 +143,7 @@ export const OfficeDropdown = ({
             />
 
             <CommandList>
-              {isLoading ? (
+              {isLoadingSpeedy ? (
                 <div className="w-full py-6 text-center text-[1.4rem] text-gray-500">
                   <Loader />
                 </div>
@@ -166,22 +168,34 @@ export const OfficeDropdown = ({
                         <div className="flex flex-col items-start justify-center ">
                           <div className="flex gap-2 font-bold ">
                             <p>{office.name}</p>
-                            <p>({office.code})</p>
+                            <p>({office.id})</p>
                           </div>
                           <div className="flex gap-1 ">
-                            <p className="text-[1.4rem]">
-                              {office.address.city.postCode},
+                            <p className="text-[1.2rem]">
+                              {office.address.postCode},
                             </p>
-                            <p className="text-[1.4rem]">
-                              {office.address.fullAddress}
+                            <p className="text-[1.2rem]">
+                              {office.address.fullAddressString}
                             </p>
                           </div>
-                          <p className="text-[1.4rem]">
-                            {office.phones.map((phone: string) => phone)}
-                          </p>
-                          <p className="text-[1.4rem]">
-                            {office.emails.map((email: string) => email)}
-                          </p>
+                          <div className="flex gap-1">
+                            <p>Понеделник - Петък:</p>
+                            <p className="text-[1.2rem]">
+                              {office.workingTimeFrom}
+                            </p>
+                            <p className="text-[1.2rem]">
+                              {office.workingTimeTo}
+                            </p>
+                          </div>
+                          <div className="flex gap-1">
+                            <p>Събота:</p>
+                            <p className="text-[1.2rem]">
+                              {office.workingTimeHalfFrom}
+                            </p>
+                            <p className="text-[1.2rem]">
+                              {office.workingTimeHalfTo}
+                            </p>
+                          </div>
                         </div>
                       </CommandItem>
                     ))}

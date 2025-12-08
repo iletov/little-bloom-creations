@@ -19,7 +19,7 @@ export const OrderDetailsContainer = () => {
   const { setDeliveryMethod, deliveryMethod, setSelectedOffice } =
     useSenderDetails();
 
-  console.log('# --OrderDetailsContainer-->', deliveryMethod);
+  // console.log('# --OrderDetailsContainer-->', deliveryMethod);
 
   const ekontOffice = () => {
     setDeliveryCost(0);

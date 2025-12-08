@@ -6,7 +6,10 @@ export async function POST(req: NextRequest) {
   const password = process.env.SPEEDY_PASS;
 
   try {
-    const response = await fetch(`${speedyUrl}/location/site`, {
+    const body = await req.json();
+    console.log('Received body:', body);
+
+    const response = await fetch(`${speedyUrl}/location/office`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -14,27 +17,32 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         userName: user,
         password: password,
-        countryId: '100',
+        siteId: body.siteId,
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`Speedy API getCountries error: ${response.status}`);
+      throw new Error(
+        `Speedy API get speedy offices error: ${response.status}`,
+      );
     }
 
     const data = await response.json();
-    // console.log('Speedy Cities', data.sites);
+    // console.log('Speedy Speedy Offices', data.offices);
 
-    return NextResponse.json(data.sites, {
+    return NextResponse.json(data.offices, {
       status: 200,
       headers: {
         'Cache-Control': 'private, max-age=3600',
       },
     });
   } catch (error) {
-    console.error('Error fetching cities:', error);
+    console.error('Error fetching speedy offices:', error);
     return NextResponse.json(
-      { message: 'Failed to fetch cities', error: (error as Error).message },
+      {
+        message: 'Failed to fetch speedy offices',
+        error: (error as Error).message,
+      },
       { status: 500 },
     );
   }

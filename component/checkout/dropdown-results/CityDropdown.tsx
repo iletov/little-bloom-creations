@@ -1,5 +1,5 @@
 'use client';
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { ErrorMessage } from '../checkout-forms/ErrorMessage';
 import { Input } from '@/components/ui/input';
 import { City } from '../checkout-forms/CheckoutForm';
@@ -10,6 +10,7 @@ import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { useCart } from '@/hooks/useCart';
 import { AddressFormData } from '@/app/store/features/stripe/stripeSlice';
 import { fullAddress } from '@/lib/form-validation/validations';
+import { useSpeedyCities } from '@/hooks/useCitiesSpeedy';
 
 export const CityDropdown = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -17,23 +18,36 @@ export const CityDropdown = () => {
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // ekont
   const { cities, isLoading } = useCities(false);
-  const { searchForCity, setSearchForCity, setSelectedOffice } =
+  // speedy
+  const { speedyCities } = useSpeedyCities(false);
+
+  const { searchForCity, setSearchForCity, setSelectedOffice, deliveryMethod } =
     useSenderDetails();
 
   const { addressFormData, updateAddresData, setDeliveryCostFlag } = useCart();
 
-  // Filter items based on search term
-  const filteredCities =
-    !searchForCity || searchForCity.length < 2
-      ? cities || []
-      : cities?.filter(city => {
-          const normalizedSearchTerm = searchForCity.toLowerCase().trim();
-          return (
-            city?.name?.toLowerCase().includes(normalizedSearchTerm) ||
-            city?.nameEn?.toLowerCase().includes(normalizedSearchTerm)
-          );
-        }) || [];
+  // 1. Determine which list of cities to use
+  const currentCitiesList =
+    deliveryMethod === 'ekont-office' || deliveryMethod === 'ekont-delivery'
+      ? cities
+      : speedyCities;
+
+  // 2. Filter ONLY the active list
+  const filteredCities = useMemo(() => {
+    if (!searchForCity || searchForCity.length < 2) {
+      return currentCitiesList || [];
+    }
+
+    const normalizedSearchTerm = searchForCity.toLowerCase().trim();
+
+    return (currentCitiesList || []).filter(
+      city =>
+        city?.name?.toLowerCase().includes(normalizedSearchTerm) ||
+        city?.nameEn?.toLowerCase().includes(normalizedSearchTerm),
+    );
+  }, [currentCitiesList, searchForCity]);
 
   const handleSelectCities = async (city: City) => {
     setSearchForCity(city.name);

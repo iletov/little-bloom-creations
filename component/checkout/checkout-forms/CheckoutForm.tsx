@@ -22,6 +22,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/component/loader/Loader';
 import { cn } from '@/lib/utils';
+import { OfficeDropdownSpeedy } from '../dropdown-results/OfficeDropdownSpeedy';
 
 export interface City {
   id: string;
@@ -228,7 +229,8 @@ export const CheckoutForm = () => {
           {/* CITY DROPDOWN MENU */}
           <CityDropdown />
 
-          {deliveryMethod === 'ekont-delivery' ? (
+          {deliveryMethod === 'ekont-delivery' ||
+          deliveryMethod === 'speedy-delivery' ? (
             <>
               <Input
                 {...addressForm.register('street')}
@@ -267,6 +269,8 @@ export const CheckoutForm = () => {
         </form>
       </div>
       {deliveryMethod === 'ekont-office' ? <OfficeDropdown /> : null}
+
+      {deliveryMethod === 'speedy-pickup' ? <OfficeDropdownSpeedy /> : null}
 
       <Button
         variant="default"
