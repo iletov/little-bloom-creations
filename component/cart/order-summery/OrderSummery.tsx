@@ -34,6 +34,8 @@ export const OrderSummery = () => {
 
   const router = useRouter();
 
+  //TODO Refactor this function to handle speedy and ekont methods with validation
+
   const handleCheckOut = async () => {
     try {
       const metadata: Metadata = {
@@ -74,7 +76,10 @@ export const OrderSummery = () => {
       if (deliveryMethod === 'ekont-delivery') {
         const isAddressValid = await validateAddress(addressFormData);
 
-        console.log('#Validating address...', isAddressValid?.validationStatus);
+        console.log(
+          '#--Validating address...',
+          isAddressValid?.validationStatus,
+        );
 
         if (!isAddressValid?.validationStatus) {
           console.log('isAddressValid', isAddressValid);
@@ -100,9 +105,12 @@ export const OrderSummery = () => {
 
           router.push('/checkout');
         }
-      } else if (deliveryMethod === 'ekont-office') {
+      } else if (
+        deliveryMethod === 'ekont-office' ||
+        deliveryMethod === 'speedy-pickup'
+      ) {
         console.log(
-          `# Sending 'Metadata' to checkout with method '${deliveryMethod}'`,
+          `# ---Sending 'Metadata' to checkout with method '${deliveryMethod}'`,
           metadata,
         );
 

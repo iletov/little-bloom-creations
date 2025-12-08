@@ -45,7 +45,7 @@ export const calculateLabelSpeedy = async (
     },
   };
 
-  console.log('LABEL DATA----->:', JSON.stringify(labelData));
+  // console.log('LABEL DATA----->:', JSON.stringify(labelData));
 
   try {
     const res = await fetch(`${speedyUrl}/calculate`, {
@@ -61,7 +61,7 @@ export const calculateLabelSpeedy = async (
     }
 
     const data = await res.json();
-    console.log('SPEEDY PRICE----->:', data?.calculations[0]?.price?.total);
+    // console.log('SPEEDY PRICE----->:', data?.calculations[0]?.price?.total);
 
     return data?.calculations[0];
   } catch (error) {
