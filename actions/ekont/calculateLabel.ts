@@ -74,10 +74,10 @@ export const calculateLabel = async (
   };
 
   try {
-    console.log(
-      'EKONT CALCULATE PRICE----->:',
-      JSON.stringify(labelData, null, 2),
-    );
+    // console.log(
+    //   'EKONT CALCULATE PRICE----->:',
+    //   JSON.stringify(labelData, null, 2),
+    // );
 
     const res = await fetch(
       `${ekontUrl}/Shipments/LabelService.createLabel.json`,
@@ -97,7 +97,7 @@ export const calculateLabel = async (
     }
 
     const data = await res.json();
-    console.log('CALCULATE RES-->:', data);
+    // console.log('CALCULATE RES-->:', data);
 
     return data;
   } catch (error) {

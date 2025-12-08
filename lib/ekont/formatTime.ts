@@ -1,4 +1,4 @@
-export function formatTime(ms: number) {
+export function formatTime(ms: string | number) {
   const date = new Date(ms);
   return date.toLocaleTimeString('bg-BG', {
     hour: '2-digit',

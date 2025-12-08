@@ -21,6 +21,7 @@ import { useCart } from '@/hooks/useCart';
 import { AddressFormData } from '@/app/store/features/stripe/stripeSlice';
 import { useSenderInfo } from '@/hooks/useSenderInfo';
 import { useSpeedyCities } from '@/hooks/useCitiesSpeedy';
+import { formatTime } from '@/lib/ekont/formatTime';
 
 export interface Office {
   id: string;
@@ -33,8 +34,10 @@ export interface Office {
       postCode: string;
     };
   };
-  phones: string[];
-  emails: string[];
+  normalBusinessHoursFrom: number;
+  normalBusinessHoursTo: number;
+  halfDayBusinessHoursFrom: number;
+  halfDayBusinessHoursTo: number;
 }
 
 interface CustomDropdownProps {
@@ -55,25 +58,16 @@ export const OfficeDropdown = ({
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // ekont
-  const { cities } = useCities(false);
-  // speedy
-  const { speedyCities } = useSpeedyCities(false);
-
   // const { senderData } = useSenderInfo();
-  const { searchForCity, selectedOffice, setSelectedOffice, deliveryMethod } =
+  const { selectedOffice, setSelectedOffice, deliveryMethod, selectedCity } =
     useSenderDetails();
   const { updateAddresData, setDeliveryCost } = useCart();
 
-  const selectedCityData = cities?.find(
-    city => searchForCity.toLowerCase() === city.name.toLowerCase(),
-  );
-
-  console.log('# --selectedCityData-->', selectedCityData);
+  // console.log('# --selectedCity EKONT-->', selectedCity);
 
   const { offices, isLoading, error } = useOffices(
-    selectedCityData?.country?.code3,
-    selectedCityData?.id,
+    selectedCity?.country?.code3,
+    selectedCity?.id,
     deliveryMethod === 'ekont-office',
   );
 
@@ -115,7 +109,7 @@ export const OfficeDropdown = ({
               'w-full justify-between min-h-[2.85rem] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring font-montserrat bg-green-5 text-white px-[8px] [&_svg]:size-[unset]',
               className,
             )}
-            disabled={disabled || !selectedCityData}>
+            disabled={disabled || !selectedCity}>
             {selectedOffice ? (
               <p className="flex gap-2 ">
                 <span>{selectedOffice.name}</span>
@@ -164,24 +158,24 @@ export const OfficeDropdown = ({
                           )}
                         />
                         <div className="flex flex-col items-start justify-center ">
-                          <div className="flex gap-2 font-bold ">
+                          <div className="flex gap-2 font-bold [&>p]:text-[1.4rem]">
                             <p>{office.name}</p>
                             <p>({office.code})</p>
                           </div>
-                          <div className="flex gap-1 ">
-                            <p className="text-[1.4rem]">
-                              {office.address.city.postCode},
-                            </p>
-                            <p className="text-[1.4rem]">
-                              {office.address.fullAddress}
-                            </p>
+                          <div className="flex gap-1 [&>p]:text-[1.2rem]">
+                            <p>{office.address.city.postCode},</p>
+                            <p>{office.address.fullAddress}</p>
                           </div>
-                          <p className="text-[1.4rem]">
-                            {office.phones.map((phone: string) => phone)}
-                          </p>
-                          <p className="text-[1.4rem]">
-                            {office.emails.map((email: string) => email)}
-                          </p>
+                          <div className="flex gap-1 [&>p]:text-[1.2rem]">
+                            <p>Понеделник - Петък:</p>
+                            <p>{formatTime(office.normalBusinessHoursFrom)}</p>
+                            <p>{formatTime(office.normalBusinessHoursTo)}</p>
+                          </div>
+                          <div className="flex gap-1 [&>p]:text-[1.2rem]">
+                            <p>Събота:</p>
+                            <p>{formatTime(office.halfDayBusinessHoursFrom)}</p>
+                            <p>{formatTime(office.halfDayBusinessHoursTo)}</p>
+                          </div>
                         </div>
                       </CommandItem>
                     ))}

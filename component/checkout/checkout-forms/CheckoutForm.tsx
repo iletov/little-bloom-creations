@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Loader } from '@/component/loader/Loader';
 import { cn } from '@/lib/utils';
 import { OfficeDropdownSpeedy } from '../dropdown-results/OfficeDropdownSpeedy';
+import { calculateLabelSpeedy } from '@/actions/ekont/calculateLabelSpeedy';
 
 export interface City {
   id: string;
@@ -51,7 +52,14 @@ export const CheckoutForm = () => {
   } = useCart();
 
   const { senderData } = useSenderInfo();
-  const { deliveryMethod } = useSenderDetails();
+  const { deliveryMethod, selectedCity } = useSenderDetails();
+
+  // console.log('# --Selected City-->', selectedCity);
+
+  const isEkont =
+    deliveryMethod === 'ekont-office' || deliveryMethod === 'ekont-delivery';
+  const isSpeedy =
+    deliveryMethod === 'speedy-pickup' || deliveryMethod === 'speedy-delivery';
 
   const guestForm = useForm<GuestFormDataType>({
     resolver: zodResolver(guestSchema),
@@ -81,46 +89,37 @@ export const CheckoutForm = () => {
     // setIsLoading(true);
     setDeliveryCostFlag(true);
 
-    try {
-      const calculateDeliveryCost = await calculateLabel(
-        senderData,
-        guestFormData,
-        addressFormData,
-        deliveryMethod,
-      );
+    let calculateDeliveryCost: any;
 
-      setDeliveryCost(calculateDeliveryCost?.label?.totalPrice || 0);
+    try {
+      if (isEkont) {
+        calculateDeliveryCost = await calculateLabel(
+          senderData,
+          guestFormData,
+          addressFormData,
+          deliveryMethod,
+        );
+
+        setDeliveryCost(calculateDeliveryCost?.label?.totalPrice || 0);
+      }
+
+      if (isSpeedy) {
+        calculateDeliveryCost = await calculateLabelSpeedy(
+          deliveryMethod,
+          addressFormData?.officeCode,
+          selectedCity?.id,
+        );
+
+        setDeliveryCost(calculateDeliveryCost?.price?.total || 0);
+      }
+
+      // console.log('# --calculateDeliveryCost-->', calculateDeliveryCost);
     } catch (error) {
       console.log(error);
     } finally {
       setDeliveryCostFlag(false);
     }
   };
-
-  // const formValues = addressForm.watch();
-  // const debouncedValues = useDebounce(formValues, 500);
-  // const lastSavedRef = useRef<string>('');
-
-  // useEffect(() => {
-  //   const valuesString = JSON.stringify(debouncedValues);
-
-  //   // Only update if values actually changed
-  //   if (valuesString !== lastSavedRef.current) {
-  //     lastSavedRef.current = valuesString;
-  //     updateAddresData(debouncedValues);
-  //   }
-  // }, [debouncedValues]);
-
-  // // Immediate save on blur (bypasses debounce)
-  // const handleImmediateSave = () => {
-  //   const values = addressForm.getValues();
-  //   const valuesString = JSON.stringify(values);
-
-  //   if (valuesString !== lastSavedRef.current) {
-  //     lastSavedRef.current = valuesString;
-  //     updateAddresData(values);
-  //   }
-  // };
 
   const handleUpdateOnBlur = <K extends keyof AddressFormDataType>(
     key: K,

@@ -16,57 +16,32 @@ export const OrderDetailsContainer = () => {
   const { refetchSpeedyCities } = useSpeedyCities(false);
 
   const { updateAddresData, setDeliveryCost } = useCart();
-  const { setDeliveryMethod, deliveryMethod, setSelectedOffice } =
-    useSenderDetails();
-
-  // console.log('# --OrderDetailsContainer-->', deliveryMethod);
-
-  const ekontOffice = () => {
-    setDeliveryCost(0);
-    setDeliveryMethod('ekont-office');
-  };
-
-  const ekontDelivery = () => {
-    setDeliveryCost(0);
-    updateAddresData({ officeCode: '' } as AddressFormData);
-    setSelectedOffice('');
-    setDeliveryMethod('ekont-delivery');
-  };
-
-  const speedyPickup = () => {
-    setDeliveryCost(0);
-    setDeliveryMethod('speedy-pickup');
-  };
-
-  const speedyDelivery = () => {
-    setDeliveryCost(0);
-    updateAddresData({ officeCode: '' } as AddressFormData);
-    setSelectedOffice('');
-    setDeliveryMethod('speedy-delivery');
-  };
+  const {
+    setDeliveryMethod,
+    deliveryMethod,
+    setSelectedOffice,
+    setSearchForCity,
+    setSelectedCity,
+  } = useSenderDetails();
 
   const handleSelectDeliveryCompany = (value: string) => {
-    if (value === 'ekont-office' || value === 'ekont-delivery') {
-      //refetch ekont cities
-      refetchEkont();
+    const isEkont = value.startsWith('ekont');
+    const isSpeedy = value.startsWith('speedy');
 
-      if (value === 'ekont-office') {
-        // handle ekont ekont pickup
-        ekontOffice();
-      } else if (value === 'ekont-delivery') {
-        // handle ekont ekont delivery
-        ekontDelivery();
-      }
-    } else if (value === 'speedy-pickup' || value === 'speedy-delivery') {
-      refetchSpeedyCities();
-      if (value === 'speedy-pickup') {
-        // handle speedy pickup
-        speedyPickup();
-      } else if (value === 'speedy-delivery') {
-        // handle speedy delivery
-        speedyDelivery();
-      }
-    }
+    // reset delivery cost
+    setDeliveryCost(0);
+
+    // clear city and office data when switch between values
+    setSearchForCity('');
+    setSelectedCity('');
+    setSelectedOffice('');
+    updateAddresData({ city: '', officeCode: '' } as AddressFormData);
+
+    // Refetch cities for the selected provider
+    if (isEkont) refetchEkont();
+    if (isSpeedy) refetchSpeedyCities();
+
+    setDeliveryMethod(value);
   };
 
   const radioGroupItems = [

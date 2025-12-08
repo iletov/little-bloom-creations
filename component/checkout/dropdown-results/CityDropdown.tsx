@@ -23,8 +23,13 @@ export const CityDropdown = () => {
   // speedy
   const { speedyCities } = useSpeedyCities(false);
 
-  const { searchForCity, setSearchForCity, setSelectedOffice, deliveryMethod } =
-    useSenderDetails();
+  const {
+    searchForCity,
+    setSearchForCity,
+    setSelectedOffice,
+    deliveryMethod,
+    setSelectedCity,
+  } = useSenderDetails();
 
   const { addressFormData, updateAddresData, setDeliveryCostFlag } = useCart();
 
@@ -51,6 +56,7 @@ export const CityDropdown = () => {
 
   const handleSelectCities = async (city: City) => {
     setSearchForCity(city.name);
+    setSelectedCity(city);
     updateAddresData({ city: city.name } as AddressFormData);
     setShowDropdown(false);
   };
@@ -58,9 +64,9 @@ export const CityDropdown = () => {
   const handleClear = () => {
     setSearchForCity('');
     setSelectedOffice('');
+    setSelectedCity('');
     updateAddresData({ city: '' } as AddressFormData);
     setDeliveryCostFlag(false);
-    // form.setValue('city', '', { shouldValidate: true });
   };
 
   const result = fullAddress.safeParse(addressFormData);
@@ -72,7 +78,6 @@ export const CityDropdown = () => {
   return (
     <div className="relative" ref={dropdownRef}>
       <Input
-        // {...form.register('city')}
         name="city"
         placeholder="Населено място"
         className="input_styles"
@@ -81,7 +86,6 @@ export const CityDropdown = () => {
           const value = e.target.value;
           setSearchForCity(value);
           updateAddresData({ city: value } as AddressFormData);
-          // form.setValue('city', value, { shouldValidate: true });
           setShowDropdown(true);
         }}
         onBlur={() => setTouched(true)}
@@ -93,7 +97,7 @@ export const CityDropdown = () => {
         <Button
           onClick={() => handleClear()}
           variant={'link'}
-          className="absolute text-[1rem] text-neutral-800  right-4 top-1/2 -translate-y-1/2 w-3.5 p-0 h-3.5 text-center rounded-full overflow-hidden font-montserrat">
+          className="absolute text-[1rem] text-neutral-800 right-4 top-1/2 -translate-y-1/2 w-3.5 p-0 h-3.5 text-center rounded-full overflow-hidden font-montserrat">
           x
         </Button>
       ) : null}
@@ -109,7 +113,10 @@ export const CityDropdown = () => {
                 <div
                   key={city.nameEn + city.id}
                   className="px-4 py-2 text-[1.4rem] bg-white text-neutral-800 hover:bg-green-1 cursor-pointer"
-                  onClick={() => handleSelectCities(city)}>
+                  onMouseDown={e => {
+                    e.preventDefault();
+                    handleSelectCities(city);
+                  }}>
                   {city.name}
                 </div>
               ))}

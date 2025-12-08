@@ -9,6 +9,8 @@ import {
   setSearchForCity,
   setSenderDetails,
   setSelectedOffice,
+  selectedCity,
+  setSelecetedCity,
 } from '@/app/store/features/ekont/senderSlice';
 import { EkontSenderDetails } from '@/sanity.types';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,11 +23,13 @@ export const useSenderDetails = () => {
     deliveryMethod: useSelector(selectDeliveryMethod),
     searchForCity: useSelector(selectSearchForCity),
     selectedOffice: useSelector(selectedOffice),
+    selectedCity: useSelector(selectedCity),
 
     setSenderDetails: (state: EkontSenderDetails) =>
       dispatch(setSenderDetails(state)),
     setDeliveryMethod: (state: string) => dispatch(setDeliveryMethod(state)),
     setSearchForCity: (state: any) => dispatch(setSearchForCity(state)),
     setSelectedOffice: (state: any) => dispatch(setSelectedOffice(state)),
+    setSelectedCity: (state: any) => dispatch(setSelecetedCity(state)),
   };
 };

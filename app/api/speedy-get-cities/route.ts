@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   const speedyUrl = process.env.SPEEDY_BASE_URL;
-  const user = process.env.SPEEDY_USER;
+  const userName = process.env.SPEEDY_USER;
   const password = process.env.SPEEDY_PASS;
 
   try {
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        userName: user,
+        userName: userName,
         password: password,
         countryId: '100',
       }),

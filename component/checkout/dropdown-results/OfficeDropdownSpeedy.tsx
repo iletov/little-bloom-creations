@@ -54,28 +54,17 @@ export const OfficeDropdownSpeedy = ({
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // speedy
-  const { speedyCities } = useSpeedyCities(false);
-
-  // const { senderData } = useSenderInfo();
-  const { searchForCity, selectedOffice, setSelectedOffice, deliveryMethod } =
+  const { selectedOffice, setSelectedOffice, deliveryMethod, selectedCity } =
     useSenderDetails();
   const { addressFormData, updateAddresData, setDeliveryCost } = useCart();
 
-  const selectedCityData = speedyCities?.find(
-    city => searchForCity.toLowerCase() === city.name.toLowerCase(),
-  );
-
-  console.log('# --selectedCityData-->', selectedCityData);
+  // console.log('# --selectedCity SPEEDY-->', selectedCity);
 
   const {
     speedyOffices,
     isLoading: isLoadingSpeedy,
     error: errorSpeedy,
-  } = useOfficesSpeedy(
-    selectedCityData?.id,
-    deliveryMethod === 'speedy-pickup',
-  );
+  } = useOfficesSpeedy(selectedCity?.id, deliveryMethod === 'speedy-pickup');
 
   if (isLoadingSpeedy)
     return (
@@ -100,7 +89,7 @@ export const OfficeDropdownSpeedy = ({
       )
     : speedyOffices;
 
-  console.log('# --addressFormData-->', addressFormData);
+  // console.log('# --addressFormData-->', addressFormData);
 
   return (
     <section className=" w-full relative space-y-2">
@@ -117,7 +106,7 @@ export const OfficeDropdownSpeedy = ({
               'w-full justify-between min-h-[2.85rem] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring font-montserrat bg-green-5 text-white px-[8px] [&_svg]:size-[unset]',
               className,
             )}
-            disabled={disabled || !selectedCityData}>
+            disabled={disabled || !selectedCity}>
             {selectedOffice ? (
               <p className="flex gap-2 ">
                 <span>{selectedOffice.name}</span>
@@ -166,35 +155,23 @@ export const OfficeDropdownSpeedy = ({
                           )}
                         />
                         <div className="flex flex-col items-start justify-center ">
-                          <div className="flex gap-2 font-bold ">
+                          <div className="flex gap-2 font-bold [&>p]:text-[1.4rem]">
                             <p>{office.name}</p>
                             <p>({office.id})</p>
                           </div>
-                          <div className="flex gap-1 ">
-                            <p className="text-[1.2rem]">
-                              {office.address.postCode},
-                            </p>
-                            <p className="text-[1.2rem]">
-                              {office.address.fullAddressString}
-                            </p>
+                          <div className="flex gap-1 [&>p]:text-[1.2rem]">
+                            {/* <p>{office.address.postCode},</p> */}
+                            <p>{office.address.fullAddressString}</p>
                           </div>
-                          <div className="flex gap-1">
+                          <div className="flex gap-1 [&>p]:text-[1.2rem]">
                             <p>Понеделник - Петък:</p>
-                            <p className="text-[1.2rem]">
-                              {office.workingTimeFrom}
-                            </p>
-                            <p className="text-[1.2rem]">
-                              {office.workingTimeTo}
-                            </p>
+                            <p>{office.workingTimeFrom}</p>
+                            <p>{office.workingTimeTo}</p>
                           </div>
-                          <div className="flex gap-1">
+                          <div className="flex gap-1 [&>p]:text-[1.2rem]">
                             <p>Събота:</p>
-                            <p className="text-[1.2rem]">
-                              {office.workingTimeHalfFrom}
-                            </p>
-                            <p className="text-[1.2rem]">
-                              {office.workingTimeHalfTo}
-                            </p>
+                            <p>{office.workingTimeHalfFrom}</p>
+                            <p>{office.workingTimeHalfTo}</p>
                           </div>
                         </div>
                       </CommandItem>
