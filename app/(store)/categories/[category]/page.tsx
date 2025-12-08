@@ -33,7 +33,7 @@ export default async function Product({ params }: Props) {
   if (!page) return notFound();
 
   // console.log(`products for '${category}' page`, products);
-  console.log(` page for '${category}' category ->`, page);
+  // console.log(` page for '${category}' category ->`, page);
 
   return (
     <>
