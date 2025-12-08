@@ -33,7 +33,7 @@ export const fullAddress = z.object({
   phoneNumber: z
     .string()
     .regex(/^[0-9]{9,10}$/, { message: 'Phone number is required' }),
-  officeCode: z.string().optional(),
+  officeCode: z.union([z.string(), z.number()]).optional(),
 });
 
 export const contactSchema = z.object({

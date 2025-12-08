@@ -52,18 +52,13 @@ export const OfficeDropdown = ({
   placeholder = 'Select option',
   className,
   disabled = false,
-  // selectedCityData,
-  // onOfficeSelect,
 }: CustomDropdownProps) => {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // const { senderData } = useSenderInfo();
   const { selectedOffice, setSelectedOffice, deliveryMethod, selectedCity } =
     useSenderDetails();
   const { updateAddresData, setDeliveryCost } = useCart();
-
-  // console.log('# --selectedCity EKONT-->', selectedCity);
 
   const { offices, isLoading, error } = useOffices(
     selectedCity?.country?.code3,
@@ -82,8 +77,7 @@ export const OfficeDropdown = ({
 
   const handleSelectOffice = async (currentOffice: Office) => {
     setSelectedOffice(currentOffice);
-    updateAddresData({ officeCode: currentOffice?.code } as AddressFormData);
-    // setDeliveryCostFlag(true);
+    updateAddresData({ officeCode: currentOffice?.code } as AddressFormData); // setDeliveryCostFlag(true);
     setDeliveryCost(0);
     setOpen(false);
   };
