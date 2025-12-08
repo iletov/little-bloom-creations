@@ -15,14 +15,19 @@ interface Props {
 export async function generateStaticParams() {
   const allProducts = await getProducts();
 
-  return allProducts?.map((product: any) => ({
-    product: product?.slug.current,
-    category: product?.category?.slug.current,
-  }));
+  return allProducts
+    ?.filter(
+      (product: any) =>
+        product?.slug?.current && product?.category?.slug?.current,
+    )
+    .map((product: any) => ({
+      product: product.slug.current,
+      category: product.category.slug.current,
+    }));
 }
 
 export default async function Product({ params }: Props) {
-  console.log('params', await params);
+  // console.log('params', await params);
 
   const { category, product } = await params;
 

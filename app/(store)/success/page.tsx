@@ -1,6 +1,7 @@
 // app/success/page.tsx
 'use client';
 
+import { Suspense } from 'react';
 import { useCart } from '@/hooks/useCart';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
@@ -17,7 +18,7 @@ async function checkWebhookStatus(orderNumber: string) {
   return response.json();
 }
 
-export default function SuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get('order_number');
 
@@ -220,5 +221,19 @@ export default function SuccessPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="fixed inset-0 flex items-center justify-center text-center p-6">
+          <div className="animate-spin h-16 w-16 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      }>
+      <SuccessContent />
+    </Suspense>
   );
 }

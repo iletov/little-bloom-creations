@@ -44,7 +44,7 @@ export const getProducts = unstable_cache(
     *[_type == "productType"] {
       name,
       slug,
-      catogory->{
+      category->{
         slug
       }
     }
