@@ -17,7 +17,6 @@ async function checkWebhookStatus(orderNumber: string) {
   return response.json();
 }
 
-
 export default function SuccessPage() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get('order_number');
@@ -125,7 +124,7 @@ export default function SuccessPage() {
           </h1>
 
           <p className="text-gray-600">
-            We're creating your order and reducing stock. This usually takes a
+            We are creating your order and reducing stock. This usually takes a
             few seconds...
           </p>
         </div>
