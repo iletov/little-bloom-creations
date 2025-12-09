@@ -35,7 +35,17 @@ export const OrderDetailsContainer = () => {
     setSearchForCity('');
     setSelectedCity('');
     setSelectedOffice('');
-    updateAddresData({ city: '', officeCode: '' } as AddressFormData);
+    updateAddresData({
+      city: '',
+      officeCode: '',
+      street: '',
+      streetNumber: '',
+      blockNo: '',
+      entranceNo: '',
+      floorNo: '',
+      apartmentNo: '',
+      other: '',
+    } as AddressFormData);
 
     // Refetch cities for the selected provider
     if (isEkont) refetchEkont();

@@ -50,6 +50,10 @@ export const POST = async (req: NextRequest) => {
       street_number: body.orderDetails?.streetNumber ?? null,
       additional_info: body.orderDetails?.other ?? null,
       office_code: body.orderDetails?.officeCode ?? null,
+      block_no: body.orderDetails?.blockNo ?? null,
+      entrance_no: body.orderDetails?.entranceNo ?? null,
+      floor_no: body.orderDetails?.floorNo ?? null,
+      apartment_no: body.orderDetails?.apartmentNo ?? null,
     };
 
     const orderMethods = {

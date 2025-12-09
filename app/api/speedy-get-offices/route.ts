@@ -29,8 +29,11 @@ export async function POST(req: NextRequest) {
 
     const data = await response.json();
     // console.log('Speedy Speedy Offices', data.offices);
+    const offices = data.offices.filter(
+      (office: any) => office?.type !== 'APT',
+    );
 
-    return NextResponse.json(data.offices, {
+    return NextResponse.json(offices, {
       status: 200,
       headers: {
         'Cache-Control': 'private, max-age=3600',

@@ -10,6 +10,10 @@ export type AddressFormDataType = {
   street?: string; // Make address optional
   streetNumber?: string; // Make address optional
   other?: string;
+  blockNo?: string;
+  entranceNo?: string;
+  floorNo?: string;
+  apartmentNo?: string;
 };
 
 export const guestSchema = z.object({
@@ -34,6 +38,10 @@ export const fullAddress = z.object({
     .string()
     .regex(/^[0-9]{9,10}$/, { message: 'Phone number is required' }),
   officeCode: z.union([z.string(), z.number()]).optional(),
+  blockNo: z.string().optional(),
+  entranceNo: z.string().optional(),
+  floorNo: z.string().optional(),
+  apartmentNo: z.string().optional(),
 });
 
 export const contactSchema = z.object({

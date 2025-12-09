@@ -1,43 +1,40 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { GroupedCartItem, Metadata } from '@/app/api/payment-intent/route';
 import {
   useStripe,
   useElements,
   PaymentElement,
-  AddressElement,
 } from '@stripe/react-stripe-js';
 import { Loader } from '../../loader/Loader';
 import { useCart } from '@/hooks/useCart';
 import { CancelPayment } from '../../buttons/CancelPayment';
 import { Button } from '@/components/ui/button';
-import { checkQuantity } from '@/actions/checkQuantity';
-// import { useSenderInfo } from '@/hooks/useSenderInfo';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { AlertBox } from '@/component/modals/AlertBox';
 import { useSenderInfo } from '@/hooks/useSenderInfo';
 import { createLabel } from '@/actions/ekont/createLabel';
+import { createShipmentSpeedy } from '@/actions/speedy/createShipmentSpeedy';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Props {
-  // groupedItems: GroupedCartItem[];
-  // metadata: Metadata;
   totalPrice: number;
   paymentMethod: string;
 }
 
 export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
   const stripe = useStripe();
+  const { user } = useAuth();
 
-  const { senderData } = useSenderInfo();
-  const { deliveryMethod } = useSenderDetails();
+  const { senderData, senderDataSpeedy } = useSenderInfo(false);
+  const { deliveryMethod, selectedOffice, selectedCity, validationStreet } =
+    useSenderDetails();
   const elements = useElements();
   const {
     errorState,
     clientSecret,
     metadata,
     paymentIntentId,
-    groupedItems,
     guestFormData,
     dispatchPaymentIntentId,
     addressFormData,
@@ -47,6 +44,9 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
   const [loading, setLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ title: '', message: '' });
+
+  const isEkont = deliveryMethod.startsWith('ekont');
+  const isSpeedy = deliveryMethod.startsWith('speedy');
 
   const pathToRedirect = '/cart';
   const disabledBtn =
@@ -70,16 +70,43 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
     if (!senderData || !addressFormData || !deliveryMethod) {
       return 0;
     }
-    const ekontValidate = await createLabel(
-      senderData,
-      guestFormData,
-      addressFormData,
-      totalPrice,
-      deliveryMethod,
-      paymentMethod,
-    );
 
-    if (ekontValidate?.label.totalPrice) {
+    let validate;
+
+    if (isEkont) {
+      validate = await createLabel(
+        senderData,
+        guestFormData,
+        addressFormData,
+        totalPrice,
+        deliveryMethod,
+        paymentMethod,
+      );
+    }
+
+    if (isSpeedy) {
+      const recipientData = {
+        clientName: metadata.customerName,
+        email: user?.email ?? guestFormData?.email,
+      };
+
+      validate = await createShipmentSpeedy(
+        senderDataSpeedy,
+        recipientData,
+        addressFormData,
+        deliveryMethod,
+        paymentMethod,
+        selectedOffice?.id,
+        selectedCity?.id,
+        validationStreet?.id,
+        totalPrice,
+      );
+    }
+
+    if (
+      (isEkont && validate?.label?.totalPrice) ||
+      (isSpeedy && validate?.price?.total)
+    ) {
       setAlertMessage({
         title: 'Успешно направена поръчка!',
         message: 'Вашата поръчка беше успешно направена!',

@@ -141,6 +141,10 @@ export async function POST(req: NextRequest) {
         street_number: pendingOrder?.order_details?.streetNumber ?? null,
         additional_info: pendingOrder?.order_details?.other ?? null,
         office_code: pendingOrder?.order_details?.officeCode ?? null,
+        block_no: pendingOrder?.order_details?.blockNo ?? null,
+        entrance_no: pendingOrder?.order_details?.entranceNo ?? null,
+        floor_no: pendingOrder?.order_details?.floorNo ?? null,
+        apartment_no: pendingOrder?.order_details?.apartmentNo ?? null,
       };
 
       const orderMethods = {

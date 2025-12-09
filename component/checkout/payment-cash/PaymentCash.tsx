@@ -1,17 +1,15 @@
 'use client';
 import { cancelPaymentIntent } from '@/actions/cancelPaymentIntent';
-import { checkQuantity } from '@/actions/checkQuantity';
 import { createLabel } from '@/actions/ekont/createLabel';
+import { createShipmentSpeedy } from '@/actions/speedy/createShipmentSpeedy';
 import { Loader } from '@/component/loader/Loader';
 import { AlertBox } from '@/component/modals/AlertBox';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { useSenderInfo } from '@/hooks/useSenderInfo';
-// import { useSenderInfo } from '@/hooks/useSenderInfo';
-import { convertToSubCurrency } from '@/lib/convertAmount';
-import { create } from 'domain';
-import { redirect, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import React, { useEffect, useState } from 'react';
 
@@ -22,8 +20,10 @@ export const PaymentCash = ({
   isDissabled: boolean;
   paymentMethod: string;
 }) => {
-  const { senderData } = useSenderInfo();
-  const { deliveryMethod } = useSenderDetails();
+  const { senderData, senderDataSpeedy } = useSenderInfo(false);
+  const { user } = useAuth();
+  const { deliveryMethod, selectedOffice, selectedCity, validationStreet } =
+    useSenderDetails();
   const {
     totalPrice,
     deliveryCost,
@@ -51,6 +51,9 @@ export const PaymentCash = ({
     deliveryCost: deliveryCost,
   };
 
+  const isEkont = deliveryMethod.startsWith('ekont');
+  const isSpeedy = deliveryMethod.startsWith('speedy');
+
   const handleOrderSubmit = async () => {
     setIsLoading(true);
 
@@ -76,15 +79,40 @@ export const PaymentCash = ({
         return 0;
       }
 
-      // validate label in Ekont
-      const validate = await createLabel(
-        senderData,
-        guestFormData,
-        addressFormData,
-        totalPrice,
-        deliveryMethod,
-        paymentMethod,
-      );
+      let validate;
+
+      if (isEkont) {
+        // validate label - Ekont
+        validate = await createLabel(
+          senderData,
+          guestFormData,
+          addressFormData,
+          totalPrice,
+          deliveryMethod,
+          paymentMethod,
+        );
+      }
+
+      if (isSpeedy) {
+        //TODO: create speedy label
+
+        const recipientData = {
+          clientName: metadata.customerName,
+          email: user?.email ?? guestFormData?.email,
+        };
+
+        validate = await createShipmentSpeedy(
+          senderDataSpeedy,
+          recipientData,
+          addressFormData,
+          deliveryMethod,
+          paymentMethod,
+          selectedOffice?.id,
+          selectedCity?.id,
+          validationStreet?.id,
+          totalPrice,
+        );
+      }
 
       const res = await fetch('/api/place-order-cash', {
         method: 'POST',
@@ -120,7 +148,10 @@ export const PaymentCash = ({
 
       setResponse(data);
 
-      if (validate?.label.totalPrice) {
+      if (
+        (isEkont && validate?.label?.totalPrice) ||
+        (isSpeedy && validate?.price?.total)
+      ) {
         console.log(`# Send Cart Items successfuly to the backend:`, data);
 
         setAlertMessage({

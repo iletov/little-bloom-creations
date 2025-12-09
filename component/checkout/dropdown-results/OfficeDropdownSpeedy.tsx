@@ -14,13 +14,9 @@ import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { Check, ChevronDown } from 'lucide-react';
 import React, { useState } from 'react';
 import { Loader } from '@/component/loader/Loader';
-import { useOffices } from '@/hooks/useOffices';
-import { useCities } from '@/hooks/useCities';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { useCart } from '@/hooks/useCart';
 import { AddressFormData } from '@/app/store/features/stripe/stripeSlice';
-import { useSenderInfo } from '@/hooks/useSenderInfo';
-import { useSpeedyCities } from '@/hooks/useCitiesSpeedy';
 import { useOfficesSpeedy } from '@/hooks/useOfficesSpeedy';
 
 export interface OfficeSpeedy {

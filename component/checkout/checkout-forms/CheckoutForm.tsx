@@ -23,7 +23,8 @@ import { Button } from '@/components/ui/button';
 import { Loader } from '@/component/loader/Loader';
 import { cn } from '@/lib/utils';
 import { OfficeDropdownSpeedy } from '../dropdown-results/OfficeDropdownSpeedy';
-import { calculateLabelSpeedy } from '@/actions/ekont/calculateLabelSpeedy';
+import { calculateLabelSpeedy } from '@/actions/speedy/calculateLabelSpeedy';
+import { validateStreetSpeedy } from '@/actions/speedy/validateStreetSpeedy';
 
 export interface City {
   id: string;
@@ -51,10 +52,12 @@ export const CheckoutForm = () => {
     setDeliveryCostFlag,
   } = useCart();
 
-  const { senderData } = useSenderInfo();
-  const { deliveryMethod, selectedCity } = useSenderDetails();
+  const { senderData, senderDataSpeedy } = useSenderInfo();
+  const { deliveryMethod, selectedCity, setValidationStreet, selectedOffice } =
+    useSenderDetails();
 
-  // console.log('# --Selected City-->', selectedCity);
+  console.log('# --Selected City-->', selectedCity);
+  console.log('# --Selected Office-->', selectedOffice);
 
   const isEkont =
     deliveryMethod === 'ekont-office' || deliveryMethod === 'ekont-delivery';
@@ -76,12 +79,18 @@ export const CheckoutForm = () => {
     defaultValues: {
       country: 'България',
       city: addressFormData?.city || '',
-      street: addressFormData?.street || '',
-      streetNumber: addressFormData?.streetNumber || '',
-      other: addressFormData?.other || '',
-      postalCode: addressFormData?.postalCode || '',
       phoneNumber: addressFormData?.phoneNumber || '',
+      postalCode: addressFormData?.postalCode || '',
+      street: addressFormData?.street || '',
       officeCode: addressFormData?.officeCode || '',
+      streetNumber: addressFormData?.streetNumber || '',
+      //only for speedy
+      blockNo: addressFormData?.blockNo || '',
+      entranceNo: addressFormData?.entranceNo || '',
+      floorNo: addressFormData?.floorNo || '',
+      apartmentNo: addressFormData?.apartmentNo || '',
+      // only for ekont
+      other: addressFormData?.other || '',
     },
   });
 
@@ -104,6 +113,17 @@ export const CheckoutForm = () => {
       }
 
       if (isSpeedy) {
+        //TODO: Validate street and get street Id
+
+        const validateStreet = await validateStreetSpeedy(
+          addressFormData?.street,
+          selectedCity?.id,
+        );
+
+        // console.log('# --validateStreet-->', validateStreet);
+
+        setValidationStreet(validateStreet);
+
         calculateDeliveryCost = await calculateLabelSpeedy(
           deliveryMethod,
           addressFormData?.officeCode,
@@ -228,8 +248,7 @@ export const CheckoutForm = () => {
           {/* CITY DROPDOWN MENU */}
           <CityDropdown />
 
-          {deliveryMethod === 'ekont-delivery' ||
-          deliveryMethod === 'speedy-delivery' ? (
+          {deliveryMethod.includes('delivery') ? (
             <>
               <Input
                 {...addressForm.register('street')}
@@ -249,15 +268,57 @@ export const CheckoutForm = () => {
                   handleUpdateOnBlur('streetNumber', e.target.value);
                 }}
               />
-              <Input
-                {...addressForm.register('other')}
-                placeholder="Друго"
-                className="input_styles"
-                // onBlur={handleImmediateSave}
-                onBlur={e => {
-                  handleUpdateOnBlur('other', e.target.value);
-                }}
-              />
+
+              {deliveryMethod === 'speedy-delivery' ? (
+                <>
+                  <Input
+                    {...addressForm.register('blockNo')}
+                    placeholder="Блок"
+                    className="input_styles"
+                    // onBlur={handleImmediateSave}
+                    onBlur={e => {
+                      handleUpdateOnBlur('blockNo', e.target.value);
+                    }}
+                  />
+                  <Input
+                    {...addressForm.register('entranceNo')}
+                    placeholder="Вход"
+                    className="input_styles"
+                    // onBlur={handleImmediateSave}
+                    onBlur={e => {
+                      handleUpdateOnBlur('entranceNo', e.target.value);
+                    }}
+                  />
+                  <Input
+                    {...addressForm.register('floorNo')}
+                    placeholder="Етаж"
+                    className="input_styles"
+                    // onBlur={handleImmediateSave}
+                    onBlur={e => {
+                      handleUpdateOnBlur('floorNo', e.target.value);
+                    }}
+                  />
+                  <Input
+                    {...addressForm.register('apartmentNo')}
+                    placeholder="Апартамент"
+                    className="input_styles"
+                    // onBlur={handleImmediateSave}
+                    onBlur={e => {
+                      handleUpdateOnBlur('apartmentNo', e.target.value);
+                    }}
+                  />
+                </>
+              ) : (
+                <Input
+                  {...addressForm.register('other')}
+                  placeholder="Друго"
+                  className="input_styles"
+                  // onBlur={handleImmediateSave}
+                  onBlur={e => {
+                    handleUpdateOnBlur('other', e.target.value);
+                  }}
+                />
+              )}
             </>
           ) : null}
           {addressForm.formState.errors.street && (

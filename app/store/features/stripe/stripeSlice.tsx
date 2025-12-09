@@ -17,6 +17,11 @@ export interface AddressFormData {
   postalCode: string;
   phoneNumber: string;
   officeCode?: string;
+  streetNo?: string;
+  blockNo?: string;
+  entranceNo?: string;
+  floorNo?: string;
+  apartmentNo?: string;
 }
 
 interface PaymentState {

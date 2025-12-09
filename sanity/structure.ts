@@ -12,6 +12,9 @@ export const structure: StructureResolver = S =>
       S.documentTypeListItem('ekontSenderDetails').title(
         'Еконт данни (подател)',
       ),
+      S.documentTypeListItem('speedySenderDetails').title(
+        'Спиди данни (подател)',
+      ),
       // ...S.documentTypeListItems().filter(
       //   item =>
       //     item.getId() &&
