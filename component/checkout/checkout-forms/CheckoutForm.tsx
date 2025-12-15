@@ -1,8 +1,7 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useCart } from '@/hooks/useCart';
-
 import { Input } from '@/components/ui/input';
 import { ErrorMessage } from './ErrorMessage';
 import { CityDropdown } from '../dropdown-results/CityDropdown';
@@ -14,17 +13,10 @@ import {
   guestSchema,
 } from '@/lib/form-validation/validations';
 import { OfficeDropdown } from '../dropdown-results/OfficeDropdown';
-import { calculateLabel } from '@/actions/ekont/calculateLabel';
 import { useAuth } from '@/hooks/useAuth';
-import { useSenderInfo } from '@/hooks/useSenderInfo';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
-import { Loader } from '@/component/loader/Loader';
-import { cn } from '@/lib/utils';
 import { OfficeDropdownSpeedy } from '../dropdown-results/OfficeDropdownSpeedy';
-import { calculateLabelSpeedy } from '@/actions/speedy/calculateLabelSpeedy';
-import { validateStreetSpeedy } from '@/actions/speedy/validateStreetSpeedy';
 
 export interface City {
   id: string;
@@ -45,24 +37,14 @@ export const CheckoutForm = () => {
     guestFormData,
     addressFormData,
     saveAddressData,
-    setDeliveryCost,
     updateAddresData,
     updateGuestData,
-    deliveryCostFlag,
-    setDeliveryCostFlag,
   } = useCart();
 
-  const { senderData, senderDataSpeedy } = useSenderInfo();
-  const { deliveryMethod, selectedCity, setValidationStreet, selectedOffice } =
-    useSenderDetails();
+  const { deliveryMethod, selectedCity, selectedOffice } = useSenderDetails();
 
   console.log('# --Selected City-->', selectedCity);
   console.log('# --Selected Office-->', selectedOffice);
-
-  const isEkont =
-    deliveryMethod === 'ekont-office' || deliveryMethod === 'ekont-delivery';
-  const isSpeedy =
-    deliveryMethod === 'speedy-pickup' || deliveryMethod === 'speedy-delivery';
 
   const guestForm = useForm<GuestFormDataType>({
     resolver: zodResolver(guestSchema),
@@ -93,53 +75,6 @@ export const CheckoutForm = () => {
       other: addressFormData?.other || '',
     },
   });
-
-  const labelValidation = async () => {
-    // setIsLoading(true);
-    setDeliveryCostFlag(true);
-
-    let calculateDeliveryCost: any;
-
-    try {
-      if (isEkont) {
-        calculateDeliveryCost = await calculateLabel(
-          senderData,
-          guestFormData,
-          addressFormData,
-          deliveryMethod,
-        );
-
-        setDeliveryCost(calculateDeliveryCost?.label?.totalPrice || 0);
-      }
-
-      if (isSpeedy) {
-        //TODO: Validate street and get street Id
-
-        const validateStreet = await validateStreetSpeedy(
-          addressFormData?.street,
-          selectedCity?.id,
-        );
-
-        // console.log('# --validateStreet-->', validateStreet);
-
-        setValidationStreet(validateStreet);
-
-        calculateDeliveryCost = await calculateLabelSpeedy(
-          deliveryMethod,
-          addressFormData?.officeCode,
-          selectedCity?.id,
-        );
-
-        setDeliveryCost(calculateDeliveryCost?.price?.total || 0);
-      }
-
-      // console.log('# --calculateDeliveryCost-->', calculateDeliveryCost);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setDeliveryCostFlag(false);
-    }
-  };
 
   const handleUpdateOnBlur = <K extends keyof AddressFormDataType>(
     key: K,
@@ -332,12 +267,12 @@ export const CheckoutForm = () => {
 
       {deliveryMethod === 'speedy-pickup' ? <OfficeDropdownSpeedy /> : null}
 
-      <Button
+      {/* <Button
         variant="default"
         onClick={labelValidation}
         className={cn(deliveryCostFlag && 'hover:bg-green-1 min-w-[126.7px]')}>
         {deliveryCostFlag ? <Loader /> : 'Validate'}
-      </Button>
+      </Button> */}
     </div>
   );
 };

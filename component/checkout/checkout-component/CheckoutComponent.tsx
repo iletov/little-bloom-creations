@@ -38,6 +38,8 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
     guestFormData,
     dispatchPaymentIntentId,
     addressFormData,
+    deliveryCost,
+    deliveryCostFlag,
   } = useCart();
 
   const [errorMessage, setErrorMessage] = useState<string | null>();
@@ -53,7 +55,7 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
     // !stripe ||
     // !elements ||
     // loading ||
-    !clientSecret || !paymentIntentId;
+    !clientSecret || !paymentIntentId || deliveryCost === 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,7 +165,7 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
           className={`py-4 px-4 min-w-[135px]
             ${disabledBtn ? 'opacity-70 cursor-not-allowed' : ''}`}
           disabled={disabledBtn}>
-          {loading ? <Loader /> : <span>Pay</span>}
+          {loading || deliveryCostFlag ? <Loader /> : <span>Pay</span>}
         </Button>
 
         <CancelPayment

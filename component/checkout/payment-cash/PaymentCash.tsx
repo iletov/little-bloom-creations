@@ -17,7 +17,7 @@ export const PaymentCash = ({
   isDissabled,
   paymentMethod,
 }: {
-  isDissabled: boolean;
+  isDissabled?: boolean;
   paymentMethod: string;
 }) => {
   const { senderData, senderDataSpeedy } = useSenderInfo(false);
@@ -33,6 +33,7 @@ export const PaymentCash = ({
     items,
     paymentIntentId,
     dispatchPaymentIntentId,
+    deliveryCostFlag,
   } = useCart();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -186,12 +187,18 @@ export const PaymentCash = ({
   return (
     <section>
       <Button
-        disabled={isDissabled}
+        disabled={isDissabled || deliveryCost === 0}
         variant={'default'}
         onClick={handleOrderSubmit}
         aria-label="Submit order"
         className={`w-full sm:w-auto min-w-[135px] py-4 mt-4 ${isDissabled && 'cursor-not-allowed opacity-70 '} `}>
-        {isLoading ? <Loader /> : isDissabled ? 'Без наличност' : `Поръчай`}
+        {isLoading || deliveryCostFlag ? (
+          <Loader />
+        ) : isDissabled ? (
+          'Без наличност'
+        ) : (
+          `Поръчай`
+        )}
       </Button>
       {showAlert && (
         <AlertBox

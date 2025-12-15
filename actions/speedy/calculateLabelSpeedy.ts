@@ -2,12 +2,16 @@
 
 export const calculateLabelSpeedy = async (
   deliveryMethod: string,
+  paymentMethod: string | null,
   officeId: number | string | undefined,
   siteId: number,
+  totalAmount: number,
 ) => {
   const speedyUrl = process.env.SPEEDY_BASE_URL;
   const userName = process.env.SPEEDY_USER;
   const password = process.env.SPEEDY_PASS;
+
+  const isPaymentCash = paymentMethod === 'cash';
 
   const recipient =
     deliveryMethod === 'speedy-pickup'
@@ -22,6 +26,68 @@ export const calculateLabelSpeedy = async (
           },
         };
 
+  const additionalServices = isPaymentCash
+    ? {
+        cod: {
+          amount: totalAmount,
+          processingType: 'CASH',
+          payoutToLoggedClient: true,
+          fiscalReceiptItems: [
+            //TODO: handle fiscalReceiptItems
+            {
+              description: 'Shoes',
+              vatGroup: 'Б',
+              amount: '50',
+              amountWithVat: '60',
+            },
+          ],
+        },
+        obpd: {
+          option: 'OPEN',
+          returnShipmentServiceId: 505,
+          returnShipmentPayer: 'SENDER',
+        },
+        declaredValue: {
+          amount: totalAmount,
+          fragile: true,
+        },
+      }
+    : {
+        obpd: {
+          option: 'OPEN',
+          returnShipmentServiceId: 505,
+          returnShipmentPayer: 'SENDER',
+        },
+        declaredValue: {
+          amount: totalAmount,
+          fragile: true,
+        },
+      };
+
+  //TODO handle parcels
+  const parcels = [
+    {
+      seqNo: 1,
+      size: {
+        width: 10,
+        height: 30,
+        depth: 20,
+      },
+      weight: 0.5,
+      // "ref1": "ORDER 123456, 1st Box"
+    },
+    {
+      seqNo: 2,
+      size: {
+        width: 10,
+        height: 30,
+        depth: 20,
+      },
+      weight: 1.05,
+      // "ref1": "ORDER 123456, 1st Box"
+    },
+  ];
+
   const labelData = {
     userName,
     password,
@@ -32,11 +98,13 @@ export const calculateLabelSpeedy = async (
     service: {
       autoAdjustPickupDate: true,
       serviceIds: [505],
+      additionalServices,
     },
     content: {
-      parcelsCount: 1,
-      totalWeight: 0.6,
-      // package: 'BOX',
+      // parcelsCount: 1,
+      parcels,
+      // totalWeight: 0.6,
+      // package: 'ENVELOP',
       // contents: 'Other',
     },
     payment: {

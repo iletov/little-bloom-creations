@@ -183,7 +183,7 @@ export const OrderSummery = () => {
         </p>
 
         <Button
-          disabled={deliveryCost === 0 || deliveryCostFlag}
+          disabled={!deliveryMethod}
           onClick={handleCheckOut}
           variant="default"
           className="w-full">

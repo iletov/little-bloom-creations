@@ -11,20 +11,31 @@ import { convertToSubCurrency } from '@/lib/convertAmount';
 import { Separator } from '@/component/separator/Separator';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { AlertBox } from '@/component/modals/AlertBox';
+import { calculateLabel } from '@/actions/ekont/calculateLabel';
+import { validateStreetSpeedy } from '@/actions/speedy/validateStreetSpeedy';
+import { useSenderInfo } from '@/hooks/useSenderInfo';
+import { calculateLabelSpeedy } from '@/actions/speedy/calculateLabelSpeedy';
 
 export default function CheckoutPage() {
-  const { deliveryMethod } = useSenderDetails();
+  const { deliveryMethod, selectedCity, setValidationStreet, selectedOffice } =
+    useSenderDetails();
+  const { senderData, senderDataSpeedy } = useSenderInfo();
   const {
     items,
     totalPrice,
     totalItems,
     paymentIntentId,
     addressFormData,
+    guestFormData,
     metadata,
     dispatchClientSecret,
     dispatchPaymentIntentId,
     deliveryCost,
+    setDeliveryCostFlag,
+    setDeliveryCost,
   } = useCart();
+
+  console.log('items', items);
 
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [isDissabled, setIsDissabled] = useState(false);
@@ -32,8 +43,63 @@ export default function CheckoutPage() {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ title: '', message: '' });
 
+  const isEkont =
+    deliveryMethod === 'ekont-office' || deliveryMethod === 'ekont-delivery';
+  const isSpeedy =
+    deliveryMethod === 'speedy-pickup' || deliveryMethod === 'speedy-delivery';
+
+  const labelValidation = async () => {
+    // setIsLoading(true);
+    setDeliveryCostFlag(true);
+
+    let calculateDeliveryCost: any;
+
+    try {
+      if (isEkont) {
+        calculateDeliveryCost = await calculateLabel(
+          senderData,
+          guestFormData,
+          addressFormData,
+          deliveryMethod,
+        );
+
+        setDeliveryCost(calculateDeliveryCost?.label?.totalPrice || 0);
+      }
+
+      if (isSpeedy) {
+        //TODO: Validate street and get street Id
+
+        const validateStreet = await validateStreetSpeedy(
+          addressFormData?.street,
+          selectedCity?.id,
+        );
+
+        // console.log('# --validateStreet-->', validateStreet);
+
+        setValidationStreet(validateStreet);
+
+        calculateDeliveryCost = await calculateLabelSpeedy(
+          deliveryMethod,
+          paymentMethod,
+          addressFormData?.officeCode,
+          selectedCity?.id,
+          totalPrice,
+        );
+
+        setDeliveryCost(calculateDeliveryCost?.price?.total || 0);
+      }
+
+      // console.log('# --calculateDeliveryCost-->', calculateDeliveryCost);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setDeliveryCostFlag(false);
+    }
+  };
+
   const handleCardPayment = async () => {
     setPaymentMethod('bank');
+    labelValidation();
 
     const orderMethods = {
       deliveryMethod: deliveryMethod,
@@ -88,6 +154,7 @@ export default function CheckoutPage() {
 
   const handleCashPayment = async () => {
     setPaymentMethod('cash');
+    labelValidation();
     setIsDissabled(false);
 
     // check the quantity
@@ -179,7 +246,7 @@ export default function CheckoutPage() {
       <div className="mt-5 mb-16 order-3">
         {paymentMethod === 'cash' ? (
           <PaymentCash
-            isDissabled={isDissabled}
+            // isDissabled={isDissabled}
             paymentMethod={paymentMethod}
           />
         ) : paymentMethod === 'bank' ? (

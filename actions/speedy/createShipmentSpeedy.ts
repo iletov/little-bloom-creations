@@ -52,6 +52,15 @@ export const createShipmentSpeedy = async (
           amount: totalAmount,
           processingType: 'CASH',
           payoutToLoggedClient: true,
+          fiscalReceiptItems: [
+            //TODO: handle fiscalReceiptItems
+            {
+              description: 'Shoes',
+              vatGroup: 'Б',
+              amount: '50',
+              amountWithVat: '60',
+            },
+          ],
         },
         obpd: {
           option: 'OPEN',
