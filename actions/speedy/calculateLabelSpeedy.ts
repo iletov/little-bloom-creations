@@ -1,11 +1,22 @@
 'use server';
 
+import { ReceiptItem } from '@/lib/utils/createReceiptFromItems';
+
+export type parcelsType = {
+  seqNo: number;
+  size: { width: number; height: number; depth: number };
+  weight: number;
+  ref1: string;
+};
+
 export const calculateLabelSpeedy = async (
   deliveryMethod: string,
   paymentMethod: string | null,
   officeId: number | string | undefined,
   siteId: number,
   totalAmount: number,
+  parcels: parcelsType[],
+  receipt: ReceiptItem[],
 ) => {
   const speedyUrl = process.env.SPEEDY_BASE_URL;
   const userName = process.env.SPEEDY_USER;
@@ -32,15 +43,7 @@ export const calculateLabelSpeedy = async (
           amount: totalAmount,
           processingType: 'CASH',
           payoutToLoggedClient: true,
-          fiscalReceiptItems: [
-            //TODO: handle fiscalReceiptItems
-            {
-              description: 'Shoes',
-              vatGroup: 'Б',
-              amount: '50',
-              amountWithVat: '60',
-            },
-          ],
+          fiscalReceiptItems: receipt,
         },
         obpd: {
           option: 'OPEN',
@@ -64,30 +67,6 @@ export const calculateLabelSpeedy = async (
         },
       };
 
-  //TODO handle parcels
-  const parcels = [
-    {
-      seqNo: 1,
-      size: {
-        width: 10,
-        height: 30,
-        depth: 20,
-      },
-      weight: 0.5,
-      // "ref1": "ORDER 123456, 1st Box"
-    },
-    {
-      seqNo: 2,
-      size: {
-        width: 10,
-        height: 30,
-        depth: 20,
-      },
-      weight: 1.05,
-      // "ref1": "ORDER 123456, 1st Box"
-    },
-  ];
-
   const labelData = {
     userName,
     password,
@@ -101,11 +80,11 @@ export const calculateLabelSpeedy = async (
       additionalServices,
     },
     content: {
-      // parcelsCount: 1,
+      parcelsCount: parcels.length,
       parcels,
       // totalWeight: 0.6,
-      // package: 'ENVELOP',
-      // contents: 'Other',
+      package: 'ENVELOP',
+      contents: 'КАНЦ. МАТЕР.',
     },
     payment: {
       courierServicePayer: 'RECIPIENT',
@@ -113,7 +92,7 @@ export const calculateLabelSpeedy = async (
     },
   };
 
-  // console.log('LABEL DATA----->:', JSON.stringify(labelData));
+  console.log('CALCULATE LABEL DATA----->:', JSON.stringify(labelData));
 
   try {
     const res = await fetch(`${speedyUrl}/calculate`, {

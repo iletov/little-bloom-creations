@@ -10,8 +10,10 @@ import { useCart } from '@/hooks/useCart';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { useSenderInfo } from '@/hooks/useSenderInfo';
 import { useRouter } from 'next/navigation';
+import { createParcelsFromItems } from '@/lib/utils/createParcelsFromItems';
 
 import React, { useEffect, useState } from 'react';
+import { createReceiptFromItems } from '@/lib/utils/createReceiptFromItems';
 
 export const PaymentCash = ({
   isDissabled,
@@ -34,6 +36,7 @@ export const PaymentCash = ({
     paymentIntentId,
     dispatchPaymentIntentId,
     deliveryCostFlag,
+    totalWeight,
   } = useCart();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -82,6 +85,10 @@ export const PaymentCash = ({
 
       let validate;
 
+      const shipmentDescription = createReceiptFromItems(items)
+        ?.map(item => item.description)
+        .join(', ');
+
       if (isEkont) {
         // validate label - Ekont
         validate = await createLabel(
@@ -91,11 +98,16 @@ export const PaymentCash = ({
           totalPrice,
           deliveryMethod,
           paymentMethod,
+          shipmentDescription,
+          totalWeight,
         );
       }
 
       if (isSpeedy) {
-        //TODO: create speedy label
+        // create speedy label
+
+        const parcels = createParcelsFromItems(items, metadata?.orderNumber);
+        const receipt = createReceiptFromItems(items);
 
         const recipientData = {
           clientName: metadata.customerName,
@@ -112,6 +124,8 @@ export const PaymentCash = ({
           selectedCity?.id,
           validationStreet?.id,
           totalPrice,
+          parcels,
+          receipt,
         );
       }
 

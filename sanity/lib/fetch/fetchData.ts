@@ -155,7 +155,11 @@ export const getProduct = unstable_cache(
        
       name, 
       slug, 
-      description, 
+      description,
+      weight,
+      width,
+      height,
+      depth,
       category-> {
         name, 
         slug,
@@ -204,6 +208,10 @@ export const getProduct = unstable_cache(
         },
         // stock,
         inStock,
+        weight,
+        width,
+        height,
+        depth,
         ...
       },
       additionalSections[] {

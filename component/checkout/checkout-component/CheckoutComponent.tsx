@@ -16,6 +16,8 @@ import { useSenderInfo } from '@/hooks/useSenderInfo';
 import { createLabel } from '@/actions/ekont/createLabel';
 import { createShipmentSpeedy } from '@/actions/speedy/createShipmentSpeedy';
 import { useAuth } from '@/hooks/useAuth';
+import { createParcelsFromItems } from '@/lib/utils/createParcelsFromItems';
+import { createReceiptFromItems } from '@/lib/utils/createReceiptFromItems';
 
 interface Props {
   totalPrice: number;
@@ -31,6 +33,7 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
     useSenderDetails();
   const elements = useElements();
   const {
+    items,
     errorState,
     clientSecret,
     metadata,
@@ -40,6 +43,7 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
     addressFormData,
     deliveryCost,
     deliveryCostFlag,
+    totalWeight,
   } = useCart();
 
   const [errorMessage, setErrorMessage] = useState<string | null>();
@@ -75,6 +79,10 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
 
     let validate;
 
+    const shipmentDescription = createReceiptFromItems(items)
+      ?.map(item => item.description)
+      .join(', ');
+
     if (isEkont) {
       validate = await createLabel(
         senderData,
@@ -83,6 +91,9 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
         totalPrice,
         deliveryMethod,
         paymentMethod,
+        shipmentDescription,
+        totalWeight,
+        false,
       );
     }
 
@@ -91,6 +102,9 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
         clientName: metadata.customerName,
         email: user?.email ?? guestFormData?.email,
       };
+
+      const parcels = createParcelsFromItems(items, metadata?.orderNumber);
+      const receipt = createReceiptFromItems(items);
 
       validate = await createShipmentSpeedy(
         senderDataSpeedy,
@@ -102,6 +116,8 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
         selectedCity?.id,
         validationStreet?.id,
         totalPrice,
+        parcels,
+        receipt,
       );
     }
 

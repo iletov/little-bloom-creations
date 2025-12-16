@@ -46,6 +46,10 @@ export default async function Product({ params }: Props) {
         ...sbVariant,
         images: match?.images || [],
         color: match?.color || null,
+        weight: match?.weight || null,
+        width: match?.width || null,
+        height: match?.height || null,
+        depth: match?.depth || null,
       };
     });
   };
@@ -63,7 +67,7 @@ export default async function Product({ params }: Props) {
     variants: completeVariants,
   };
 
-  console.log(`category '${category}' for product '${product}'`, data);
+  // console.log(`category '${category}' for product '${product}'`, data);
 
   return (
     <section className="max-w-[1280px] mx-auto w-full pt-40">

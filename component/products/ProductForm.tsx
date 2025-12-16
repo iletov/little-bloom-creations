@@ -30,6 +30,10 @@ export interface Variant {
   is_active: boolean;
   variantImages?: any;
   color: string;
+  weight?: number;
+  width?: number;
+  height?: number;
+  depth?: number;
 }
 
 interface Product {
@@ -40,6 +44,10 @@ interface Product {
   price: number;
   images: any[];
   variants?: Variant[];
+  weight?: number;
+  width?: number;
+  height?: number;
+  depth?: number;
 }
 
 const ProductForm = ({ product }: { product: Product }) => {
@@ -74,9 +82,13 @@ const ProductForm = ({ product }: { product: Product }) => {
     variant_sku: variants?.variant_sku ?? null,
     variant_name: variants?.variant_name ?? null,
     variant_price: variants?.price ?? null,
+    weight: variants?.variant_sku ? variants?.weight : (product.weight ?? null),
+    width: variants?.variant_sku ? variants?.width : (product.width ?? null),
+    height: variants?.variant_sku ? variants?.height : (product.height ?? null),
+    depth: variants?.variant_sku ? variants?.depth : (product.depth ?? null),
   };
 
-  console.log('Product Form ->', cartItems);
+  // console.log('Product Form ->', cartItems);
 
   const personalisedForm = useForm<PersonlisedFormDataType>({
     resolver: zodResolver(personlisedFormSchema),

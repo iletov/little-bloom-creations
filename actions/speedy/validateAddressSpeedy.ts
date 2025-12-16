@@ -1,5 +1,7 @@
 'use server';
 
+import { parcelsType } from './calculateLabelSpeedy';
+
 export const validateAddressSpeedy = async (
   recipientData: any,
   addressData: any,
@@ -7,6 +9,7 @@ export const validateAddressSpeedy = async (
   officeId: number,
   siteId: number,
   streetId: number,
+  parcels: parcelsType[],
 ) => {
   const speedyUrl = process.env.SPEEDY_BASE_URL;
   const userName = process.env.SPEEDY_USER;
@@ -51,10 +54,10 @@ export const validateAddressSpeedy = async (
       saturdayDelivery: true,
     },
     content: {
-      parcelsCount: 1,
-      contents: 'STATIONERY GOODS',
-      package: 'BOX',
-      totalWeight: 0.6,
+      parcelsCount: parcels.length,
+      parcels,
+      contents: 'КАНЦ. МАТЕР.',
+      package: 'ENVELOP',
     },
     payment: {
       courierServicePayer: 'RECIPIENT',

@@ -11,6 +11,7 @@ import { useCart } from '@/hooks/useCart';
 import { useCities } from '@/hooks/useCities';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { fullAddress, guestSchema } from '@/lib/form-validation/validations';
+import { createParcelsFromItems } from '@/lib/utils/createParcelsFromItems';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
@@ -25,8 +26,8 @@ export const OrderSummery = () => {
   const { deliveryMethod, validationStreet, selectedOffice, selectedCity } =
     useSenderDetails();
   const {
+    items,
     deliveryCost,
-    deliveryCostFlag,
     totalItems,
     totalPrice,
     addressFormData,
@@ -35,8 +36,6 @@ export const OrderSummery = () => {
   } = useCart();
 
   const router = useRouter();
-
-  //TODO Refactor this function to handle speedy and ekont methods with validation
 
   const handleCheckOut = async () => {
     try {
@@ -76,7 +75,10 @@ export const OrderSummery = () => {
 
       //EKONT DELIVERY
       if (deliveryMethod === 'ekont-delivery') {
-        const isAddressValid = await validateAddress(addressFormData);
+        const isAddressValid = await validateAddress(
+          addressFormData,
+          selectedCity?.postCode,
+        );
 
         console.log(
           '#--Validating address...',
@@ -109,14 +111,23 @@ export const OrderSummery = () => {
         }
       } else if (deliveryMethod === 'ekont-office') {
         //EKONT OFFICE
-        console.log(
-          `# ---Sending 'Metadata' to checkout with method '${deliveryMethod}'`,
-          metadata,
-        );
+
+        const validatePostCode =
+          selectedCity?.postCode === addressFormData?.postalCode;
+
+        if (!validatePostCode) {
+          setShowAlert(true);
+          setAlertMessage({
+            title: 'Error',
+            message: `Пощенският код не съвпада с избрания град. Очакван код: ${selectedCity?.postCode}`,
+          });
+          return;
+        }
 
         router.push('/checkout');
       } else if (deliveryMethod.startsWith('speedy')) {
         //SPEEDY DELIVERY and PICKUP
+
         console.log(
           `# ---Sending 'Metadata' to checkout with method '${deliveryMethod}'`,
           metadata,
@@ -127,6 +138,8 @@ export const OrderSummery = () => {
           email: user?.email ?? guestFormData?.email,
         };
 
+        const parcels = createParcelsFromItems(items, metadata?.orderNumber);
+
         const validateAddress = await validateAddressSpeedy(
           recipientData,
           addressFormData,
@@ -134,17 +147,19 @@ export const OrderSummery = () => {
           selectedOffice?.id,
           selectedCity?.id,
           validationStreet?.id,
+          parcels,
         );
-
-        console.log('# --Validate Address', validateAddress);
 
         const addressIsValid = validateAddress?.valid;
 
         if (addressIsValid) {
-          console.log('# --Address is valid--');
+          console.log('# --Address is valid, Proceeding to checkout--');
           router.push('/checkout');
         } else {
-          console.log('# --Address is invalid--');
+          console.log(
+            '# --Address is invalid, Error message: ',
+            validateAddress?.error.message,
+          );
           setShowAlert(true);
           setAlertMessage({
             title: 'Error',
@@ -156,6 +171,30 @@ export const OrderSummery = () => {
       console.error('Error submitting checkout form', error);
     }
     // setLoading(false);
+  };
+
+  const isButtonDisabled = (): boolean => {
+    // No delivery method selected
+    if (!deliveryMethod) return true;
+
+    // Office/Pickup - need city + office
+    if (
+      deliveryMethod === 'ekont-office' ||
+      deliveryMethod === 'speedy-pickup'
+    ) {
+      return !selectedCity?.id || !selectedOffice?.id;
+    }
+
+    // Delivery mode for speedy - need city + validated street
+    if (deliveryMethod === 'speedy-delivery') {
+      return !selectedCity?.id || !validationStreet?.id;
+    }
+    // Delivery mode for ekont - need city
+    if (deliveryMethod === 'ekont-delivery') {
+      return !selectedCity?.id;
+    }
+
+    return true;
   };
 
   return (
@@ -183,11 +222,11 @@ export const OrderSummery = () => {
         </p>
 
         <Button
-          disabled={!deliveryMethod}
+          disabled={isButtonDisabled()}
           onClick={handleCheckOut}
           variant="default"
           className="w-full">
-          {isLoading || deliveryCostFlag ? <Loader /> : 'Next'}
+          {isLoading ? <Loader /> : 'Next'}
         </Button>
       </div>
       {showAlert && (

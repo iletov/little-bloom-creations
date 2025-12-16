@@ -14,7 +14,7 @@ export interface AddressFormData {
   street?: string;
   streetNumber?: string;
   other?: string;
-  postalCode: string;
+  postalCode?: string;
   phoneNumber: string;
   officeCode?: string;
   streetNo?: string;

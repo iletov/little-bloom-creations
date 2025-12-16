@@ -17,9 +17,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { OfficeDropdownSpeedy } from '../dropdown-results/OfficeDropdownSpeedy';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { validateStreetSpeedy } from '@/actions/speedy/validateStreetSpeedy';
+import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
 
 export interface City {
   id: string;
+  postCode?: string;
   name: string;
   nameEn: string;
   countryId: string;
@@ -41,10 +46,11 @@ export const CheckoutForm = () => {
     updateGuestData,
   } = useCart();
 
-  const { deliveryMethod, selectedCity, selectedOffice } = useSenderDetails();
+  const { deliveryMethod, selectedCity, setValidationStreet } =
+    useSenderDetails();
 
-  console.log('# --Selected City-->', selectedCity);
-  console.log('# --Selected Office-->', selectedOffice);
+  // console.log('# --Selected City-->', selectedCity);
+  // console.log('# --Selected Office-->', selectedOffice);
 
   const guestForm = useForm<GuestFormDataType>({
     resolver: zodResolver(guestSchema),
@@ -75,6 +81,19 @@ export const CheckoutForm = () => {
       other: addressFormData?.other || '',
     },
   });
+
+  const addressValidation = async (street: string, cityId: number) => {
+    if (!street || !cityId) return;
+
+    const validateStreet = await validateStreetSpeedy(street, cityId);
+    // console.log('# --validateStreet-->', validateStreet);
+    setValidationStreet(validateStreet);
+  };
+
+  const debouncedAddressValidation = useDebouncedCallback(
+    addressValidation,
+    500,
+  );
 
   const handleUpdateOnBlur = <K extends keyof AddressFormDataType>(
     key: K,
@@ -165,20 +184,24 @@ export const CheckoutForm = () => {
             />
           )}
 
-          <Input
-            {...addressForm.register('postalCode')}
-            placeholder="Пощенски код"
-            className="input_styles"
-            // onBlur={handleImmediateSave}
-            onBlur={e => {
-              handleUpdateOnBlur('postalCode', e.target.value);
-            }}
-          />
-          {addressForm.formState.errors.postalCode && (
-            <ErrorMessage
-              message={addressForm.formState.errors.postalCode.message}
-            />
-          )}
+          {deliveryMethod.startsWith('ekont') ? (
+            <>
+              <Input
+                {...addressForm.register('postalCode')}
+                placeholder="Пощенски код"
+                className="input_styles"
+                // onBlur={handleImmediateSave}
+                onBlur={e => {
+                  handleUpdateOnBlur('postalCode', e.target.value);
+                }}
+              />
+              {addressForm.formState.errors.postalCode && (
+                <ErrorMessage
+                  message={addressForm.formState.errors.postalCode.message}
+                />
+              )}
+            </>
+          ) : null}
 
           {/* CITY DROPDOWN MENU */}
           <CityDropdown />
@@ -189,7 +212,16 @@ export const CheckoutForm = () => {
                 {...addressForm.register('street')}
                 placeholder="Улица"
                 className="input_styles"
-                // onBlur={handleImmediateSave}
+                onChange={e => {
+                  addressForm.setValue('street', e.target.value);
+                  // Trigger debounced validation for Speedy delivery as user types
+                  if (
+                    deliveryMethod === 'speedy-delivery' &&
+                    selectedCity?.id
+                  ) {
+                    debouncedAddressValidation(e.target.value, selectedCity.id);
+                  }
+                }}
                 onBlur={e => {
                   handleUpdateOnBlur('street', e.target.value);
                 }}
@@ -265,14 +297,7 @@ export const CheckoutForm = () => {
       </div>
       {deliveryMethod === 'ekont-office' ? <OfficeDropdown /> : null}
 
-      {deliveryMethod === 'speedy-pickup' ? <OfficeDropdownSpeedy /> : null}
-
-      {/* <Button
-        variant="default"
-        onClick={labelValidation}
-        className={cn(deliveryCostFlag && 'hover:bg-green-1 min-w-[126.7px]')}>
-        {deliveryCostFlag ? <Loader /> : 'Validate'}
-      </Button> */}
+      {deliveryMethod === 'speedy-pickup' && <OfficeDropdownSpeedy />}
     </div>
   );
 };

@@ -1,5 +1,8 @@
 'use server';
 
+import { ReceiptItem } from '@/lib/utils/createReceiptFromItems';
+import { parcelsType } from './calculateLabelSpeedy';
+
 export const createShipmentSpeedy = async (
   senderData: any,
   recipientData: any,
@@ -10,6 +13,8 @@ export const createShipmentSpeedy = async (
   siteId: number,
   streetId: number,
   totalAmount: number,
+  parcels: parcelsType[],
+  receipt: ReceiptItem[],
 ) => {
   const speedyUrl = process.env.SPEEDY_BASE_URL;
   const userName = process.env.SPEEDY_USER;
@@ -52,15 +57,7 @@ export const createShipmentSpeedy = async (
           amount: totalAmount,
           processingType: 'CASH',
           payoutToLoggedClient: true,
-          fiscalReceiptItems: [
-            //TODO: handle fiscalReceiptItems
-            {
-              description: 'Shoes',
-              vatGroup: 'Б',
-              amount: '50',
-              amountWithVat: '60',
-            },
-          ],
+          fiscalReceiptItems: receipt,
         },
         obpd: {
           option: 'OPEN',
@@ -105,10 +102,11 @@ export const createShipmentSpeedy = async (
     },
 
     content: {
-      parcelsCount: 1,
-      contents: 'STATIONERY GOODS',
-      package: 'BOX',
-      totalWeight: 0.6,
+      parcelsCount: parcels.length,
+      parcels,
+      contents: 'КАНЦ. МАТЕР.',
+      package: 'ENVELOPE',
+      // totalWeight: 0.6
     },
     payment: {
       courierServicePayer: 'RECIPIENT',
@@ -116,7 +114,10 @@ export const createShipmentSpeedy = async (
     },
   };
 
-  console.log('# --Speedy INITIALISE Shipment Data-->', shipmentData);
+  console.log(
+    '# --Speedy INITIALISE Shipment Data-->',
+    JSON.stringify(shipmentData),
+  );
 
   try {
     const res = await fetch(`${speedyUrl}/shipment`, {

@@ -5,7 +5,7 @@ import { z } from 'zod';
 export type AddressFormDataType = {
   country: string;
   city: string;
-  postalCode: string;
+  postalCode?: string;
   phoneNumber: string;
   street?: string; // Make address optional
   streetNumber?: string; // Make address optional
@@ -33,7 +33,10 @@ export const fullAddress = z.object({
   street: z.string().optional(),
   streetNumber: z.string().optional(),
   other: z.string().optional(),
-  postalCode: z.string().regex(/^\d+$/, { message: 'Postal code is invalid' }),
+  postalCode: z
+    .string()
+    .regex(/^\d*$/, { message: 'Postal code is invalid' })
+    .optional(),
   phoneNumber: z
     .string()
     .regex(/^[0-9]{9,10}$/, { message: 'Phone number is required' }),
