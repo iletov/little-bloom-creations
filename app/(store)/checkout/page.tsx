@@ -19,8 +19,7 @@ import { createParcelsFromItems } from '@/lib/utils/createParcelsFromItems';
 import { createReceiptFromItems } from '@/lib/utils/createReceiptFromItems';
 
 export default function CheckoutPage() {
-  const { deliveryMethod, selectedCity, setValidationStreet, selectedOffice } =
-    useSenderDetails();
+  const { deliveryMethod, selectedCity } = useSenderDetails();
   const { senderData, senderDataSpeedy } = useSenderInfo();
   const {
     items,
@@ -38,7 +37,7 @@ export default function CheckoutPage() {
     setDeliveryCost,
   } = useCart();
 
-  console.log('# --CHECKOUT - items: ', items);
+  // console.log('# --CHECKOUT - items: ', items);
 
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [isDissabled, setIsDissabled] = useState(false);

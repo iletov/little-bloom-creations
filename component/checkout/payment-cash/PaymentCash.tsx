@@ -14,6 +14,7 @@ import { createParcelsFromItems } from '@/lib/utils/createParcelsFromItems';
 
 import React, { useEffect, useState } from 'react';
 import { createReceiptFromItems } from '@/lib/utils/createReceiptFromItems';
+import { createPackingListFromItems } from '@/lib/utils/createPackingListFromItems';
 
 export const PaymentCash = ({
   isDissabled,
@@ -24,8 +25,13 @@ export const PaymentCash = ({
 }) => {
   const { senderData, senderDataSpeedy } = useSenderInfo(false);
   const { user } = useAuth();
-  const { deliveryMethod, selectedOffice, selectedCity, validationStreet } =
-    useSenderDetails();
+  const {
+    deliveryMethod,
+    selectedOffice,
+    selectedCity,
+    validationStreet,
+    setSenderDetails,
+  } = useSenderDetails();
   const {
     totalPrice,
     deliveryCost,
@@ -35,6 +41,7 @@ export const PaymentCash = ({
     items,
     paymentIntentId,
     dispatchPaymentIntentId,
+    setMetadata,
     deliveryCostFlag,
     totalWeight,
   } = useCart();
@@ -89,6 +96,8 @@ export const PaymentCash = ({
         ?.map(item => item.description)
         .join(', ');
 
+      const packingList = createPackingListFromItems(items);
+
       if (isEkont) {
         // validate label - Ekont
         validate = await createLabel(
@@ -100,8 +109,18 @@ export const PaymentCash = ({
           paymentMethod,
           shipmentDescription,
           totalWeight,
+          packingList,
+          false,
         );
       }
+
+      //TODO: add the shipment number state and send it to the backend (validate?.label?.shipmentNumber)
+
+      // setSenderDetails({
+      //   shipmentNumber: validate?.label?.shipmentNumber,
+      //   pdfURL: validate?.label?.pdfURL,
+      //   returnShipmentURL: validate?.label?.returnShipmentURL,
+      // });
 
       if (isSpeedy) {
         // create speedy label
@@ -127,6 +146,11 @@ export const PaymentCash = ({
           parcels,
           receipt,
         );
+
+        setMetadata({
+          ...metadata,
+          shipmentNumber: validate?.id,
+        });
       }
 
       const res = await fetch('/api/place-order-cash', {
@@ -167,7 +191,11 @@ export const PaymentCash = ({
         (isEkont && validate?.label?.totalPrice) ||
         (isSpeedy && validate?.price?.total)
       ) {
-        console.log(`# Send Cart Items successfuly to the backend:`, data);
+        console.log(
+          `# --Send Cart Items successfuly to the backend:`,
+          data,
+          response,
+        );
 
         setAlertMessage({
           title: 'Успешно направена поръчка!',

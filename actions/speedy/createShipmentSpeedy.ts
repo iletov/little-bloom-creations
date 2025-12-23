@@ -129,11 +129,12 @@ export const createShipmentSpeedy = async (
     });
 
     if (!res.ok) {
+      const errorText = await res.text();
+      console.error('Speedy API calculateLabel error:', errorText);
       throw new Error(`Speedy API calculateLabel error: ${res.statusText}`);
     }
 
     const data = await res.json();
-
     console.log('# --Speedy CREATE Shipment Data-->', data);
 
     return data;

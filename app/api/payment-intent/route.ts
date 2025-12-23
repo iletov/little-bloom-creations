@@ -9,6 +9,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 export type Metadata = {
   orderNumber: string;
+  shipmentNumber?: string;
   customerName: string;
   customerEmail: string | undefined;
   supabaseUserId: string | null;
@@ -120,6 +121,11 @@ export const POST = async (req: NextRequest) => {
       personalization: item?.personalisation,
       variant_sku: item?.product?.variant_sku ?? null,
       variant_name: item?.product?.variant_name ?? null,
+      weight: item?.product?.weight ?? null,
+      width: item?.product?.width ?? null,
+      height: item?.product?.height ?? null,
+      length: item?.product?.length ?? null,
+      depth: item?.product?.depth ?? null,
     }));
 
     const { data: pendingOrder, error: dbError } = await supabase

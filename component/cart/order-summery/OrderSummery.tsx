@@ -64,13 +64,26 @@ export const OrderSummery = () => {
 
       const isAddressFormValid = fullAddress.safeParse(addressFormData);
       if (!isAddressFormValid.success) {
-        setShowAlert(true);
-        setAlertMessage({
-          title: 'Error Address',
-          message: isAddressFormValid.error.issues[0]?.message,
+        // Filter out postalCode errors if using Speedy
+        const relevantErrors = isAddressFormValid.error.issues.filter(issue => {
+          if (
+            deliveryMethod.startsWith('speedy') &&
+            issue.path.includes('postalCode')
+          ) {
+            return false; // Skip postalCode validation for Speedy
+          }
+          return true;
         });
-        console.log(isAddressFormValid);
-        return;
+
+        if (relevantErrors.length > 0) {
+          setShowAlert(true);
+          setAlertMessage({
+            title: 'Error Address',
+            message: relevantErrors[0]?.message,
+          });
+          console.log(isAddressFormValid);
+          return;
+        }
       }
 
       //EKONT DELIVERY

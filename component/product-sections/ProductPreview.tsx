@@ -40,7 +40,6 @@ const ProductPreview = ({ data }: ProductPreviewProps) => {
     return (
       <div
         onClick={() => setSelectedImage(index)}
-        typeof="button"
         className="w-full cursor-pointer rounded-[1rem] overflow-clip max-h-[220px] aspect-[1/0.6] mb-4 md:mb-[initial]"
         key={index + 'prdImg'}>
         <Image

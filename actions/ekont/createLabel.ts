@@ -1,5 +1,7 @@
 'use server';
 
+import { PackingListItem } from '@/lib/utils/createPackingListFromItems';
+
 export const createLabel = async (
   sender: any,
   receiverNames: any,
@@ -8,7 +10,8 @@ export const createLabel = async (
   deliveryMethod: string | null,
   paymentMethod: string = '',
   shipmentDescription: string = '',
-  totalWeight: number = 5,
+  totalWeight: number,
+  packingList: PackingListItem[],
   create: boolean = false,
 ) => {
   const ekontApiKey = process.env.ECONT_API_KEY;
@@ -95,11 +98,13 @@ export const createLabel = async (
       paymentReceiverMethod: sender?.paymentReceiverMethod || '',
       paymentReceiverAmount: sender?.paymentReceiverAmount || '',
       paymentReceiverAmountIsPercent: sender?.paymentReceiverAmountIsPercent,
+      packingListType: 'digital',
+      packingList,
       services: isPaymentCash
         ? {
             cdType: isPaymentCash ? 'GET' : '',
             cdAmount: isPaymentCash ? Number(totalPrice).toFixed(2) : '',
-            cdCurrency: isPaymentCash ? 'EUR' : '',
+            cdCurrency: isPaymentCash ? 'BGN' : '',
 
             cdPayOptionsTemplate:
               !sender?.cdPayOptionsVariants && sender?.cdPayOptionsTemplate,
@@ -113,7 +118,7 @@ export const createLabel = async (
                   method: isPaymentCash ? sender?.cdOptions?.method : '',
                   BIC: isPaymentCash ? sender?.cdOptions?.bic : '',
                   IBAN: isPaymentCash ? sender?.cdOptions?.iban : '',
-                  bankCurrency: isPaymentCash ? 'EUR' : '',
+                  bankCurrency: isPaymentCash ? 'BGN' : '',
                   payDays: isPaymentCash ? 1 : '',
                   // "payWeekdays":"monday"
                   officeCode:
@@ -134,16 +139,14 @@ export const createLabel = async (
       },
     },
     // mode: !paymentMethod ? 'calculate' : 'validate',
-    mode:
-      paymentMethod && !create
-        ? 'validate'
-        : !!paymentMethod && !!create && 'create',
+    mode: 'validate',
   };
 
   try {
-    console.log('VALIDATE LABEL----->:', JSON.stringify(labelData, null, 2));
+    // console.log('VALIDATE LABEL----->:', JSON.stringify(labelData, null, 2));
 
-    const res = await fetch(
+    // 1. First Validate
+    const validateRes = await fetch(
       `${ekontUrl}/Shipments/LabelService.createLabel.json`,
       {
         method: 'POST',
@@ -155,14 +158,60 @@ export const createLabel = async (
       },
     );
 
-    if (!res.ok) {
-      throw new Error(`Econt API calculateLabel error`);
+    if (!validateRes.ok) {
+      const errorText = await validateRes.text();
+      console.error('Validation Error Response:', errorText);
+      throw new Error(`Econt API validation error: ${errorText}`);
     }
 
-    const data = await res.json();
-    console.log('Label----> ', data);
-    return data;
+    const validationData = await validateRes.json();
+    console.log('# --Validation Response:', validationData);
+
+    // If validation has errors, return them immediately
+    if (validationData?.label?.error) {
+      console.error('Validation Logic Error:', validationData.label.error);
+      return validationData;
+    }
+
+    // 2. If valid and create is true, proceed to Create
+    if (!create) {
+      console.log(
+        '# --Validation successful, skipping label creation (create=false)',
+      );
+      return validationData;
+    }
+
+    const createLabelData = {
+      ...labelData,
+      mode: 'create',
+    };
+
+    console.log('# --CREATING LABEL----->');
+
+    const createRes = await fetch(
+      `${ekontUrl}/Shipments/LabelService.createLabel.json`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Basic ${auth}`,
+        },
+        body: JSON.stringify(createLabelData),
+      },
+    );
+
+    if (!createRes.ok) {
+      const errorText = await createRes.text();
+      console.error('Creation Error Response:', errorText);
+      throw new Error(`Econt API creation error: ${errorText}`);
+    }
+
+    const creationData = await createRes.json();
+    console.log('# --Label Created Successfully----> ', creationData);
+    return creationData;
   } catch (error) {
-    console.error('Error calculating label:', error);
+    console.error('Error in createLabel process:', error);
+    // Return error structure if needed, or rethrow
+    return { error: error instanceof Error ? error.message : 'Unknown error' };
   }
 };

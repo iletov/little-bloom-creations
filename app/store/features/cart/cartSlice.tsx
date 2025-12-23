@@ -17,7 +17,7 @@ export interface CartItem {
     textColor: string;
     name: string;
   };
-  totalWeight: number;
+  // totalWeight: number;
 }
 
 interface CartState {
@@ -88,7 +88,7 @@ export const cartSlice = createSlice({
         product: product as Product,
         personalisation: { productId: crypto.randomUUID(), ...personalisation },
         quantity: 1,
-        totalWeight: product?.weight || 0,
+        // totalWeight: product?.weight || 0,
       });
     },
     updateItem: (
@@ -108,7 +108,7 @@ export const cartSlice = createSlice({
       if (item) {
         if (product) {
           item.product = product;
-          item.totalWeight = product.weight * item.quantity || 0;
+          // item.totalWeight = product.weight * item.quantity || 0;
         }
 
         if (personalisation) {
@@ -200,7 +200,7 @@ export const selectTotalItems = (state: RootState) => {
 
 export const selectTotalWeight = (state: RootState) => {
   return state.cart.items.reduce(
-    (total, item) => total + (item.totalWeight || item.product.weight || 0),
+    (total, item) => total + (item.product?.weight || 0),
     0,
   );
 };

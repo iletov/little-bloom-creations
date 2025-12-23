@@ -215,6 +215,12 @@ export type BannerType = {
   >;
 };
 
+export type SenderDetails = {
+  shipmentNumber?: string;
+  pdfURL?: string;
+  returnShipmentURL?: string;
+};
+
 export type EkontSenderDetails = {
   _id: string;
   _type: 'ekontSenderDetails';
