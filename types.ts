@@ -4,6 +4,21 @@ import {
   SanityImageHotspot,
 } from './sanity.types';
 
+// types/order.ts
+export interface Order {
+  order_number: string;
+  created_at: string;
+  status: string;
+  total_amount?: number;
+  subtotal?: number;
+  delivery_cost?: number;
+  delivery_method: string;
+  delivery_company?: string;
+  payment_method: string;
+  email?: string | undefined;
+  full_name?: string | undefined;
+}
+
 export type descriptionType = {
   description?: Array<
     | {
