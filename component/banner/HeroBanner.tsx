@@ -44,7 +44,7 @@ const HeroBanner = ({ data }: HeroBannerProps) => {
           'relative w-full h-[58rem]',
           bannerSize(data?.size ?? ''),
         )}>
-        <div className="absolute inset-0 z-10 bg-green-dark svg-image bg-opacity-60" />
+        {/* <div className="absolute inset-0 z-10 bg-green-dark svg-image bg-opacity-60" /> */}
         <Image
           src={urlFor(data?.backgroundImage).url()}
           alt={data?.heading?.title ?? 'background-image'}

@@ -11,8 +11,10 @@ import {
   setSelectedOffice,
   selectedCity,
   setSelecetedCity,
+  validationStreet,
+  setValidationStreet,
 } from '@/app/store/features/ekont/senderSlice';
-import { EkontSenderDetails } from '@/sanity.types';
+import { EkontSenderDetails, SenderDetails } from '@/sanity.types';
 import { useDispatch, useSelector } from 'react-redux';
 
 export const useSenderDetails = () => {
@@ -24,12 +26,14 @@ export const useSenderDetails = () => {
     searchForCity: useSelector(selectSearchForCity),
     selectedOffice: useSelector(selectedOffice),
     selectedCity: useSelector(selectedCity),
+    validationStreet: useSelector(validationStreet),
 
-    setSenderDetails: (state: EkontSenderDetails) =>
+    setSenderDetails: (state: SenderDetails) =>
       dispatch(setSenderDetails(state)),
     setDeliveryMethod: (state: string) => dispatch(setDeliveryMethod(state)),
     setSearchForCity: (state: any) => dispatch(setSearchForCity(state)),
     setSelectedOffice: (state: any) => dispatch(setSelectedOffice(state)),
     setSelectedCity: (state: any) => dispatch(setSelecetedCity(state)),
+    setValidationStreet: (state: any) => dispatch(setValidationStreet(state)),
   };
 };

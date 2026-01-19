@@ -33,7 +33,7 @@ export const CityDropdown = () => {
 
   const { addressFormData, updateAddresData, setDeliveryCostFlag } = useCart();
 
-  // 1. Determine which list of cities to use
+  // 1. which list of cities to use
   const currentCitiesList =
     deliveryMethod === 'ekont-office' || deliveryMethod === 'ekont-delivery'
       ? cities
@@ -55,7 +55,7 @@ export const CityDropdown = () => {
   }, [currentCitiesList, searchForCity]);
 
   const handleSelectCities = async (city: City) => {
-    setSearchForCity(city.name);
+    setSearchForCity(city.name + ' (' + city.postCode + ')');
     setSelectedCity(city);
     updateAddresData({ city: city.name } as AddressFormData);
     setShowDropdown(false);
@@ -117,7 +117,7 @@ export const CityDropdown = () => {
                     e.preventDefault();
                     handleSelectCities(city);
                   }}>
-                  {city.name}
+                  {city.name} ({city.postCode})
                 </div>
               ))}
             </>

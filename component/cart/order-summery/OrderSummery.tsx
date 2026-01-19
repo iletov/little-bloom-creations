@@ -1,5 +1,6 @@
 'use client';
 import { validateAddress } from '@/actions/ekont/validateAddress';
+import { validateAddressSpeedy } from '@/actions/speedy/validateAddressSpeedy';
 import { Metadata } from '@/app/api/payment-intent/route';
 import { Loader } from '@/component/loader/Loader';
 import { AlertBox } from '@/component/modals/AlertBox';
@@ -10,6 +11,7 @@ import { useCart } from '@/hooks/useCart';
 import { useCities } from '@/hooks/useCities';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { fullAddress, guestSchema } from '@/lib/form-validation/validations';
+import { createParcelsFromItems } from '@/lib/utils/createParcelsFromItems';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
@@ -21,10 +23,11 @@ export const OrderSummery = () => {
   const { user } = useAuth();
 
   const { isLoading } = useCities(false);
-  const { deliveryMethod } = useSenderDetails();
+  const { deliveryMethod, validationStreet, selectedOffice, selectedCity } =
+    useSenderDetails();
   const {
+    items,
     deliveryCost,
-    deliveryCostFlag,
     totalItems,
     totalPrice,
     addressFormData,
@@ -34,15 +37,13 @@ export const OrderSummery = () => {
 
   const router = useRouter();
 
-  //TODO Refactor this function to handle speedy and ekont methods with validation
-
   const handleCheckOut = async () => {
     try {
       const metadata: Metadata = {
         orderNumber: crypto.randomUUID(),
-        customerName:
-          user?.user_metadata?.name ??
-          guestFormData?.firstName + ' ' + guestFormData?.lastName,
+        customerName: user
+          ? `${guestFormData?.firstName} ${guestFormData?.lastName} (${user?.user_metadata?.name})`
+          : `${guestFormData?.firstName} ${guestFormData?.lastName}`,
         customerEmail: user?.email ?? guestFormData?.email,
 
         supabaseUserId: user?.id ?? null,
@@ -63,18 +64,34 @@ export const OrderSummery = () => {
 
       const isAddressFormValid = fullAddress.safeParse(addressFormData);
       if (!isAddressFormValid.success) {
-        setShowAlert(true);
-        setAlertMessage({
-          title: 'Error Address',
-          message: isAddressFormValid.error.issues[0]?.message,
+        // Filter out postalCode errors if using Speedy
+        const relevantErrors = isAddressFormValid.error.issues.filter(issue => {
+          if (
+            deliveryMethod.startsWith('speedy') &&
+            issue.path.includes('postalCode')
+          ) {
+            return false; // Skip postalCode validation for Speedy
+          }
+          return true;
         });
-        console.log(isAddressFormValid);
 
-        return;
+        if (relevantErrors.length > 0) {
+          setShowAlert(true);
+          setAlertMessage({
+            title: 'Error Address',
+            message: relevantErrors[0]?.message,
+          });
+          console.log(isAddressFormValid);
+          return;
+        }
       }
 
+      //EKONT DELIVERY
       if (deliveryMethod === 'ekont-delivery') {
-        const isAddressValid = await validateAddress(addressFormData);
+        const isAddressValid = await validateAddress(
+          addressFormData,
+          selectedCity?.postCode,
+        );
 
         console.log(
           '#--Validating address...',
@@ -96,30 +113,101 @@ export const OrderSummery = () => {
 
         if (continueToCheckout) {
           console.log(
-            `# Validating status 'Address' - ${isAddressValid.validationStatus}`,
+            `# --Validating status 'Address' - ${isAddressValid.validationStatus}`,
           );
           console.log(
-            `# Sending 'Metadata' to checkout with method '${deliveryMethod}'`,
+            `# --Sending 'Metadata' to checkout with method '${deliveryMethod}'`,
             metadata,
           );
 
           router.push('/checkout');
         }
-      } else if (
-        deliveryMethod === 'ekont-office' ||
-        deliveryMethod === 'speedy-pickup'
-      ) {
+      } else if (deliveryMethod === 'ekont-office') {
+        //EKONT OFFICE
+
+        const validatePostCode =
+          selectedCity?.postCode === addressFormData?.postalCode;
+
+        if (!validatePostCode) {
+          setShowAlert(true);
+          setAlertMessage({
+            title: 'Error',
+            message: `Пощенският код не съвпада с избрания град. Очакван код: ${selectedCity?.postCode}`,
+          });
+          return;
+        }
+
+        router.push('/checkout');
+      } else if (deliveryMethod.startsWith('speedy')) {
+        //SPEEDY DELIVERY and PICKUP
+
         console.log(
           `# ---Sending 'Metadata' to checkout with method '${deliveryMethod}'`,
           metadata,
         );
 
-        router.push('/checkout');
+        const recipientData = {
+          clientName: guestFormData?.firstName + ' ' + guestFormData?.lastName,
+          email: user?.email ?? guestFormData?.email,
+        };
+
+        const parcels = createParcelsFromItems(items, metadata?.orderNumber);
+
+        const validateAddress = await validateAddressSpeedy(
+          recipientData,
+          addressFormData,
+          deliveryMethod,
+          selectedOffice?.id,
+          selectedCity?.id,
+          validationStreet?.id,
+          parcels,
+        );
+
+        const addressIsValid = validateAddress?.valid;
+
+        if (addressIsValid) {
+          console.log('# --Address is valid, Proceeding to checkout--');
+          router.push('/checkout');
+        } else {
+          console.log(
+            '# --Address is invalid, Error message: ',
+            validateAddress?.error.message,
+          );
+          setShowAlert(true);
+          setAlertMessage({
+            title: 'Error',
+            message: validateAddress?.error.message,
+          });
+        }
       }
     } catch (error) {
       console.error('Error submitting checkout form', error);
     }
     // setLoading(false);
+  };
+
+  const isButtonDisabled = (): boolean => {
+    // No delivery method selected
+    if (!deliveryMethod) return true;
+
+    // Office/Pickup - need city + office
+    if (
+      deliveryMethod === 'ekont-office' ||
+      deliveryMethod === 'speedy-pickup'
+    ) {
+      return !selectedCity?.id || !selectedOffice?.id;
+    }
+
+    // Delivery mode for speedy - need city + validated street
+    if (deliveryMethod === 'speedy-delivery') {
+      return !selectedCity?.id || !validationStreet?.id;
+    }
+    // Delivery mode for ekont - need city
+    if (deliveryMethod === 'ekont-delivery') {
+      return !selectedCity?.id;
+    }
+
+    return true;
   };
 
   return (
@@ -147,11 +235,11 @@ export const OrderSummery = () => {
         </p>
 
         <Button
-          disabled={deliveryCost === 0 || deliveryCostFlag}
+          disabled={isButtonDisabled()}
           onClick={handleCheckOut}
           variant="default"
           className="w-full">
-          {isLoading || deliveryCostFlag ? <Loader /> : 'Next'}
+          {isLoading ? <Loader /> : 'Next'}
         </Button>
       </div>
       {showAlert && (

@@ -4,6 +4,63 @@ import {
   SanityImageHotspot,
 } from './sanity.types';
 
+export type OrderShipping = {
+  id: string;
+  city?: string;
+  email?: string;
+  phone?: string;
+  street?: string;
+  country?: string;
+  block_no?: string;
+  floor_no?: string;
+  order_id?: string;
+  full_name?: string;
+  created_at?: string;
+  entrance_no?: string;
+  office_code?: string;
+  postal_code?: string;
+  apartment_no?: string;
+  street_number?: string;
+  additional_info?: string;
+};
+
+export type OrderItems = {
+  id: string;
+  name: string;
+  weight: string;
+  quantity: number;
+  subtotal: number;
+  created_at: string;
+  dimensions: {
+    width: number;
+    height: number;
+    depth: number;
+  };
+  unit_price: number;
+  product_sku: string;
+  variant_sku?: string;
+  variant_name?: string;
+  personalization?: any;
+};
+
+// types/order.ts
+export interface Order {
+  order_number: string;
+  created_at: string;
+  status: string;
+  total_amount?: number;
+  subtotal?: number;
+  delivery_cost?: number;
+  delivery_method: string;
+  delivery_company?: string;
+  payment_method: string;
+  email?: string | undefined;
+  full_name?: string | undefined;
+  shipment_number?: string;
+  order_shipping?: OrderShipping;
+  order_items?: OrderItems[];
+}
+
 export type descriptionType = {
   description?: Array<
     | {

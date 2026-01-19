@@ -11,7 +11,7 @@ type colorTagProps = {
 const ProductVariants = ({ variant }: { variant: Variant }) => {
   const { variants, updateVariants } = useCart();
 
-  console.log('# Product Variant:', variants);
+  // console.log('# Product Variant:', variants);
 
   const COLOR_MAP: colorTagProps = {
     blue: 'bg-blue-500  ring-blue-500 shadow-blue-500/50',

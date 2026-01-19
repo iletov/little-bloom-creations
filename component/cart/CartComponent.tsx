@@ -10,7 +10,6 @@ export default function CartComponent() {
   const [isClient, setIsClient] = useState(false);
 
   const { items } = useCart();
-  // console.log('# CART COMPONENT', items);
 
   useEffect(() => {
     setIsClient(true);

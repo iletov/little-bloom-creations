@@ -8,7 +8,7 @@ export async function getProductBySku(sku: string) {
     .select('*, variants:product_variants!product_variants_parent_sku_fkey(*)')
     .eq('sku', sku)
     .eq('is_active', true)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error('Error fetching product from Supabase:', error);

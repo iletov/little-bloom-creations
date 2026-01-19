@@ -11,6 +11,7 @@ import {
   removeItem,
   updateVariants,
   selectVariants,
+  selectTotalWeight,
 } from '@/app/store/features/cart/cartSlice';
 
 import { RootState } from '@/app/store/store';
@@ -61,6 +62,7 @@ export const useCart = () => {
     deliveryCost: useSelector(selectDeliveryCost),
     deliveryCostFlag: useSelector(selectDeliveryCostFlag),
     variants: useSelector(selectVariants),
+    totalWeight: useSelector(selectTotalWeight),
 
     //methods
     addItem: (product: any, personalisation: any) =>

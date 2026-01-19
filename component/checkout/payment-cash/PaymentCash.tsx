@@ -1,29 +1,37 @@
 'use client';
 import { cancelPaymentIntent } from '@/actions/cancelPaymentIntent';
-import { checkQuantity } from '@/actions/checkQuantity';
 import { createLabel } from '@/actions/ekont/createLabel';
+import { createShipmentSpeedy } from '@/actions/speedy/createShipmentSpeedy';
 import { Loader } from '@/component/loader/Loader';
 import { AlertBox } from '@/component/modals/AlertBox';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { useSenderInfo } from '@/hooks/useSenderInfo';
-// import { useSenderInfo } from '@/hooks/useSenderInfo';
-import { convertToSubCurrency } from '@/lib/convertAmount';
-import { create } from 'domain';
-import { redirect, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { createParcelsFromItems } from '@/lib/utils/createParcelsFromItems';
 
 import React, { useEffect, useState } from 'react';
+import { createReceiptFromItems } from '@/lib/utils/createReceiptFromItems';
+import { createPackingListFromItems } from '@/lib/utils/createPackingListFromItems';
 
 export const PaymentCash = ({
   isDissabled,
   paymentMethod,
 }: {
-  isDissabled: boolean;
+  isDissabled?: boolean;
   paymentMethod: string;
 }) => {
-  const { senderData } = useSenderInfo();
-  const { deliveryMethod } = useSenderDetails();
+  const { senderData, senderDataSpeedy } = useSenderInfo(false);
+  const { user } = useAuth();
+  const {
+    deliveryMethod,
+    selectedOffice,
+    selectedCity,
+    validationStreet,
+    setSenderDetails,
+  } = useSenderDetails();
   const {
     totalPrice,
     deliveryCost,
@@ -33,6 +41,9 @@ export const PaymentCash = ({
     items,
     paymentIntentId,
     dispatchPaymentIntentId,
+    setMetadata,
+    deliveryCostFlag,
+    totalWeight,
   } = useCart();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -50,6 +61,9 @@ export const PaymentCash = ({
     paymentMethod: paymentMethod,
     deliveryCost: deliveryCost,
   };
+
+  const isEkont = deliveryMethod.startsWith('ekont');
+  const isSpeedy = deliveryMethod.startsWith('speedy');
 
   const handleOrderSubmit = async () => {
     setIsLoading(true);
@@ -76,15 +90,68 @@ export const PaymentCash = ({
         return 0;
       }
 
-      // validate label in Ekont
-      const validate = await createLabel(
-        senderData,
-        guestFormData,
-        addressFormData,
-        totalPrice,
-        deliveryMethod,
-        paymentMethod,
-      );
+      let validate;
+
+      const shipmentDescription = createReceiptFromItems(items)
+        ?.map(item => item.description)
+        .join(', ');
+
+      const packingList = createPackingListFromItems(items);
+
+      if (isEkont) {
+        // validate label - Ekont
+        validate = await createLabel(
+          senderData,
+          guestFormData,
+          addressFormData,
+          totalPrice,
+          deliveryMethod,
+          paymentMethod,
+          shipmentDescription,
+          totalWeight,
+          packingList,
+          false,
+        );
+      }
+
+      //TODO: add the shipment number state and send it to the backend (validate?.label?.shipmentNumber)
+
+      // setSenderDetails({
+      //   shipmentNumber: validate?.label?.shipmentNumber,
+      //   pdfURL: validate?.label?.pdfURL,
+      //   returnShipmentURL: validate?.label?.returnShipmentURL,
+      // });
+
+      if (isSpeedy) {
+        // create speedy label
+
+        const parcels = createParcelsFromItems(items, metadata?.orderNumber);
+        const receipt = createReceiptFromItems(items);
+
+        const recipientData = {
+          clientName: metadata.customerName,
+          email: user?.email ?? guestFormData?.email,
+        };
+
+        validate = await createShipmentSpeedy(
+          senderDataSpeedy,
+          recipientData,
+          addressFormData,
+          deliveryMethod,
+          paymentMethod,
+          selectedOffice?.id,
+          selectedCity?.id,
+          validationStreet?.id,
+          totalPrice,
+          parcels,
+          receipt,
+        );
+
+        setMetadata({
+          ...metadata,
+          shipmentNumber: validate?.id,
+        });
+      }
 
       const res = await fetch('/api/place-order-cash', {
         method: 'POST',
@@ -120,8 +187,15 @@ export const PaymentCash = ({
 
       setResponse(data);
 
-      if (validate?.label.totalPrice) {
-        console.log(`# Send Cart Items successfuly to the backend:`, data);
+      if (
+        (isEkont && validate?.label?.totalPrice) ||
+        (isSpeedy && validate?.price?.total)
+      ) {
+        console.log(
+          `# --Send Cart Items successfuly to the backend:`,
+          data,
+          response,
+        );
 
         setAlertMessage({
           title: 'Успешно направена поръчка!',
@@ -155,12 +229,18 @@ export const PaymentCash = ({
   return (
     <section>
       <Button
-        disabled={isDissabled}
+        disabled={isDissabled || deliveryCost === 0}
         variant={'default'}
         onClick={handleOrderSubmit}
         aria-label="Submit order"
         className={`w-full sm:w-auto min-w-[135px] py-4 mt-4 ${isDissabled && 'cursor-not-allowed opacity-70 '} `}>
-        {isLoading ? <Loader /> : isDissabled ? 'Без наличност' : `Поръчай`}
+        {isLoading || deliveryCostFlag ? (
+          <Loader />
+        ) : isDissabled ? (
+          'Без наличност'
+        ) : (
+          `Поръчай`
+        )}
       </Button>
       {showAlert && (
         <AlertBox

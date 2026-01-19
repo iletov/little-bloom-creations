@@ -14,9 +14,14 @@ export interface AddressFormData {
   street?: string;
   streetNumber?: string;
   other?: string;
-  postalCode: string;
+  postalCode?: string;
   phoneNumber: string;
   officeCode?: string;
+  streetNo?: string;
+  blockNo?: string;
+  entranceNo?: string;
+  floorNo?: string;
+  apartmentNo?: string;
 }
 
 interface PaymentState {

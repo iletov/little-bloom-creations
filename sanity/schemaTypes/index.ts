@@ -6,6 +6,7 @@ import { pageType } from './pageType';
 import { productType } from './productType';
 import { categoryType } from './categoryType';
 import { productVariantType } from './productVariantType';
+import { speedyType } from './speedyType';
 
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
@@ -16,5 +17,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     categoryType,
     productVariantType,
     ekontType,
+    speedyType,
   ],
 };

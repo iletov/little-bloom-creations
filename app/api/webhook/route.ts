@@ -125,12 +125,18 @@ export async function POST(req: NextRequest) {
         personalization: item?.personalization,
         variant_sku: item?.variant_sku ?? null,
         variant_name: item?.variant_name ?? null,
+        weight: item?.product?.weight ?? null,
+        width: item?.product?.width ?? null,
+        height: item?.product?.height ?? null,
+        length: item?.product?.length ?? null,
+        depth: item?.product?.depth ?? null,
       }));
 
       const shippingDetails = {
         email: pendingOrder?.metadata?.customerEmail,
         full_name: pendingOrder?.metadata?.customerName,
         order_number: pendingOrder?.metadata?.orderNumber,
+        shipment_number: pendingOrder?.metadata?.shipmentNumber ?? null,
 
         //from orderDetails
         phone: pendingOrder?.order_details?.phoneNumber,
@@ -141,6 +147,10 @@ export async function POST(req: NextRequest) {
         street_number: pendingOrder?.order_details?.streetNumber ?? null,
         additional_info: pendingOrder?.order_details?.other ?? null,
         office_code: pendingOrder?.order_details?.officeCode ?? null,
+        block_no: pendingOrder?.order_details?.blockNo ?? null,
+        entrance_no: pendingOrder?.order_details?.entranceNo ?? null,
+        floor_no: pendingOrder?.order_details?.floorNo ?? null,
+        apartment_no: pendingOrder?.order_details?.apartmentNo ?? null,
       };
 
       const orderMethods = {

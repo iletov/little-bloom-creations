@@ -2,9 +2,7 @@
   "label": {
     "senderClient": {
       "name": "Test Name",
-      "phones": [
-        "0878112233"
-      ]
+      "phones": ["0878112233"]
     },
     "senderAddress": {
       "city": {
@@ -21,9 +19,7 @@
     },
     "receiverClient": {
       "name": "Ivan letov",
-      "phones": [
-        "0878118857"
-      ]
+      "phones": ["0878118857"]
     },
     "receiverAddress": {
       "city": {
@@ -59,9 +55,7 @@
       "cdPayOptions": {
         "client": {
           "name": "Test Name",
-          "phones": [
-            "0878112233"
-          ]
+          "phones": ["0878112233"]
         },
         "method": "Bank",
         "BIC": "RNDMBGSF",

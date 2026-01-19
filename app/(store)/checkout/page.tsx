@@ -11,20 +11,33 @@ import { convertToSubCurrency } from '@/lib/convertAmount';
 import { Separator } from '@/component/separator/Separator';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { AlertBox } from '@/component/modals/AlertBox';
+import { calculateLabel } from '@/actions/ekont/calculateLabel';
+import { validateStreetSpeedy } from '@/actions/speedy/validateStreetSpeedy';
+import { useSenderInfo } from '@/hooks/useSenderInfo';
+import { calculateLabelSpeedy } from '@/actions/speedy/calculateLabelSpeedy';
+import { createParcelsFromItems } from '@/lib/utils/createParcelsFromItems';
+import { createReceiptFromItems } from '@/lib/utils/createReceiptFromItems';
 
 export default function CheckoutPage() {
-  const { deliveryMethod } = useSenderDetails();
+  const { deliveryMethod, selectedCity } = useSenderDetails();
+  const { senderData, senderDataSpeedy } = useSenderInfo();
   const {
     items,
+    totalWeight,
     totalPrice,
     totalItems,
     paymentIntentId,
     addressFormData,
+    guestFormData,
     metadata,
     dispatchClientSecret,
     dispatchPaymentIntentId,
     deliveryCost,
+    setDeliveryCostFlag,
+    setDeliveryCost,
   } = useCart();
+
+  // console.log('# --CHECKOUT - items: ', items);
 
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [isDissabled, setIsDissabled] = useState(false);
@@ -32,8 +45,14 @@ export default function CheckoutPage() {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ title: '', message: '' });
 
+  const isEkont =
+    deliveryMethod === 'ekont-office' || deliveryMethod === 'ekont-delivery';
+  const isSpeedy =
+    deliveryMethod === 'speedy-pickup' || deliveryMethod === 'speedy-delivery';
+
   const handleCardPayment = async () => {
     setPaymentMethod('bank');
+    labelValidation('bank');
 
     const orderMethods = {
       deliveryMethod: deliveryMethod,
@@ -88,6 +107,7 @@ export default function CheckoutPage() {
 
   const handleCashPayment = async () => {
     setPaymentMethod('cash');
+    labelValidation('cash');
     setIsDissabled(false);
 
     // check the quantity
@@ -107,6 +127,62 @@ export default function CheckoutPage() {
     //   return;
     // }
     // console.log('Payment method changed to cash');
+  };
+
+  const labelValidation = async (selectedPaymentMethod: string) => {
+    // setIsLoading(true);
+    setDeliveryCostFlag(true);
+    // console.log('# --labelValidation-->', selectedPaymentMethod);
+
+    let calculateDeliveryCost: any;
+
+    try {
+      if (isEkont) {
+        calculateDeliveryCost = await calculateLabel(
+          senderData,
+          guestFormData,
+          addressFormData,
+          deliveryMethod,
+          totalWeight,
+          selectedPaymentMethod,
+          totalPrice,
+        );
+
+        setDeliveryCost(calculateDeliveryCost?.label?.totalPrice || 0);
+      }
+
+      if (isSpeedy) {
+        // const validateStreet = await validateStreetSpeedy(
+        //   addressFormData?.street,
+        //   selectedCity?.id,
+        // );
+
+        // // console.log('# --validateStreet-->', validateStreet);
+
+        // setValidationStreet(validateStreet);
+
+        const parcels = createParcelsFromItems(items, metadata?.orderNumber);
+        const receipt = createReceiptFromItems(items);
+
+        calculateDeliveryCost = await calculateLabelSpeedy(
+          deliveryMethod,
+          selectedPaymentMethod,
+          addressFormData?.officeCode,
+          selectedCity?.id,
+          totalPrice,
+          parcels,
+          receipt,
+        );
+
+        setDeliveryCost(calculateDeliveryCost?.price?.total || 0);
+      }
+
+      // console.log('# --calculateDeliveryCost-->', calculateDeliveryCost);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setDeliveryCostFlag(false);
+    }
   };
 
   const handlePaymentChange = (value: string) => {
@@ -179,7 +255,7 @@ export default function CheckoutPage() {
       <div className="mt-5 mb-16 order-3">
         {paymentMethod === 'cash' ? (
           <PaymentCash
-            isDissabled={isDissabled}
+            // isDissabled={isDissabled}
             paymentMethod={paymentMethod}
           />
         ) : paymentMethod === 'bank' ? (

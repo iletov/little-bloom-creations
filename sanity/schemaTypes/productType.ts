@@ -108,6 +108,27 @@ export const productType = defineType({
       of: [{ type: 'string' }],
     }),
 
+    defineField({
+      name: 'weight',
+      title: 'Weight (kg)',
+      type: 'number',
+    }),
+    defineField({
+      name: 'width',
+      title: 'Width (cm)',
+      type: 'number',
+    }),
+    defineField({
+      name: 'height',
+      title: 'Height (cm)',
+      type: 'number',
+    }),
+    defineField({
+      name: 'depth',
+      title: 'Depth (cm)',
+      type: 'number',
+    }),
+
     // SEO fields
     defineField({
       name: 'metaTitle',

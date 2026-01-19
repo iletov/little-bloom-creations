@@ -11,9 +11,13 @@ export const POST = async (req: NextRequest) => {
   // );
 
   try {
+    const isSpeedy = body?.orderMethods?.deliveryMethod?.startsWith('speedy');
+
     const requiredFields = {
       metadata: ['customerName', 'customerEmail', 'orderNumber'],
-      orderDetails: ['country', 'city', 'postalCode', 'phoneNumber'],
+      orderDetails: isSpeedy
+        ? ['country', 'city', 'phoneNumber']
+        : ['country', 'city', 'postalCode', 'phoneNumber'],
     };
 
     for (const [key, value] of Object.entries(requiredFields)) {
@@ -34,12 +38,19 @@ export const POST = async (req: NextRequest) => {
       personalization: item?.personalisation,
       variant_sku: item?.product?.variant_sku ?? null,
       variant_name: item?.product?.variant_name ?? null,
+      //TODO: add the weight, width, height, length and depth
+      weight: item?.product?.weight ?? null,
+      width: item?.product?.width ?? null,
+      height: item?.product?.height ?? null,
+      length: item?.product?.length ?? null,
+      depth: item?.product?.depth ?? null,
     }));
 
     const shippingDetails = {
       email: body.metadata?.customerEmail,
       full_name: body.metadata?.customerName,
       order_number: body?.metadata?.orderNumber,
+      shipment_number: body?.metadata?.shipmentNumber ?? null,
 
       //from orderDetails
       phone: body.orderDetails?.phoneNumber,
@@ -50,6 +61,10 @@ export const POST = async (req: NextRequest) => {
       street_number: body.orderDetails?.streetNumber ?? null,
       additional_info: body.orderDetails?.other ?? null,
       office_code: body.orderDetails?.officeCode ?? null,
+      block_no: body.orderDetails?.blockNo ?? null,
+      entrance_no: body.orderDetails?.entranceNo ?? null,
+      floor_no: body.orderDetails?.floorNo ?? null,
+      apartment_no: body.orderDetails?.apartmentNo ?? null,
     };
 
     const orderMethods = {

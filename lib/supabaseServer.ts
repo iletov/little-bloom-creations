@@ -1,4 +1,5 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
 export async function createClient() {
@@ -29,6 +30,21 @@ export async function createClient() {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true,
+      },
+    },
+  );
+}
+
+// For use in generateStaticParams and other build-time operations
+// This doesn't require cookies and uses the service role key
+export function createServiceClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
       },
     },
   );

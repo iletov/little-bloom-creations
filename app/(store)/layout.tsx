@@ -5,7 +5,7 @@ import {
   Monsieur_La_Doulaise,
   Montserrat_Alternates,
 } from 'next/font/google';
-import './globals.css';
+import '../globals.css';
 // import Header from "@/Components/header/Header;
 import { SanityLive } from '@/sanity/lib/live';
 
