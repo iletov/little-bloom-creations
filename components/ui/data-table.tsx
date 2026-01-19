@@ -22,6 +22,11 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+interface Order {
+  order_number: string;
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -32,6 +37,7 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -54,7 +60,7 @@ export function DataTable<TData, TValue>({
     <div className="space-y-4">
       <div className="rounded-md border">
         <Table>
-          <TableHeader className="bg-[#202020]">
+          <TableHeader className="bg-muted shadow-md">
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map(header => {
@@ -74,21 +80,28 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map(row => (
-                <TableRow
-                  key={row.id}
-                  className="h-[4rem]"
-                  data-state={row.getIsSelected() && 'selected'}>
-                  {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              table.getRowModel().rows.map(row => {
+                const order = row.original as Order;
+
+                return (
+                  <TableRow
+                    key={row.id}
+                    className="h-[4rem] cursor-pointer hover:bg-[#404040] hover:shadow-md hover:shadow-slate-900"
+                    data-state={row.getIsSelected() && 'selected'}
+                    onClick={() =>
+                      router.push(`/dashboard/orders/${order.order_number}`)
+                    }>
+                    {row.getVisibleCells().map(cell => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
                 <TableCell

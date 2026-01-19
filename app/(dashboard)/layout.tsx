@@ -1,8 +1,14 @@
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
 import '../globals.css';
 import { createClient } from '@/lib/supabaseServer';
 import AppSidebar from '@/component/dashboard/sidebar/AppSidebar';
 import { Geist, Monsieur_La_Doulaise } from 'next/font/google';
+import QueryProvider from '../(store)/query-provider';
+import BackButton from '@/component/dashboard/back-button/BackButton';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -28,18 +34,19 @@ export default async function DashboardLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  console.log(user);
-
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${monsieurLa.variable} antialiased tracking-tight font-sans min-h-screen dark`}>
         <SidebarProvider>
-          <AppSidebar />
-          <SidebarInset>
-            {/* <Header /> */}
-            {children}
-          </SidebarInset>
+          <QueryProvider>
+            <AppSidebar />
+
+            <SidebarInset>
+              <SidebarTrigger className="" />
+              {children}
+            </SidebarInset>
+          </QueryProvider>
         </SidebarProvider>
       </body>
     </html>

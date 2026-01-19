@@ -29,19 +29,17 @@ const AppSidebar = () => {
   ];
 
   return (
-    <Sidebar variant="sidebar" collapsible="icon" className="py-6">
+    <Sidebar variant="sidebar" collapsible="icon">
       <SidebarContent>
         <SidebarGroup className="">
-          {/* Header with Trigger and Label */}
-          <div className="flex items-center justify-between mb-6 ">
+          {/* <div className="flex items-center justify-between px-4 ">
             <SidebarGroupLabel className="text-[1.8rem] font-semibold group-data-[collapsible=icon]:hidden">
               Application
             </SidebarGroupLabel>
-            <SidebarTrigger className="ml-auto" />
-          </div>
+          </div> */}
 
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1 group">
+            <SidebarMenu className="space-y- group">
               {navigation?.map(item => (
                 <SidebarMenuItem key={item?.name} className="">
                   <SidebarMenuButton asChild className="gap-3 min-w-12 h-auto">

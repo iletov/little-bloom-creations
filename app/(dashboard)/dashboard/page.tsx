@@ -6,7 +6,7 @@ import React, { Suspense } from 'react';
 export default async function DashboardPage() {
   const metrics = await getMetrics();
   return (
-    <div className="w-full h-svh py-8 px-10 space-y-8">
+    <div className="w-full h-svh py-8 px-10 space-y-8 ">
       <div className="flex flex-col-reverse">
         <h1 className="text-[2.2rem] font-[500]">{metrics?.allRevenue} €</h1>
         <p className="text-gray-400">Total Revenue</p>

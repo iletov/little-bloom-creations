@@ -36,7 +36,9 @@ const deliveryMethodColors: Record<string, string> = {
 
 export const columns: ColumnDef<Order>[] = [
   {
-    accessorKey: 'order_number',
+    // accessorKey: 'order_number',
+    accessorFn: row => row.order_number,
+    id: 'order_number',
     header: () => <div className="text-[1.6rem] font-[600]">Order No </div>,
     cell: ({ row }) => {
       const id = row.getValue('order_number') as string;
@@ -48,27 +50,30 @@ export const columns: ColumnDef<Order>[] = [
     },
   },
   {
-    accessorKey: 'full_name',
+    accessorFn: row => row.order_shipping?.full_name || 'Guest',
+    id: 'customer',
     header: () => (
       <div className="text-[1.6rem] text- font-[600]">Customer</div>
     ),
-    cell: ({ row }) => {
-      const customer = row.getValue('full_name') as Order['full_name'];
+    cell: ({ getValue }) => {
+      const customer = getValue() as string;
 
       return <div className="text-[1.6rem]">{customer}</div>;
     },
   },
   {
-    accessorKey: 'email',
+    accessorFn: row => row.order_shipping?.email || 'N/A',
+    id: 'email',
     header: () => <div className="text-[1.6rem] font-[600]">Email</div>,
-    cell: ({ row }) => {
-      const email = row.getValue('email') as Order['email'];
+    cell: ({ getValue }) => {
+      const email = getValue() as string;
 
       return <div className="text-[1.6rem] text-muted-foreground">{email}</div>;
     },
   },
   {
-    accessorKey: 'created_at',
+    accessorFn: row => row.created_at,
+    id: 'created_at',
     header: ({ column }) => {
       return (
         <Button
@@ -95,7 +100,8 @@ export const columns: ColumnDef<Order>[] = [
     },
   },
   {
-    accessorKey: 'subtotal',
+    accessorFn: row => row.subtotal,
+    id: 'subtotal',
     header: ({ column }) => {
       return (
         <Button
@@ -116,7 +122,8 @@ export const columns: ColumnDef<Order>[] = [
     },
   },
   {
-    accessorKey: 'delivery_company',
+    accessorFn: row => row.delivery_company,
+    id: 'delivery_company',
     header: () => <div className="text-[1.6rem] font-[600]">Company</div>,
     cell: ({ row }) => {
       const method = row.getValue('delivery_company') as string;
@@ -125,7 +132,8 @@ export const columns: ColumnDef<Order>[] = [
     },
   },
   {
-    accessorKey: 'delivery_method',
+    accessorFn: row => row.delivery_method,
+    id: 'delivery_method',
     header: () => <div className="text-[1.6rem] font-[600]">Delivery</div>,
     cell: ({ row }) => {
       const method = row.getValue('delivery_method') as string;
@@ -134,7 +142,8 @@ export const columns: ColumnDef<Order>[] = [
     },
   },
   {
-    accessorKey: 'status',
+    accessorFn: row => row.status,
+    id: 'status',
     header: () => <div className="text-[1.6rem] font-[600]">Status</div>,
     cell: ({ row }) => {
       const status = row.getValue('status') as string;
@@ -143,7 +152,8 @@ export const columns: ColumnDef<Order>[] = [
     },
   },
   {
-    accessorKey: 'payment_method',
+    accessorFn: row => row.payment_method,
+    id: 'payment_method',
     header: () => <div className="text-[1.6rem] font-[600]">Payment</div>,
     cell: ({ row }) => {
       const method = row.getValue('payment_method') as string;
@@ -168,13 +178,13 @@ export const columns: ColumnDef<Order>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel className="text-[1.6rem]">
+            {/* <DropdownMenuLabel className="text-[1.6rem]">
               Actions
-            </DropdownMenuLabel>
+            </DropdownMenuLabel> */}
             <DropdownMenuItem
               className="text-[1.6rem]"
               onClick={() => navigator.clipboard.writeText(order.order_number)}>
-              Copy order Num
+              Copy No
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild className="text-[1.6rem]">
