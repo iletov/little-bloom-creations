@@ -476,7 +476,7 @@ export declare const orders: import("drizzle-orm/pg-core").PgTableWithColumns<{
             tableName: "orders";
             dataType: "string";
             columnType: "PgEnumColumn";
-            data: "ekont-office" | "speedy-delivery" | "speedy-office";
+            data: "ekont-office" | "speedy-office" | "speedy-delivery";
             driverParam: string;
             notNull: true;
             hasDefault: false;
@@ -493,7 +493,7 @@ export declare const orders: import("drizzle-orm/pg-core").PgTableWithColumns<{
             tableName: "orders";
             dataType: "string";
             columnType: "PgEnumColumn";
-            data: "bank" | "cash";
+            data: "cash" | "bank";
             driverParam: string;
             notNull: true;
             hasDefault: false;

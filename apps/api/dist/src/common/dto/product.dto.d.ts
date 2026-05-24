@@ -21,64 +21,64 @@ declare const ProductDto_base: import("nestjs-zod").ZodDto<import("zod").ZodObje
         is_active: import("zod").ZodBoolean;
     }, "strip", import("zod").ZodTypeAny, {
         id: string;
-        variant_sku: string;
-        parent_id: string;
         variant_name: string;
         price: number;
         current_stock: number;
         is_active: boolean;
+        variant_sku: string;
+        parent_id: string;
     }, {
         id: string;
-        variant_sku: string;
-        parent_id: string;
         variant_name: string;
         price: number;
         current_stock: number;
         is_active: boolean;
+        variant_sku: string;
+        parent_id: string;
     }>, "many">>;
 }, "strip", import("zod").ZodTypeAny, {
     length: number;
     id: string;
-    price: number;
-    current_stock: number;
-    is_active: boolean;
-    sku: string;
     name: string;
-    discount: number;
     weight: number;
+    sku: string;
+    price: number;
+    discount: number;
     width: number;
     height: number;
     depth: number;
+    current_stock: number;
+    is_active: boolean;
     variants?: {
         id: string;
-        variant_sku: string;
-        parent_id: string;
         variant_name: string;
         price: number;
         current_stock: number;
         is_active: boolean;
+        variant_sku: string;
+        parent_id: string;
     }[] | undefined;
 }, {
     length: number;
     id: string;
-    price: number;
-    current_stock: number;
-    is_active: boolean;
-    sku: string;
     name: string;
     weight: number;
+    sku: string;
+    price: number;
     width: number;
     height: number;
     depth: number;
+    current_stock: number;
+    is_active: boolean;
     discount?: number | undefined;
     variants?: {
         id: string;
-        variant_sku: string;
-        parent_id: string;
         variant_name: string;
         price: number;
         current_stock: number;
         is_active: boolean;
+        variant_sku: string;
+        parent_id: string;
     }[] | undefined;
 }>, false>;
 export declare class ProductDto extends ProductDto_base {
@@ -93,20 +93,20 @@ declare const ProductVariantDto_base: import("nestjs-zod").ZodDto<import("zod").
     is_active: import("zod").ZodBoolean;
 }, "strip", import("zod").ZodTypeAny, {
     id: string;
-    variant_sku: string;
-    parent_id: string;
     variant_name: string;
     price: number;
     current_stock: number;
     is_active: boolean;
+    variant_sku: string;
+    parent_id: string;
 }, {
     id: string;
-    variant_sku: string;
-    parent_id: string;
     variant_name: string;
     price: number;
     current_stock: number;
     is_active: boolean;
+    variant_sku: string;
+    parent_id: string;
 }>, false>;
 export declare class ProductVariantDto extends ProductVariantDto_base {
 }

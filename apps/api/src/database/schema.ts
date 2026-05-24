@@ -1,9 +1,10 @@
 import { pgTable, uuid, varchar, numeric, integer, boolean, timestamp, jsonb, text, pgEnum } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
+import { DeliveryMethodEnum, PaymentMethodEnum, OrderStatus } from '@repo/shared-types';
 
 export const orderStatusEnum = pgEnum('order_status_enum', ['pending', 'confirmed', 'shipped', 'refunded', 'cancelled']);
 export const paymentMethodEnum = pgEnum('payment_method_enum', ['bank', 'cash']);
-export const deliveryMethodEnum = pgEnum('delivery_method_enum', ['ekont-office', 'speedy-delivery', 'speedy-office']);
+export const deliveryMethodEnum = pgEnum('delivery_method_enum', ['ekont-office', 'ekont-delivery', 'speedy-delivery', 'speedy-office']);
 
 export const products = pgTable('products', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -34,12 +35,12 @@ export const orders = pgTable('orders', {
   id: uuid('id').primaryKey().defaultRandom(),
   orderNumber: varchar('order_number').unique().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-  status: orderStatusEnum('status').notNull(),
+  status: orderStatusEnum('status').$type<OrderStatus>().notNull(),
   totalAmount: numeric('total_amount').notNull(),
   subtotal: numeric('subtotal').notNull(),
   deliveryCost: numeric('delivery_cost').notNull(),
-  deliveryMethod: deliveryMethodEnum('delivery_method').notNull(),
-  paymentMethod: paymentMethodEnum('payment_method').notNull(),
+  deliveryMethod: deliveryMethodEnum('delivery_method').$type<DeliveryMethodEnum>().notNull(),
+  paymentMethod: paymentMethodEnum('payment_method').$type<PaymentMethodEnum>().notNull(),
   shipmentNumber: varchar('shipment_number'),
 });
 

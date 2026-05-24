@@ -6,7 +6,7 @@ const nestjs_zod_1 = require("nestjs-zod");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.useGlobalPipes(new nestjs_zod_1.ZodValidationPipe());
-    await app.listen(process.env.PORT ?? 3000);
+    await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map
