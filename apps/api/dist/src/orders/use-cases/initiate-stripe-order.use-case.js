@@ -9,42 +9,36 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PlaceCashOrderUseCase = void 0;
+exports.InitiateStripeOrderUseCase = void 0;
 const common_1 = require("@nestjs/common");
-const uuid_1 = require("uuid");
 const orders_repository_1 = require("../repositories/orders.repository");
-const shared_types_1 = require("@repo/shared-types");
-const products_repository_1 = require("../../products/products.repository");
-const transaction_manager_1 = require("../../database/transaction.manager");
-let PlaceCashOrderUseCase = class PlaceCashOrderUseCase {
+const stripe_service_1 = require("../../stripe/stripe.service");
+let InitiateStripeOrderUseCase = class InitiateStripeOrderUseCase {
     ordersRepo;
-    productsRepo;
-    constructor(ordersRepo, productsRepo) {
+    stripeService;
+    constructor(ordersRepo, stripeService) {
         this.ordersRepo = ordersRepo;
-        this.productsRepo = productsRepo;
+        this.stripeService = stripeService;
     }
     async execute(dto) {
-        return transaction_manager_1.TransactionManager.runInTransaction(async () => {
-            const orderId = (0, uuid_1.v4)();
-            const orderNumber = `LBC-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-            const subtotal = dto.totalAmount - dto.deliveryCost;
-            for (const item of dto.items) {
-                await this.productsRepo.decreaseStockSafely(item.sku, item.quantity);
-            }
+        try {
+            const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+            const subtotal = dto.items.reduce((sum, item) => {
+                return sum + item.unitPrice * item.quantity;
+            }, 0);
+            const deliveryCost = dto.deliveryCost;
+            const totalAmount = subtotal + deliveryCost;
             const orderData = {
-                id: orderId,
                 orderNumber,
-                status: 'confirmed',
-                totalAmount: dto.totalAmount.toString(),
-                subtotal: subtotal.toString(),
-                deliveryCost: dto.deliveryCost.toString(),
+                status: 'pending',
+                totalAmount: totalAmount.toFixed(2),
+                subtotal: subtotal.toFixed(2),
+                deliveryCost: deliveryCost.toFixed(2),
                 deliveryMethod: dto.deliveryMethod,
-                paymentMethod: shared_types_1.PaymentMethodEnum.CASH,
-                shipmentNumber: null,
+                paymentMethod: 'stripe',
             };
             const shippingData = {
-                id: (0, uuid_1.v4)(),
-                orderId,
+                orderId: '',
                 fullName: `${dto.recipientInfo.firstName} ${dto.recipientInfo.lastName}`,
                 email: dto.recipientInfo.email || '',
                 phone: dto.recipientInfo.phone,
@@ -56,8 +50,7 @@ let PlaceCashOrderUseCase = class PlaceCashOrderUseCase {
                 officeCode: dto.recipientInfo.officeId || null,
             };
             const itemsData = dto.items.map((item) => ({
-                id: (0, uuid_1.v4)(),
-                orderId,
+                orderId: '',
                 productId: item.productId,
                 variantId: item.variantId || null,
                 name: item.name,
@@ -68,15 +61,27 @@ let PlaceCashOrderUseCase = class PlaceCashOrderUseCase {
                 weight: item.weight.toString(),
                 personalization: item.personalization || null,
             }));
-            await this.ordersRepo.createFullOrder(orderData, shippingData, itemsData);
-            return { orderNumber };
-        });
+            const orderId = await this.ordersRepo.createFullOrder(orderData, shippingData, itemsData);
+            const paymentIntent = await this.stripeService.createPaymentIntent(totalAmount, {
+                orderId: orderId,
+                orderNumber: orderNumber,
+            }, dto.recipientInfo.email);
+            await this.ordersRepo.savePaymentIntent(orderId, paymentIntent.id);
+            return {
+                orderNumber,
+                clientSecret: paymentIntent.client_secret ?? undefined,
+            };
+        }
+        catch (error) {
+            console.error('Error initiating Stripe order:', error);
+            throw new common_1.InternalServerErrorException('Failed to initiate order');
+        }
     }
 };
-exports.PlaceCashOrderUseCase = PlaceCashOrderUseCase;
-exports.PlaceCashOrderUseCase = PlaceCashOrderUseCase = __decorate([
+exports.InitiateStripeOrderUseCase = InitiateStripeOrderUseCase;
+exports.InitiateStripeOrderUseCase = InitiateStripeOrderUseCase = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [orders_repository_1.OrdersRepository,
-        products_repository_1.ProductsRepository])
-], PlaceCashOrderUseCase);
-//# sourceMappingURL=place-cash-order.use-case.js.map
+        stripe_service_1.StripeService])
+], InitiateStripeOrderUseCase);
+//# sourceMappingURL=initiate-stripe-order.use-case.js.map

@@ -12,18 +12,60 @@ const drizzle_orm_1 = require("drizzle-orm");
 const base_repository_1 = require("../../database/base.repository");
 const schema_1 = require("../../database/schema");
 let OrdersRepository = class OrdersRepository extends base_repository_1.BaseRepository {
-    async createFullOrder(orderData, shippingData, itemsData) {
-        await this.db.insert(schema_1.orders).values(orderData);
-        await this.db.insert(schema_1.orderShipping).values(shippingData);
+    async createFullOrder(orderData, shippingData, itemsData, tx) {
+        const dbExecutor = tx || this.db;
+        const [newOrder] = await dbExecutor
+            .insert(schema_1.orders)
+            .values(orderData)
+            .returning({ id: schema_1.orders.id });
+        const shippingWithOrderId = { ...shippingData, orderId: newOrder.id };
+        await dbExecutor.insert(schema_1.orderShipping).values(shippingWithOrderId);
         if (itemsData.length > 0) {
-            await this.db.insert(schema_1.orderItems).values(itemsData);
+            const itemsWithOrderId = itemsData.map((item) => ({
+                ...item,
+                orderId: newOrder.id,
+            }));
+            await dbExecutor.insert(schema_1.orderItems).values(itemsWithOrderId);
         }
+        return newOrder.id;
     }
-    async updateShipmentNumber(orderNumber, shipmentNumber) {
-        await this.db
+    async updateShipmentNumber(orderNumber, shipmentNumber, tx) {
+        const dbExecutor = tx || this.db;
+        await dbExecutor
             .update(schema_1.orders)
             .set({ shipmentNumber })
             .where((0, drizzle_orm_1.eq)(schema_1.orders.orderNumber, orderNumber));
+    }
+    async findById(orderId, tx) {
+        const dbExecutor = tx || this.db;
+        const [order] = await dbExecutor
+            .select()
+            .from(schema_1.orders)
+            .where((0, drizzle_orm_1.eq)(schema_1.orders.id, orderId));
+        if (!order)
+            return null;
+        const items = await dbExecutor
+            .select()
+            .from(schema_1.orderItems)
+            .where((0, drizzle_orm_1.eq)(schema_1.orderItems.orderId, orderId));
+        return {
+            ...order,
+            items,
+        };
+    }
+    async updateStatus(orderId, newStatus, tx) {
+        const dbExecutor = tx || this.db;
+        await dbExecutor
+            .update(schema_1.orders)
+            .set({ status: newStatus })
+            .where((0, drizzle_orm_1.eq)(schema_1.orders.id, orderId));
+    }
+    async savePaymentIntent(orderId, paymentIntentId, tx) {
+        const dbExecutor = tx || this.db;
+        await dbExecutor
+            .update(schema_1.orders)
+            .set({ stripePaymentIntentId: paymentIntentId })
+            .where((0, drizzle_orm_1.eq)(schema_1.orders.id, orderId));
     }
 };
 exports.OrdersRepository = OrdersRepository;

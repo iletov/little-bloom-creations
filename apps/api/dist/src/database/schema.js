@@ -1,11 +1,26 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.webhookEventsRelations = exports.orderItemsRelations = exports.orderShippingRelations = exports.ordersRelations = exports.productVariantsRelations = exports.productsRelations = exports.webhookEvents = exports.pendingOrders = exports.orderItems = exports.orderShipping = exports.orders = exports.productVariants = exports.products = exports.deliveryMethodEnum = exports.paymentMethodEnum = exports.orderStatusEnum = void 0;
+exports.webhookEventsRelations = exports.orderItemsRelations = exports.orderShippingRelations = exports.ordersRelations = exports.productVariantsRelations = exports.productsRelations = exports.webhookEvents = exports.orderItems = exports.orderShipping = exports.orders = exports.productVariants = exports.products = exports.deliveryMethodEnum = exports.paymentMethodEnum = exports.orderStatusEnum = void 0;
 const pg_core_1 = require("drizzle-orm/pg-core");
 const drizzle_orm_1 = require("drizzle-orm");
-exports.orderStatusEnum = (0, pg_core_1.pgEnum)('order_status_enum', ['pending', 'confirmed', 'shipped', 'refunded', 'cancelled']);
-exports.paymentMethodEnum = (0, pg_core_1.pgEnum)('payment_method_enum', ['bank', 'cash']);
-exports.deliveryMethodEnum = (0, pg_core_1.pgEnum)('delivery_method_enum', ['ekont-office', 'ekont-delivery', 'speedy-delivery', 'speedy-office']);
+exports.orderStatusEnum = (0, pg_core_1.pgEnum)('order_status_enum', [
+    'pending',
+    'confirmed',
+    'shipped',
+    'refunded',
+    'cancelled',
+]);
+exports.paymentMethodEnum = (0, pg_core_1.pgEnum)('payment_method_enum', [
+    'bank',
+    'cash',
+    'stripe',
+]);
+exports.deliveryMethodEnum = (0, pg_core_1.pgEnum)('delivery_method_enum', [
+    'ekont-office',
+    'ekont-delivery',
+    'speedy-delivery',
+    'speedy-office',
+]);
 exports.products = (0, pg_core_1.pgTable)('products', {
     id: (0, pg_core_1.uuid)('id').primaryKey().defaultRandom(),
     sku: (0, pg_core_1.varchar)('sku').unique().notNull(),
@@ -23,7 +38,9 @@ exports.products = (0, pg_core_1.pgTable)('products', {
 exports.productVariants = (0, pg_core_1.pgTable)('product_variants', {
     id: (0, pg_core_1.uuid)('id').primaryKey().defaultRandom(),
     variantSku: (0, pg_core_1.varchar)('variant_sku').unique().notNull(),
-    parentId: (0, pg_core_1.uuid)('parent_id').references(() => exports.products.id).notNull(),
+    parentId: (0, pg_core_1.uuid)('parent_id')
+        .references(() => exports.products.id)
+        .notNull(),
     variantName: (0, pg_core_1.varchar)('variant_name').notNull(),
     price: (0, pg_core_1.numeric)('price').notNull(),
     currentStock: (0, pg_core_1.integer)('current_stock').notNull(),
@@ -37,13 +54,21 @@ exports.orders = (0, pg_core_1.pgTable)('orders', {
     totalAmount: (0, pg_core_1.numeric)('total_amount').notNull(),
     subtotal: (0, pg_core_1.numeric)('subtotal').notNull(),
     deliveryCost: (0, pg_core_1.numeric)('delivery_cost').notNull(),
-    deliveryMethod: (0, exports.deliveryMethodEnum)('delivery_method').$type().notNull(),
-    paymentMethod: (0, exports.paymentMethodEnum)('payment_method').$type().notNull(),
+    deliveryMethod: (0, exports.deliveryMethodEnum)('delivery_method')
+        .$type()
+        .notNull(),
+    paymentMethod: (0, exports.paymentMethodEnum)('payment_method')
+        .$type()
+        .notNull(),
     shipmentNumber: (0, pg_core_1.varchar)('shipment_number'),
+    stripePaymentIntentId: (0, pg_core_1.varchar)('stripe_payment_intent_id').unique(),
 });
 exports.orderShipping = (0, pg_core_1.pgTable)('order_shipping', {
     id: (0, pg_core_1.uuid)('id').primaryKey().defaultRandom(),
-    orderId: (0, pg_core_1.uuid)('order_id').references(() => exports.orders.id).unique().notNull(),
+    orderId: (0, pg_core_1.uuid)('order_id')
+        .references(() => exports.orders.id)
+        .unique()
+        .notNull(),
     fullName: (0, pg_core_1.varchar)('full_name').notNull(),
     email: (0, pg_core_1.varchar)('email').notNull(),
     phone: (0, pg_core_1.varchar)('phone').notNull(),
@@ -61,8 +86,12 @@ exports.orderShipping = (0, pg_core_1.pgTable)('order_shipping', {
 });
 exports.orderItems = (0, pg_core_1.pgTable)('order_items', {
     id: (0, pg_core_1.uuid)('id').primaryKey().defaultRandom(),
-    orderId: (0, pg_core_1.uuid)('order_id').references(() => exports.orders.id).notNull(),
-    productId: (0, pg_core_1.uuid)('product_id').references(() => exports.products.id).notNull(),
+    orderId: (0, pg_core_1.uuid)('order_id')
+        .references(() => exports.orders.id)
+        .notNull(),
+    productId: (0, pg_core_1.uuid)('product_id')
+        .references(() => exports.products.id)
+        .notNull(),
     variantId: (0, pg_core_1.uuid)('variant_id').references(() => exports.productVariants.id),
     name: (0, pg_core_1.varchar)('name').notNull(),
     variantName: (0, pg_core_1.varchar)('variant_name'),
@@ -71,17 +100,6 @@ exports.orderItems = (0, pg_core_1.pgTable)('order_items', {
     subtotal: (0, pg_core_1.numeric)('subtotal').notNull(),
     weight: (0, pg_core_1.numeric)('weight').notNull(),
     personalization: (0, pg_core_1.jsonb)('personalization'),
-});
-exports.pendingOrders = (0, pg_core_1.pgTable)('pending_orders', {
-    id: (0, pg_core_1.uuid)('id').primaryKey().defaultRandom(),
-    stripePaymentIntentId: (0, pg_core_1.varchar)('stripe_payment_intent_id').unique().notNull(),
-    orderNumber: (0, pg_core_1.varchar)('order_number').notNull(),
-    cartItems: (0, pg_core_1.jsonb)('cart_items').notNull(),
-    orderDetails: (0, pg_core_1.jsonb)('order_details').notNull(),
-    orderMethods: (0, pg_core_1.jsonb)('order_methods').notNull(),
-    metadata: (0, pg_core_1.jsonb)('metadata'),
-    status: (0, pg_core_1.varchar)('status').notNull(),
-    errorMessage: (0, pg_core_1.text)('error_message'),
 });
 exports.webhookEvents = (0, pg_core_1.pgTable)('webhook_events', {
     id: (0, pg_core_1.uuid)('id').primaryKey().defaultRandom(),

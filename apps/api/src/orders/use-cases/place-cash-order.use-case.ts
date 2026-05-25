@@ -10,9 +10,10 @@ import {
 
 import { PlaceCashOrderDto } from '../dto/place-cash-order.dto';
 import { PlaceOrderResponse } from '../orders.controller';
-import { ProductsRepository } from 'src/products/products.repository';
-import { TransactionManager } from 'src/database/transaction.manager';
+
 import { PaymentMethodEnum } from '@repo/shared-types';
+import { ProductsRepository } from '../../products/products.repository';
+import { TransactionManager } from '../../database/transaction.manager';
 
 @Injectable()
 export class PlaceCashOrderUseCase {

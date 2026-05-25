@@ -1,10 +1,40 @@
-import { pgTable, uuid, varchar, numeric, integer, boolean, timestamp, jsonb, text, pgEnum } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  numeric,
+  integer,
+  boolean,
+  timestamp,
+  jsonb,
+  text,
+  pgEnum,
+} from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { DeliveryMethodEnum, PaymentMethodEnum, OrderStatus } from '@repo/shared-types';
+import {
+  DeliveryMethodEnum,
+  PaymentMethodEnum,
+  OrderStatus,
+} from '@repo/shared-types';
 
-export const orderStatusEnum = pgEnum('order_status_enum', ['pending', 'confirmed', 'shipped', 'refunded', 'cancelled']);
-export const paymentMethodEnum = pgEnum('payment_method_enum', ['bank', 'cash']);
-export const deliveryMethodEnum = pgEnum('delivery_method_enum', ['ekont-office', 'ekont-delivery', 'speedy-delivery', 'speedy-office']);
+export const orderStatusEnum = pgEnum('order_status_enum', [
+  'pending',
+  'confirmed',
+  'shipped',
+  'refunded',
+  'cancelled',
+]);
+export const paymentMethodEnum = pgEnum('payment_method_enum', [
+  'bank',
+  'cash',
+  'stripe',
+]);
+export const deliveryMethodEnum = pgEnum('delivery_method_enum', [
+  'ekont-office',
+  'ekont-delivery',
+  'speedy-delivery',
+  'speedy-office',
+]);
 
 export const products = pgTable('products', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -24,7 +54,9 @@ export const products = pgTable('products', {
 export const productVariants = pgTable('product_variants', {
   id: uuid('id').primaryKey().defaultRandom(),
   variantSku: varchar('variant_sku').unique().notNull(),
-  parentId: uuid('parent_id').references(() => products.id).notNull(),
+  parentId: uuid('parent_id')
+    .references(() => products.id)
+    .notNull(),
   variantName: varchar('variant_name').notNull(),
   price: numeric('price').notNull(),
   currentStock: integer('current_stock').notNull(),
@@ -39,14 +71,22 @@ export const orders = pgTable('orders', {
   totalAmount: numeric('total_amount').notNull(),
   subtotal: numeric('subtotal').notNull(),
   deliveryCost: numeric('delivery_cost').notNull(),
-  deliveryMethod: deliveryMethodEnum('delivery_method').$type<DeliveryMethodEnum>().notNull(),
-  paymentMethod: paymentMethodEnum('payment_method').$type<PaymentMethodEnum>().notNull(),
+  deliveryMethod: deliveryMethodEnum('delivery_method')
+    .$type<DeliveryMethodEnum>()
+    .notNull(),
+  paymentMethod: paymentMethodEnum('payment_method')
+    .$type<PaymentMethodEnum>()
+    .notNull(),
   shipmentNumber: varchar('shipment_number'),
+  stripePaymentIntentId: varchar('stripe_payment_intent_id').unique(),
 });
 
 export const orderShipping = pgTable('order_shipping', {
   id: uuid('id').primaryKey().defaultRandom(),
-  orderId: uuid('order_id').references(() => orders.id).unique().notNull(),
+  orderId: uuid('order_id')
+    .references(() => orders.id)
+    .unique()
+    .notNull(),
   fullName: varchar('full_name').notNull(),
   email: varchar('email').notNull(),
   phone: varchar('phone').notNull(),
@@ -65,8 +105,12 @@ export const orderShipping = pgTable('order_shipping', {
 
 export const orderItems = pgTable('order_items', {
   id: uuid('id').primaryKey().defaultRandom(),
-  orderId: uuid('order_id').references(() => orders.id).notNull(),
-  productId: uuid('product_id').references(() => products.id).notNull(),
+  orderId: uuid('order_id')
+    .references(() => orders.id)
+    .notNull(),
+  productId: uuid('product_id')
+    .references(() => products.id)
+    .notNull(),
   variantId: uuid('variant_id').references(() => productVariants.id),
   name: varchar('name').notNull(),
   variantName: varchar('variant_name'),
@@ -77,17 +121,17 @@ export const orderItems = pgTable('order_items', {
   personalization: jsonb('personalization'),
 });
 
-export const pendingOrders = pgTable('pending_orders', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  stripePaymentIntentId: varchar('stripe_payment_intent_id').unique().notNull(),
-  orderNumber: varchar('order_number').notNull(),
-  cartItems: jsonb('cart_items').notNull(),
-  orderDetails: jsonb('order_details').notNull(),
-  orderMethods: jsonb('order_methods').notNull(),
-  metadata: jsonb('metadata'),
-  status: varchar('status').notNull(),
-  errorMessage: text('error_message'),
-});
+// export const pendingOrders = pgTable('pending_orders', {
+//   id: uuid('id').primaryKey().defaultRandom(),
+//   stripePaymentIntentId: varchar('stripe_payment_intent_id').unique().notNull(),
+//   orderNumber: varchar('order_number').notNull(),
+//   cartItems: jsonb('cart_items').notNull(),
+//   orderDetails: jsonb('order_details').notNull(),
+//   orderMethods: jsonb('order_methods').notNull(),
+//   metadata: jsonb('metadata'),
+//   status: varchar('status').notNull(),
+//   errorMessage: text('error_message'),
+// });
 
 export const webhookEvents = pgTable('webhook_events', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -106,13 +150,16 @@ export const productsRelations = relations(products, ({ many }) => ({
   orderItems: many(orderItems),
 }));
 
-export const productVariantsRelations = relations(productVariants, ({ one, many }) => ({
-  product: one(products, {
-    fields: [productVariants.parentId],
-    references: [products.id],
+export const productVariantsRelations = relations(
+  productVariants,
+  ({ one, many }) => ({
+    product: one(products, {
+      fields: [productVariants.parentId],
+      references: [products.id],
+    }),
+    orderItems: many(orderItems),
   }),
-  orderItems: many(orderItems),
-}));
+);
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
   shipping: one(orderShipping, {

@@ -11,15 +11,23 @@ const common_1 = require("@nestjs/common");
 const orders_controller_1 = require("./orders.controller");
 const orders_repository_1 = require("./repositories/orders.repository");
 const place_cash_order_use_case_1 = require("./use-cases/place-cash-order.use-case");
+const stripe_module_1 = require("../stripe/stripe.module");
 const products_module_1 = require("../products/products.module");
+const confirm_stripe_order_use_case_1 = require("./confirm-stripe-order.use-case");
+const initiate_stripe_order_use_case_1 = require("./use-cases/initiate-stripe-order.use-case");
 let OrdersModule = class OrdersModule {
 };
 exports.OrdersModule = OrdersModule;
 exports.OrdersModule = OrdersModule = __decorate([
     (0, common_1.Module)({
-        imports: [products_module_1.ProductsModule],
+        imports: [products_module_1.ProductsModule, stripe_module_1.StripeModule],
         controllers: [orders_controller_1.OrdersController],
-        providers: [orders_repository_1.OrdersRepository, place_cash_order_use_case_1.PlaceCashOrderUseCase],
+        providers: [
+            orders_repository_1.OrdersRepository,
+            place_cash_order_use_case_1.PlaceCashOrderUseCase,
+            initiate_stripe_order_use_case_1.InitiateStripeOrderUseCase,
+            confirm_stripe_order_use_case_1.ConfirmStripeOrderUseCase,
+        ],
         exports: [orders_repository_1.OrdersRepository],
     })
 ], OrdersModule);
