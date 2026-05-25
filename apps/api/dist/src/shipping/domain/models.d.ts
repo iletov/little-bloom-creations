@@ -62,3 +62,44 @@ export interface CreateWaybillResult {
     price: number;
     rawDetails: Record<string, unknown>;
 }
+export interface EcontCityResponse {
+    id: number;
+    name: string;
+    postCode: string;
+    regionName?: string;
+}
+export interface SpeedyCityResponse {
+    id: number;
+    name: string;
+    postCode: string;
+    municipality?: string;
+}
+export interface CityDto {
+    id: string | number;
+    name: string;
+    postCode: string;
+    region?: string;
+}
+export interface EcontOfficeResponse {
+    id: number;
+    name: string;
+    cityId: number;
+    address?: {
+        fullAddress?: string;
+    };
+}
+export interface SpeedyOfficeResponse {
+    id: number;
+    name: string;
+    siteId: number;
+    address?: {
+        fullAddressString?: string;
+        localAddressString?: string;
+    };
+}
+export interface OfficeDto {
+    id: string | number;
+    name: string;
+    address: string;
+    cityId: string | number;
+}

@@ -69,26 +69,26 @@ declare const OrderDto_base: import("nestjs-zod").ZodDto<import("zod").ZodObject
         weight: import("zod").ZodNumber;
         personalization: import("zod").ZodOptional<import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodAny>>;
     }, "strip", import("zod").ZodTypeAny, {
-        product_id: string;
         name: string;
+        weight: number;
+        product_id: string;
         quantity: number;
         unit_price: number;
         subtotal: number;
-        weight: number;
         id?: string | undefined;
-        variant_id?: string | null | undefined;
         variant_name?: string | null | undefined;
+        variant_id?: string | null | undefined;
         personalization?: Record<string, any> | undefined;
     }, {
-        product_id: string;
         name: string;
+        weight: number;
+        product_id: string;
         quantity: number;
         unit_price: number;
         subtotal: number;
-        weight: number;
         id?: string | undefined;
-        variant_id?: string | null | undefined;
         variant_name?: string | null | undefined;
+        variant_id?: string | null | undefined;
         personalization?: Record<string, any> | undefined;
     }>, "many">;
 }, "strip", import("zod").ZodTypeAny, {
@@ -117,15 +117,15 @@ declare const OrderDto_base: import("nestjs-zod").ZodDto<import("zod").ZodObject
         additional_info?: string | undefined;
     };
     items: {
-        product_id: string;
         name: string;
+        weight: number;
+        product_id: string;
         quantity: number;
         unit_price: number;
         subtotal: number;
-        weight: number;
         id?: string | undefined;
-        variant_id?: string | null | undefined;
         variant_name?: string | null | undefined;
+        variant_id?: string | null | undefined;
         personalization?: Record<string, any> | undefined;
     }[];
     id?: string | undefined;
@@ -156,15 +156,15 @@ declare const OrderDto_base: import("nestjs-zod").ZodDto<import("zod").ZodObject
         additional_info?: string | undefined;
     };
     items: {
-        product_id: string;
         name: string;
+        weight: number;
+        product_id: string;
         quantity: number;
         unit_price: number;
         subtotal: number;
-        weight: number;
         id?: string | undefined;
-        variant_id?: string | null | undefined;
         variant_name?: string | null | undefined;
+        variant_id?: string | null | undefined;
         personalization?: Record<string, any> | undefined;
     }[];
     id?: string | undefined;
@@ -184,26 +184,26 @@ declare const OrderItemDto_base: import("nestjs-zod").ZodDto<import("zod").ZodOb
     weight: import("zod").ZodNumber;
     personalization: import("zod").ZodOptional<import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodAny>>;
 }, "strip", import("zod").ZodTypeAny, {
-    product_id: string;
     name: string;
+    weight: number;
+    product_id: string;
     quantity: number;
     unit_price: number;
     subtotal: number;
-    weight: number;
     id?: string | undefined;
-    variant_id?: string | null | undefined;
     variant_name?: string | null | undefined;
+    variant_id?: string | null | undefined;
     personalization?: Record<string, any> | undefined;
 }, {
-    product_id: string;
     name: string;
+    weight: number;
+    product_id: string;
     quantity: number;
     unit_price: number;
     subtotal: number;
-    weight: number;
     id?: string | undefined;
-    variant_id?: string | null | undefined;
     variant_name?: string | null | undefined;
+    variant_id?: string | null | undefined;
     personalization?: Record<string, any> | undefined;
 }>, false>;
 export declare class OrderItemDto extends OrderItemDto_base {

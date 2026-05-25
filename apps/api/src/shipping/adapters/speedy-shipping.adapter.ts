@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { IShippingProvider } from '../interfaces/shipping-provider.interface';
@@ -8,6 +8,10 @@ import {
   ShippingCalculationResult,
   CreateWaybillRequest,
   CreateWaybillResult,
+  CityDto,
+  SpeedyCityResponse,
+  OfficeDto,
+  SpeedyOfficeResponse,
 } from '../domain/models';
 import { ShippingProviderException } from '../domain/exceptions';
 import {
@@ -16,6 +20,7 @@ import {
   SpeedyShipmentResponse,
 } from './types/speedy.types';
 import { DeliveryMethodEnum, PaymentMethodEnum } from '@repo/shared-types';
+import { lastValueFrom } from 'rxjs';
 
 // Strict Type Guard to safely discriminate the union type
 function isCreateWaybillRequest(
@@ -201,6 +206,84 @@ export class SpeedyShippingAdapter implements IShippingProvider {
     } catch (error: unknown) {
       throw new ShippingProviderException(
         'Failed to create waybill with Speedy',
+        error,
+      );
+    }
+  }
+
+  async getCities(countryCode?: string): Promise<CityDto[]> {
+    try {
+      const response = await lastValueFrom(
+        this.httpService.post<{ sites: SpeedyCityResponse[] }>(
+          `${this.speedyUrl}/location/site`,
+          {
+            userName: this.userName,
+            password: this.password,
+            // Speedy използва countryId 100 за България. Може да се мапне динамично при нужда.
+            countryId:
+              countryCode === 'BGR' || !countryCode ? '100' : countryCode,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        ),
+      );
+
+      const sites = response.data.sites || [];
+
+      // Унифициран мапинг
+      return sites.map((site) => ({
+        id: site.id,
+        name: site.name,
+        postCode: site.postCode,
+        region: site.municipality || '',
+      }));
+    } catch (error) {
+      throw new ShippingProviderException(
+        'Failed to fetch cities from Speedy',
+        error,
+      );
+    }
+  }
+
+  async getOffices(cityId?: string | number): Promise<OfficeDto[]> {
+    try {
+      const payload: Record<string, any> = {
+        userName: this.userName,
+        password: this.password,
+        countryId: '100',
+      };
+
+      if (cityId) {
+        payload.siteId = Number(cityId);
+      }
+
+      const response = await firstValueFrom(
+        this.httpService.post<{ offices: SpeedyOfficeResponse[] }>(
+          `${this.speedyUrl}/location/office`,
+          payload,
+          {
+            headers: { 'Content-Type': 'application/json' },
+          },
+        ),
+      );
+
+      const offices = response.data.offices || [];
+
+      return offices.map((office) => ({
+        id: office.id,
+        name: office.name,
+        address:
+          office.address?.fullAddressString ||
+          office.address?.localAddressString ||
+          '',
+        cityId: office.siteId,
+      }));
+    } catch (error: unknown) {
+      throw new ShippingProviderException(
+        'Failed to fetch offices from Speedy',
         error,
       );
     }

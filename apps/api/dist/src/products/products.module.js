@@ -23,7 +23,11 @@ exports.ProductsModule = ProductsModule = __decorate([
             get_all_active_products_use_case_1.GetAllActiveProductsUseCase,
             get_product_by_sku_use_case_1.GetProductBySkuUseCase,
         ],
-        exports: [get_all_active_products_use_case_1.GetAllActiveProductsUseCase, get_product_by_sku_use_case_1.GetProductBySkuUseCase],
+        exports: [
+            get_all_active_products_use_case_1.GetAllActiveProductsUseCase,
+            get_product_by_sku_use_case_1.GetProductBySkuUseCase,
+            products_repository_1.ProductsRepository,
+        ],
     })
 ], ProductsModule);
 //# sourceMappingURL=products.module.js.map

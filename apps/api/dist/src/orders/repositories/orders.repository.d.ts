@@ -1,7 +1,9 @@
 import { BaseRepository } from '../../database/base.repository';
-import { Order } from '@repo/shared-types';
+import { orders, orderShipping, orderItems } from '../../database/schema';
+export type InsertOrderType = typeof orders.$inferInsert;
+export type InsertOrderShippingType = typeof orderShipping.$inferInsert;
+export type InsertOrderItemType = typeof orderItems.$inferInsert;
 export declare class OrdersRepository extends BaseRepository {
-    createOrder(orderData: Partial<Order>, items: any[], shipping: any): Promise<Order>;
-    findById(id: string): Promise<Order | undefined>;
-    findByOrderNumber(orderNumber: string): Promise<Order | undefined>;
+    createFullOrder(orderData: InsertOrderType, shippingData: InsertOrderShippingType, itemsData: InsertOrderItemType[]): Promise<void>;
+    updateShipmentNumber(orderNumber: string, shipmentNumber: string): Promise<void>;
 }

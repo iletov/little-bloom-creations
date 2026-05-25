@@ -161,6 +161,40 @@ let EcontShippingAdapter = class EcontShippingAdapter {
             throw new exceptions_1.ShippingProviderException('Failed to create waybill with Econt', error);
         }
     }
+    async getCities(countryCode = 'BGR') {
+        try {
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.econtUrl}/Nomenclatures/NomenclaturesService.getCities.json`, { countryCode }, { headers: this.getHeaders() }));
+            const cities = response.data.cities;
+            return cities.map((city) => ({
+                id: city.id,
+                name: city.name,
+                postCode: city.postCode,
+                region: city.regionName || '',
+            }));
+        }
+        catch (error) {
+            throw new exceptions_1.ShippingProviderException('Failed to fetch cities from Econt', error);
+        }
+    }
+    async getOffices(cityId) {
+        try {
+            const payload = { countryCode: 'BGR' };
+            if (cityId) {
+                payload.cityId = Number(cityId);
+            }
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.econtUrl}/Nomenclatures/NomenclaturesService.getOffices.json`, payload, { headers: this.getHeaders() }));
+            const offices = response.data.offices || [];
+            return offices.map((office) => ({
+                id: office.id,
+                name: office.name,
+                address: office.address?.fullAddress || '',
+                cityId: office.cityId,
+            }));
+        }
+        catch (error) {
+            throw new exceptions_1.ShippingProviderException('Failed to fetch offices from Econt', error);
+        }
+    }
 };
 exports.EcontShippingAdapter = EcontShippingAdapter;
 exports.EcontShippingAdapter = EcontShippingAdapter = __decorate([

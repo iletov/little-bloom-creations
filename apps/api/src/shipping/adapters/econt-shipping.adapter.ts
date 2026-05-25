@@ -8,6 +8,10 @@ import {
   ShippingCalculationResult,
   CreateWaybillRequest,
   CreateWaybillResult,
+  CityDto,
+  EcontCityResponse,
+  OfficeDto,
+  EcontOfficeResponse,
 } from '../domain/models';
 import { ShippingProviderException } from '../domain/exceptions';
 import { EcontLabelPayload, EcontLabelResponse } from './types/econt.types';
@@ -212,6 +216,62 @@ export class EcontShippingAdapter implements IShippingProvider {
     } catch (error: unknown) {
       throw new ShippingProviderException(
         'Failed to create waybill with Econt',
+        error,
+      );
+    }
+  }
+
+  async getCities(countryCode: string = 'BGR'): Promise<CityDto[]> {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.post<{ cities: EcontCityResponse[] }>(
+          `${this.econtUrl}/Nomenclatures/NomenclaturesService.getCities.json`,
+          { countryCode },
+          { headers: this.getHeaders() },
+        ),
+      );
+
+      const cities = response.data.cities;
+      return cities.map((city) => ({
+        id: city.id,
+        name: city.name,
+        postCode: city.postCode,
+        region: city.regionName || '',
+      }));
+    } catch (error) {
+      throw new ShippingProviderException(
+        'Failed to fetch cities from Econt',
+        error,
+      );
+    }
+  }
+
+  async getOffices(cityId: string | number): Promise<OfficeDto[]> {
+    try {
+      const payload: Record<string, any> = { countryCode: 'BGR' };
+      if (cityId) {
+        payload.cityId = Number(cityId);
+      }
+
+      const response = await firstValueFrom(
+        this.httpService.post<{ offices: EcontOfficeResponse[] }>(
+          `${this.econtUrl}/Nomenclatures/NomenclaturesService.getOffices.json`,
+          payload,
+          { headers: this.getHeaders() },
+        ),
+      );
+
+      const offices = response.data.offices || [];
+
+      return offices.map((office) => ({
+        id: office.id,
+        name: office.name,
+        address: office.address?.fullAddress || '',
+        cityId: office.cityId,
+      }));
+    } catch (error: unknown) {
+      throw new ShippingProviderException(
+        'Failed to fetch offices from Econt',
         error,
       );
     }

@@ -4,7 +4,6 @@ import { PlaceCashOrderDto } from './dto/place-cash-order.dto';
 
 export interface PlaceOrderResponse {
   orderNumber: string;
-  waybillNumber: string;
 }
 
 @Controller('orders')

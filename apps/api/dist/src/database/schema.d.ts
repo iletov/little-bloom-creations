@@ -1,6 +1,7 @@
+import { DeliveryMethodEnum, PaymentMethodEnum } from '@repo/shared-types';
 export declare const orderStatusEnum: import("drizzle-orm/pg-core").PgEnum<["pending", "confirmed", "shipped", "refunded", "cancelled"]>;
 export declare const paymentMethodEnum: import("drizzle-orm/pg-core").PgEnum<["bank", "cash"]>;
-export declare const deliveryMethodEnum: import("drizzle-orm/pg-core").PgEnum<["ekont-office", "speedy-delivery", "speedy-office"]>;
+export declare const deliveryMethodEnum: import("drizzle-orm/pg-core").PgEnum<["ekont-office", "ekont-delivery", "speedy-delivery", "speedy-office"]>;
 export declare const products: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "products";
     schema: undefined;
@@ -419,7 +420,9 @@ export declare const orders: import("drizzle-orm/pg-core").PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            $type: "pending" | "confirmed" | "shipped" | "refunded" | "cancelled";
+        }>;
         totalAmount: import("drizzle-orm/pg-core").PgColumn<{
             name: "total_amount";
             tableName: "orders";
@@ -476,24 +479,26 @@ export declare const orders: import("drizzle-orm/pg-core").PgTableWithColumns<{
             tableName: "orders";
             dataType: "string";
             columnType: "PgEnumColumn";
-            data: "ekont-office" | "speedy-office" | "speedy-delivery";
+            data: DeliveryMethodEnum;
             driverParam: string;
             notNull: true;
             hasDefault: false;
             isPrimaryKey: false;
             isAutoincrement: false;
             hasRuntimeDefault: false;
-            enumValues: ["ekont-office", "speedy-delivery", "speedy-office"];
+            enumValues: ["ekont-office", "ekont-delivery", "speedy-delivery", "speedy-office"];
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            $type: DeliveryMethodEnum;
+        }>;
         paymentMethod: import("drizzle-orm/pg-core").PgColumn<{
             name: "payment_method";
             tableName: "orders";
             dataType: "string";
             columnType: "PgEnumColumn";
-            data: "cash" | "bank";
+            data: PaymentMethodEnum;
             driverParam: string;
             notNull: true;
             hasDefault: false;
@@ -504,7 +509,9 @@ export declare const orders: import("drizzle-orm/pg-core").PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            $type: PaymentMethodEnum;
+        }>;
         shipmentNumber: import("drizzle-orm/pg-core").PgColumn<{
             name: "shipment_number";
             tableName: "orders";

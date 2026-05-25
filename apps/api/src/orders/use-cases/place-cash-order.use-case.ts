@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -8,55 +8,50 @@ import {
   InsertOrderItemType,
 } from '../repositories/orders.repository';
 
-import { ShippingProviderFactory } from '../../shipping/factories/shipping-provider.factory';
 import { PlaceCashOrderDto } from '../dto/place-cash-order.dto';
-
-import { CreateWaybillRequest } from '../../shipping/domain/models';
+import { PlaceOrderResponse } from '../orders.controller';
 import { ProductsRepository } from 'src/products/products.repository';
 import { TransactionManager } from 'src/database/transaction.manager';
 import { PaymentMethodEnum } from '@repo/shared-types';
-
-// Стриктен договор, който Контролерът също използва
-export interface PlaceOrderResponse {
-  orderNumber: string;
-  waybillNumber: string;
-}
 
 @Injectable()
 export class PlaceCashOrderUseCase {
   constructor(
     private readonly ordersRepo: OrdersRepository,
     private readonly productsRepo: ProductsRepository,
-    private readonly shippingFactory: ShippingProviderFactory,
   ) {}
 
   async execute(dto: PlaceCashOrderDto): Promise<PlaceOrderResponse> {
+    // Отваряме транзакцията - от тук нататък всичко е защитено "Всичко или нищо"
     return TransactionManager.runInTransaction(async () => {
       const orderId = uuidv4();
       const orderNumber = `LBC-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       const subtotal = dto.totalAmount - dto.deliveryCost;
 
+      // 1. Атомарно намаляване на наличностите
       for (const item of dto.items) {
+        // Увери се, че DTO-то подава правилното SKU, по което търси репозиторито
         await this.productsRepo.decreaseStockSafely(item.sku, item.quantity);
       }
 
+      // 2. Подготовка на данни за Базата (Строго camelCase според Drizzle)
       const orderData: InsertOrderType = {
         id: orderId,
         orderNumber,
-        status: 'confirmed', // Според твоя orderStatusEnum
+        status: 'confirmed', // Или 'new' / 'pending_processing' според твоя enum
         totalAmount: dto.totalAmount.toString(),
         subtotal: subtotal.toString(),
         deliveryCost: dto.deliveryCost.toString(),
         deliveryMethod: dto.deliveryMethod,
         paymentMethod: PaymentMethodEnum.CASH,
-        // createdAt ще бъде сложен автоматично от defaultNow()
+        shipmentNumber: null, // Товарителницата ще се попълни по-късно от Админа
       };
 
       const shippingData: InsertOrderShippingType = {
         id: uuidv4(),
-        orderId, // Foreign Key към orders
+        orderId,
         fullName: `${dto.recipientInfo.firstName} ${dto.recipientInfo.lastName}`,
-        email: dto.recipientInfo.email || 'no-email@example.com',
+        email: dto.recipientInfo.email || '',
         phone: dto.recipientInfo.phone,
         country: dto.recipientAddress.country || 'BG',
         city: dto.recipientAddress.city,
@@ -69,6 +64,7 @@ export class PlaceCashOrderUseCase {
       const itemsData: InsertOrderItemType[] = dto.items.map((item) => ({
         id: uuidv4(),
         orderId,
+        // ВНИМАНИЕ: Спрямо схемата ти трябва productId. DTO-то трябва да го съдържа!
         productId: item.productId,
         variantId: item.variantId || null,
         name: item.name,
@@ -80,57 +76,11 @@ export class PlaceCashOrderUseCase {
         personalization: item.personalization || null,
       }));
 
-      // 3. Записваме ги в DB (Transaction Context)
+      // 3. Записваме в DB (Изпълнява се в транзакцията благодарение на BaseRepository)
       await this.ordersRepo.createFullOrder(orderData, shippingData, itemsData);
 
-      // 4. Генериране на товарителница през Anti-Corruption Layer
-      const shippingProvider = this.shippingFactory.getProvider(
-        dto.deliveryMethod,
-      );
-
-      const waybillRequest: CreateWaybillRequest = {
-        deliveryMethod: dto.deliveryMethod,
-        paymentMethod: PaymentMethodEnum.CASH,
-        totalWeight: dto.totalWeight,
-        totalAmount: dto.totalAmount,
-        recipientAddress: dto.recipientAddress,
-        recipientInfo: dto.recipientInfo,
-        parcels: [
-          {
-            seqNo: 1,
-            weight: dto.totalWeight,
-            width: 10,
-            height: 10,
-            depth: 10,
-          },
-        ],
-        senderInfo: { name: 'Little Bloom Creations', phone: '0888000000' },
-        shipmentDescription: dto.shipmentDescription || 'Бебешки подаръци',
-        receiptItems: dto.items.map((i) => ({
-          name: i.name,
-          price: i.unitPrice,
-          quantity: i.quantity,
-        })),
-      };
-
-      const waybillResult =
-        await shippingProvider.createWaybill(waybillRequest);
-
-      if (!waybillResult.waybillNumber) {
-        throw new InternalServerErrorException(
-          'Courier API succeeded but returned no Waybill Number.',
-        );
-      }
-
-      await this.ordersRepo.updateShipmentNumber(
-        orderNumber,
-        waybillResult.waybillNumber,
-      );
-
-      return {
-        orderNumber,
-        waybillNumber: waybillResult.waybillNumber,
-      };
+      // 4. Връщаме отговор СВЕТКАВИЧНО. Транзакцията се Commit-ва автоматично.
+      return { orderNumber };
     });
   }
 }

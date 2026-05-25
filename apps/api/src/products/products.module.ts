@@ -11,6 +11,10 @@ import { GetProductBySkuUseCase } from './use-cases/get-product-by-sku.use-case'
     GetAllActiveProductsUseCase,
     GetProductBySkuUseCase,
   ],
-  exports: [GetAllActiveProductsUseCase, GetProductBySkuUseCase],
+  exports: [
+    GetAllActiveProductsUseCase,
+    GetProductBySkuUseCase,
+    ProductsRepository,
+  ],
 })
 export class ProductsModule {}

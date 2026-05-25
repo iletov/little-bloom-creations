@@ -11,17 +11,16 @@ const common_1 = require("@nestjs/common");
 const orders_controller_1 = require("./orders.controller");
 const orders_repository_1 = require("./repositories/orders.repository");
 const place_cash_order_use_case_1 = require("./use-cases/place-cash-order.use-case");
+const products_module_1 = require("../products/products.module");
 let OrdersModule = class OrdersModule {
 };
 exports.OrdersModule = OrdersModule;
 exports.OrdersModule = OrdersModule = __decorate([
     (0, common_1.Module)({
+        imports: [products_module_1.ProductsModule],
         controllers: [orders_controller_1.OrdersController],
-        providers: [
-            orders_repository_1.OrdersRepository,
-            place_cash_order_use_case_1.PlaceCashOrderUseCase,
-        ],
-        exports: [place_cash_order_use_case_1.PlaceCashOrderUseCase],
+        providers: [orders_repository_1.OrdersRepository, place_cash_order_use_case_1.PlaceCashOrderUseCase],
+        exports: [orders_repository_1.OrdersRepository],
     })
 ], OrdersModule);
 //# sourceMappingURL=orders.module.js.map

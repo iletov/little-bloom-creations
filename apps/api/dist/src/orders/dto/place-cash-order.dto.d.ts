@@ -1,5 +1,7 @@
 import { DeliveryMethodEnum } from '@repo/shared-types';
 export declare class OrderItemDto {
+    productId: string;
+    variantId?: string;
     sku: string;
     variantSku?: string;
     name: string;

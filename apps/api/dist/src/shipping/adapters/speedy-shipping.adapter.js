@@ -15,6 +15,7 @@ const axios_1 = require("@nestjs/axios");
 const rxjs_1 = require("rxjs");
 const exceptions_1 = require("../domain/exceptions");
 const shared_types_1 = require("@repo/shared-types");
+const rxjs_2 = require("rxjs");
 function isCreateWaybillRequest(request) {
     return 'senderInfo' in request;
 }
@@ -148,6 +149,56 @@ let SpeedyShippingAdapter = class SpeedyShippingAdapter {
         }
         catch (error) {
             throw new exceptions_1.ShippingProviderException('Failed to create waybill with Speedy', error);
+        }
+    }
+    async getCities(countryCode) {
+        try {
+            const response = await (0, rxjs_2.lastValueFrom)(this.httpService.post(`${this.speedyUrl}/location/site`, {
+                userName: this.userName,
+                password: this.password,
+                countryId: countryCode === 'BGR' || !countryCode ? '100' : countryCode,
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }));
+            const sites = response.data.sites || [];
+            return sites.map((site) => ({
+                id: site.id,
+                name: site.name,
+                postCode: site.postCode,
+                region: site.municipality || '',
+            }));
+        }
+        catch (error) {
+            throw new exceptions_1.ShippingProviderException('Failed to fetch cities from Speedy', error);
+        }
+    }
+    async getOffices(cityId) {
+        try {
+            const payload = {
+                userName: this.userName,
+                password: this.password,
+                countryId: '100',
+            };
+            if (cityId) {
+                payload.siteId = Number(cityId);
+            }
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.speedyUrl}/location/office`, payload, {
+                headers: { 'Content-Type': 'application/json' },
+            }));
+            const offices = response.data.offices || [];
+            return offices.map((office) => ({
+                id: office.id,
+                name: office.name,
+                address: office.address?.fullAddressString ||
+                    office.address?.localAddressString ||
+                    '',
+                cityId: office.siteId,
+            }));
+        }
+        catch (error) {
+            throw new exceptions_1.ShippingProviderException('Failed to fetch offices from Speedy', error);
         }
     }
 };

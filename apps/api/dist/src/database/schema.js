@@ -5,7 +5,7 @@ const pg_core_1 = require("drizzle-orm/pg-core");
 const drizzle_orm_1 = require("drizzle-orm");
 exports.orderStatusEnum = (0, pg_core_1.pgEnum)('order_status_enum', ['pending', 'confirmed', 'shipped', 'refunded', 'cancelled']);
 exports.paymentMethodEnum = (0, pg_core_1.pgEnum)('payment_method_enum', ['bank', 'cash']);
-exports.deliveryMethodEnum = (0, pg_core_1.pgEnum)('delivery_method_enum', ['ekont-office', 'speedy-delivery', 'speedy-office']);
+exports.deliveryMethodEnum = (0, pg_core_1.pgEnum)('delivery_method_enum', ['ekont-office', 'ekont-delivery', 'speedy-delivery', 'speedy-office']);
 exports.products = (0, pg_core_1.pgTable)('products', {
     id: (0, pg_core_1.uuid)('id').primaryKey().defaultRandom(),
     sku: (0, pg_core_1.varchar)('sku').unique().notNull(),
@@ -33,12 +33,12 @@ exports.orders = (0, pg_core_1.pgTable)('orders', {
     id: (0, pg_core_1.uuid)('id').primaryKey().defaultRandom(),
     orderNumber: (0, pg_core_1.varchar)('order_number').unique().notNull(),
     createdAt: (0, pg_core_1.timestamp)('created_at').defaultNow().notNull(),
-    status: (0, exports.orderStatusEnum)('status').notNull(),
+    status: (0, exports.orderStatusEnum)('status').$type().notNull(),
     totalAmount: (0, pg_core_1.numeric)('total_amount').notNull(),
     subtotal: (0, pg_core_1.numeric)('subtotal').notNull(),
     deliveryCost: (0, pg_core_1.numeric)('delivery_cost').notNull(),
-    deliveryMethod: (0, exports.deliveryMethodEnum)('delivery_method').notNull(),
-    paymentMethod: (0, exports.paymentMethodEnum)('payment_method').notNull(),
+    deliveryMethod: (0, exports.deliveryMethodEnum)('delivery_method').$type().notNull(),
+    paymentMethod: (0, exports.paymentMethodEnum)('payment_method').$type().notNull(),
     shipmentNumber: (0, pg_core_1.varchar)('shipment_number'),
 });
 exports.orderShipping = (0, pg_core_1.pgTable)('order_shipping', {

@@ -8,16 +8,22 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrdersRepository = void 0;
 const common_1 = require("@nestjs/common");
+const drizzle_orm_1 = require("drizzle-orm");
 const base_repository_1 = require("../../database/base.repository");
+const schema_1 = require("../../database/schema");
 let OrdersRepository = class OrdersRepository extends base_repository_1.BaseRepository {
-    async createOrder(orderData, items, shipping) {
-        throw new Error('Method not implemented.');
+    async createFullOrder(orderData, shippingData, itemsData) {
+        await this.db.insert(schema_1.orders).values(orderData);
+        await this.db.insert(schema_1.orderShipping).values(shippingData);
+        if (itemsData.length > 0) {
+            await this.db.insert(schema_1.orderItems).values(itemsData);
+        }
     }
-    async findById(id) {
-        throw new Error('Method not implemented.');
-    }
-    async findByOrderNumber(orderNumber) {
-        throw new Error('Method not implemented.');
+    async updateShipmentNumber(orderNumber, shipmentNumber) {
+        await this.db
+            .update(schema_1.orders)
+            .set({ shipmentNumber })
+            .where((0, drizzle_orm_1.eq)(schema_1.orders.orderNumber, orderNumber));
     }
 };
 exports.OrdersRepository = OrdersRepository;

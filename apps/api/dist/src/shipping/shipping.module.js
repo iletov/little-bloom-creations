@@ -12,6 +12,8 @@ const axios_1 = require("@nestjs/axios");
 const econt_shipping_adapter_1 = require("./adapters/econt-shipping.adapter");
 const speedy_shipping_adapter_1 = require("./adapters/speedy-shipping.adapter");
 const shipping_provider_factory_1 = require("./factories/shipping-provider.factory");
+const shipping_engine_service_1 = require("./services/shipping-engine.service");
+const ahipping_controller_1 = require("./ahipping.controller");
 let ShippingModule = class ShippingModule {
 };
 exports.ShippingModule = ShippingModule;
@@ -22,8 +24,10 @@ exports.ShippingModule = ShippingModule = __decorate([
             econt_shipping_adapter_1.EcontShippingAdapter,
             speedy_shipping_adapter_1.SpeedyShippingAdapter,
             shipping_provider_factory_1.ShippingProviderFactory,
+            shipping_engine_service_1.ShippingEngineService,
         ],
-        exports: [shipping_provider_factory_1.ShippingProviderFactory],
+        controllers: [ahipping_controller_1.ShippingController],
+        exports: [shipping_engine_service_1.ShippingEngineService],
     })
 ], ShippingModule);
 //# sourceMappingURL=shipping.module.js.map

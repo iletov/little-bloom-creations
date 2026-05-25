@@ -14,6 +14,8 @@ const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const shared_types_1 = require("@repo/shared-types");
 class OrderItemDto {
+    productId;
+    variantId;
     sku;
     variantSku;
     name;
@@ -24,6 +26,15 @@ class OrderItemDto {
     personalization;
 }
 exports.OrderItemDto = OrderItemDto;
+__decorate([
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], OrderItemDto.prototype, "productId", void 0);
+__decorate([
+    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], OrderItemDto.prototype, "variantId", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
