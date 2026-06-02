@@ -11,7 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConfirmStripeOrderUseCase = void 0;
 const common_1 = require("@nestjs/common");
-const orders_repository_1 = require("./repositories/orders.repository");
+const orders_repository_1 = require("../repositories/orders.repository");
 let ConfirmStripeOrderUseCase = class ConfirmStripeOrderUseCase {
     ordersRepo;
     constructor(ordersRepo) {

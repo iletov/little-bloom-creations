@@ -5,7 +5,7 @@ import { PlaceCashOrderDto } from './dto/place-cash-order.dto';
 import { InitiateStripeOrderUseCase } from './use-cases/initiate-stripe-order.use-case';
 import { StripeService } from '../stripe/stripe.service';
 import { PlaceStripeOrderDto } from './dto/place-stripe-order.dto';
-import { ConfirmStripeOrderUseCase } from './confirm-stripe-order.use-case';
+import { ConfirmStripeOrderUseCase } from './use-cases/confirm-stripe-order.use-case';
 export interface PlaceOrderResponse {
     orderNumber: string;
     clientSecret?: string;

@@ -13,10 +13,8 @@ export class InitiateStripeOrderUseCase {
 
   async execute(dto: PlaceStripeOrderDto) {
     try {
-      // 1. Генерираме уникален номер на поръчката
       const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-      // 2. Смятаме сумите наново на базата на подадените артикули в DTO-то
       const subtotal = dto.items.reduce((sum, item) => {
         return sum + item.unitPrice * item.quantity;
       }, 0);
@@ -24,20 +22,18 @@ export class InitiateStripeOrderUseCase {
       const deliveryCost = dto.deliveryCost;
       const totalAmount = subtotal + deliveryCost;
 
-      // 3. Подготвяме основните данни за поръчката спрямо Drizzle схемата ти
       const orderData = {
         orderNumber,
         status: 'pending' as OrderStatus,
-        totalAmount: totalAmount.toFixed(2), // numeric колоната очаква string
+        totalAmount: totalAmount.toFixed(2),
         subtotal: subtotal.toFixed(2),
         deliveryCost: deliveryCost.toFixed(2),
         deliveryMethod: dto.deliveryMethod,
         paymentMethod: 'stripe' as PaymentMethodEnum,
       };
 
-      // 4. Мапваме данните за доставка от твоите обекти recipientInfo и recipientAddress
       const shippingData = {
-        orderId: '', // Стриктен тип за Drizzle, репозиторито ще го попълни
+        orderId: '',
         fullName: `${dto.recipientInfo.firstName} ${dto.recipientInfo.lastName}`,
         email: dto.recipientInfo.email || '',
         phone: dto.recipientInfo.phone,
@@ -46,12 +42,11 @@ export class InitiateStripeOrderUseCase {
         postalCode: dto.recipientAddress.postalCode || '',
         street: dto.recipientAddress.street || null,
         streetNumber: dto.recipientAddress.streetNumber || null,
-        officeCode: dto.recipientInfo.officeId || null, // officeId от DTO-то ти мапва към officeCode
+        officeCode: dto.recipientInfo.officeId || null,
       };
 
-      // 5. Мапваме артикулите от твоя масив items
       const itemsData = dto.items.map((item) => ({
-        orderId: '', // Стриктен тип за Drizzle, репозиторито ще го попълни
+        orderId: '',
         productId: item.productId,
         variantId: item.variantId || null,
         name: item.name,
@@ -63,18 +58,16 @@ export class InitiateStripeOrderUseCase {
         personalization: item.personalization || null,
       }));
 
-      // 6. Записваме PENDING поръчката и връзките ѝ в базата данни чрез Drizzle
       const orderId = await this.ordersRepo.createFullOrder(
         orderData,
         shippingData,
         itemsData,
       );
 
-      // 7. Създаваме Payment Intent в Stripe
       const paymentIntent = await this.stripeService.createPaymentIntent(
         totalAmount,
         {
-          orderId: orderId, // Изключително важно за Webhook-a
+          orderId: orderId,
           orderNumber: orderNumber,
         },
         dto.recipientInfo.email,

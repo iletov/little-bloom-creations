@@ -23,19 +23,15 @@ export class PlaceCashOrderUseCase {
   ) {}
 
   async execute(dto: PlaceCashOrderDto): Promise<PlaceOrderResponse> {
-    // Отваряме транзакцията - от тук нататък всичко е защитено "Всичко или нищо"
     return TransactionManager.runInTransaction(async () => {
       const orderId = uuidv4();
       const orderNumber = `LBC-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       const subtotal = dto.totalAmount - dto.deliveryCost;
 
-      // 1. Атомарно намаляване на наличностите
       for (const item of dto.items) {
-        // Увери се, че DTO-то подава правилното SKU, по което търси репозиторито
         await this.productsRepo.decreaseStockSafely(item.sku, item.quantity);
       }
 
-      // 2. Подготовка на данни за Базата (Строго camelCase според Drizzle)
       const orderData: InsertOrderType = {
         id: orderId,
         orderNumber,
@@ -65,7 +61,6 @@ export class PlaceCashOrderUseCase {
       const itemsData: InsertOrderItemType[] = dto.items.map((item) => ({
         id: uuidv4(),
         orderId,
-        // ВНИМАНИЕ: Спрямо схемата ти трябва productId. DTO-то трябва да го съдържа!
         productId: item.productId,
         variantId: item.variantId || null,
         name: item.name,
@@ -77,10 +72,8 @@ export class PlaceCashOrderUseCase {
         personalization: item.personalization || null,
       }));
 
-      // 3. Записваме в DB (Изпълнява се в транзакцията благодарение на BaseRepository)
       await this.ordersRepo.createFullOrder(orderData, shippingData, itemsData);
 
-      // 4. Връщаме отговор СВЕТКАВИЧНО. Транзакцията се Commit-ва автоматично.
       return { orderNumber };
     });
   }

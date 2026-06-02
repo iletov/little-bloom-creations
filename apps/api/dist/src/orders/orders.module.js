@@ -13,7 +13,7 @@ const orders_repository_1 = require("./repositories/orders.repository");
 const place_cash_order_use_case_1 = require("./use-cases/place-cash-order.use-case");
 const stripe_module_1 = require("../stripe/stripe.module");
 const products_module_1 = require("../products/products.module");
-const confirm_stripe_order_use_case_1 = require("./confirm-stripe-order.use-case");
+const confirm_stripe_order_use_case_1 = require("./use-cases/confirm-stripe-order.use-case");
 const initiate_stripe_order_use_case_1 = require("./use-cases/initiate-stripe-order.use-case");
 let OrdersModule = class OrdersModule {
 };

@@ -13,7 +13,7 @@ export class StripeService {
       this.configService.get<string>('STRIPE_WEBHOOK_SECRET') || '';
 
     if (!secretKey) {
-      console.warn('⚠️ ПРЕДУПРЕЖДЕНИЕ: STRIPE_SECRET_KEY липсва в .env файла!');
+      console.warn('STRIPE_SECRET_KEY missing in .env file!');
     }
 
     this.stripe = new Stripe(secretKey, {
@@ -30,6 +30,7 @@ export class StripeService {
       amount: Math.round(amount * 100),
       currency: 'eur',
       automatic_payment_methods: { enabled: true },
+      capture_method: 'manual', //Authorize only, no automatic capture
       metadata,
       receipt_email: email,
     });
@@ -49,5 +50,13 @@ export class StripeService {
       payment_intent: paymentIntentId,
       metadata: { reason },
     });
+  }
+
+  async capturePayment(paymentIntentId: string) {
+    return this.stripe.paymentIntents.capture(paymentIntentId);
+  }
+
+  async cancelPayment(paymentIntentId: string, reason?: string) {
+    return this.stripe.paymentIntents.cancel(paymentIntentId);
   }
 }

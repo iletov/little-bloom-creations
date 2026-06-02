@@ -19,7 +19,7 @@ const place_cash_order_dto_1 = require("./dto/place-cash-order.dto");
 const initiate_stripe_order_use_case_1 = require("./use-cases/initiate-stripe-order.use-case");
 const stripe_service_1 = require("../stripe/stripe.service");
 const place_stripe_order_dto_1 = require("./dto/place-stripe-order.dto");
-const confirm_stripe_order_use_case_1 = require("./confirm-stripe-order.use-case");
+const confirm_stripe_order_use_case_1 = require("./use-cases/confirm-stripe-order.use-case");
 let OrdersController = class OrdersController {
     placeCashOrderUseCase;
     initiateStripeOrderUseCase;
