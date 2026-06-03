@@ -15,11 +15,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ShippingController = void 0;
 const common_1 = require("@nestjs/common");
 const shipping_engine_service_1 = require("./services/shipping-engine.service");
+const calculate_shipping_use_case_1 = require("./use-cases/calculate-shipping.use-case");
+const calculate_shipping_dto_1 = require("./dto/calculate-shipping.dto");
 const shared_types_1 = require("@repo/shared-types");
 let ShippingController = class ShippingController {
     shippingEngine;
-    constructor(shippingEngine) {
+    calculateShippingUseCase;
+    constructor(shippingEngine, calculateShippingUseCase) {
         this.shippingEngine = shippingEngine;
+        this.calculateShippingUseCase = calculateShippingUseCase;
     }
     async getCities(courier, countryCode) {
         if (!courier)
@@ -30,6 +34,9 @@ let ShippingController = class ShippingController {
         if (!courier)
             throw new common_1.BadRequestException('Courier is required');
         return this.shippingEngine.getOffices(courier, cityId);
+    }
+    async calculateShipping(dto) {
+        return this.calculateShippingUseCase.execute(dto);
     }
 };
 exports.ShippingController = ShippingController;
@@ -49,8 +56,16 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], ShippingController.prototype, "getOffices", null);
+__decorate([
+    (0, common_1.Post)('calculate'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [calculate_shipping_dto_1.CalculateShippingDto]),
+    __metadata("design:returntype", Promise)
+], ShippingController.prototype, "calculateShipping", null);
 exports.ShippingController = ShippingController = __decorate([
     (0, common_1.Controller)('shipping'),
-    __metadata("design:paramtypes", [shipping_engine_service_1.ShippingEngineService])
+    __metadata("design:paramtypes", [shipping_engine_service_1.ShippingEngineService,
+        calculate_shipping_use_case_1.CalculateShippingUseCase])
 ], ShippingController);
-//# sourceMappingURL=ahipping.controller.js.map
+//# sourceMappingURL=shipping.controller.js.map

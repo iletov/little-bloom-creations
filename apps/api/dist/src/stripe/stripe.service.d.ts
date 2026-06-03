@@ -8,4 +8,6 @@ export declare class StripeService {
     createPaymentIntent(amount: number, metadata: Record<string, string>, email?: string): Promise<Stripe.Response<Stripe.PaymentIntent>>;
     constructEvent(payload: Buffer, signature: string): Stripe.Event;
     refundPayment(paymentIntentId: string, reason: string): Promise<Stripe.Response<Stripe.Refund>>;
+    capturePayment(paymentIntentId: string): Promise<Stripe.Response<Stripe.PaymentIntent>>;
+    cancelPayment(paymentIntentId: string, reason?: string): Promise<Stripe.Response<Stripe.PaymentIntent>>;
 }

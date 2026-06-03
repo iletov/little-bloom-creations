@@ -26,7 +26,7 @@ let StripeService = class StripeService {
         this.webhookSecret =
             this.configService.get('STRIPE_WEBHOOK_SECRET') || '';
         if (!secretKey) {
-            console.warn('⚠️ ПРЕДУПРЕЖДЕНИЕ: STRIPE_SECRET_KEY липсва в .env файла!');
+            console.warn('STRIPE_SECRET_KEY missing in .env file!');
         }
         this.stripe = new stripe_1.default(secretKey, {
             apiVersion: '2025-01-27.acacia',
@@ -37,6 +37,7 @@ let StripeService = class StripeService {
             amount: Math.round(amount * 100),
             currency: 'eur',
             automatic_payment_methods: { enabled: true },
+            capture_method: 'manual',
             metadata,
             receipt_email: email,
         });
@@ -49,6 +50,12 @@ let StripeService = class StripeService {
             payment_intent: paymentIntentId,
             metadata: { reason },
         });
+    }
+    async capturePayment(paymentIntentId) {
+        return this.stripe.paymentIntents.capture(paymentIntentId);
+    }
+    async cancelPayment(paymentIntentId, reason) {
+        return this.stripe.paymentIntents.cancel(paymentIntentId);
     }
 };
 exports.StripeService = StripeService;

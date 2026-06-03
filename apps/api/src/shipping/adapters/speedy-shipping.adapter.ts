@@ -159,6 +159,8 @@ export class SpeedyShippingAdapter implements IShippingProvider {
         ),
       );
 
+      console.log('Speedy API Response Data:', JSON.stringify(response.data, null, 2));
+
       const calculations = response.data?.calculations;
       if (!calculations || calculations.length === 0) {
         throw new Error('No calculations returned from Speedy');
@@ -168,10 +170,11 @@ export class SpeedyShippingAdapter implements IShippingProvider {
         price: calculations[0].price.total,
         rawDetails: calculations[0] as unknown as Record<string, unknown>,
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
+      console.error('Speedy API Error:', error?.response?.data || error?.message || error);
       throw new ShippingProviderException(
         'Failed to calculate shipping with Speedy',
-        error,
+        error?.response?.data || error?.message || {},
       );
     }
   }

@@ -37,6 +37,33 @@ let ProductsRepository = class ProductsRepository extends base_repository_1.Base
             throw new common_1.BadRequestException(`Недостатъчна наличност или невалиден артикул за SKU: ${sku}`);
         }
     }
+    async decreaseStockSafelyById(productId, variantId, quantity, tx) {
+        const dbExecutor = tx || this.db;
+        if (variantId) {
+            const result = await dbExecutor
+                .update(schema_1.productVariants)
+                .set({
+                currentStock: (0, drizzle_orm_1.sql) `${schema_1.productVariants.currentStock} - ${quantity}`,
+            })
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.productVariants.id, variantId), (0, drizzle_orm_1.gte)(schema_1.productVariants.currentStock, quantity)))
+                .returning({ updatedId: schema_1.productVariants.id });
+            if (result.length === 0) {
+                throw new common_1.BadRequestException(`Недостатъчна наличност или невалиден вариант за ID: ${variantId}`);
+            }
+        }
+        else {
+            const result = await dbExecutor
+                .update(schema_1.products)
+                .set({
+                currentStock: (0, drizzle_orm_1.sql) `${schema_1.products.currentStock} - ${quantity}`,
+            })
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.products.id, productId), (0, drizzle_orm_1.gte)(schema_1.products.currentStock, quantity)))
+                .returning({ updatedId: schema_1.products.id });
+            if (result.length === 0) {
+                throw new common_1.BadRequestException(`Недостатъчна наличност или невалиден продукт за ID: ${productId}`);
+            }
+        }
+    }
 };
 exports.ProductsRepository = ProductsRepository;
 exports.ProductsRepository = ProductsRepository = __decorate([

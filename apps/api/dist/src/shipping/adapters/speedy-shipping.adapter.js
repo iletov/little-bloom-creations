@@ -117,6 +117,7 @@ let SpeedyShippingAdapter = class SpeedyShippingAdapter {
             const payload = this.buildBasePayload(request);
             payload.sender = { clientId: 9999999998000 };
             const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.speedyUrl}/calculate`, payload));
+            console.log('Speedy API Response Data:', JSON.stringify(response.data, null, 2));
             const calculations = response.data?.calculations;
             if (!calculations || calculations.length === 0) {
                 throw new Error('No calculations returned from Speedy');
@@ -127,7 +128,8 @@ let SpeedyShippingAdapter = class SpeedyShippingAdapter {
             };
         }
         catch (error) {
-            throw new exceptions_1.ShippingProviderException('Failed to calculate shipping with Speedy', error);
+            console.error('Speedy API Error:', error?.response?.data || error?.message || error);
+            throw new exceptions_1.ShippingProviderException('Failed to calculate shipping with Speedy', error?.response?.data || error?.message || {});
         }
     }
     async createWaybill(request) {
