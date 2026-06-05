@@ -11,10 +11,12 @@ import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { useSenderInfo } from '@/hooks/useSenderInfo';
 import { useRouter } from 'next/navigation';
 import { createParcelsFromItems } from '@/lib/utils/createParcelsFromItems';
+import { CartItem } from '@/app/store/features/cart/cartSlice';
 
 import React, { useEffect, useState } from 'react';
 import { createReceiptFromItems } from '@/lib/utils/createReceiptFromItems';
 import { createPackingListFromItems } from '@/lib/utils/createPackingListFromItems';
+import { usePlaceCashOrder } from '@/hooks/api/orders/orders-actions.hook';
 
 export const PaymentCash = ({
   isDissabled,
@@ -46,13 +48,14 @@ export const PaymentCash = ({
     totalWeight,
   } = useCart();
 
-  const [isLoading, setIsLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [response, setResponse] = useState({
     success: false,
     order_number: '',
   });
   const [alertMessage, setAlertMessage] = useState({ title: '', message: '' });
+
+  const { mutateAsync: placeCashOrder, isPending: isCashPending } = usePlaceCashOrder();
 
   const router = useRouter();
 
@@ -66,8 +69,6 @@ export const PaymentCash = ({
   const isSpeedy = deliveryMethod.startsWith('speedy');
 
   const handleOrderSubmit = async () => {
-    setIsLoading(true);
-
     try {
       if (paymentIntentId) {
         const cancelPaymentInted = await cancelPaymentIntent({
@@ -90,129 +91,53 @@ export const PaymentCash = ({
         return 0;
       }
 
-      let validate;
-
-      const shipmentDescription = createReceiptFromItems(items)
-        ?.map(item => item.description)
-        .join(', ');
-
-      const packingList = createPackingListFromItems(items);
-
-      if (isEkont) {
-        // validate label - Ekont
-        validate = await createLabel(
-          senderData,
-          guestFormData,
-          addressFormData,
-          totalPrice,
-          deliveryMethod,
-          paymentMethod,
-          shipmentDescription,
-          totalWeight,
-          packingList,
-          false,
-        );
-      }
-
-      //TODO: add the shipment number state and send it to the backend (validate?.label?.shipmentNumber)
-
-      // setSenderDetails({
-      //   shipmentNumber: validate?.label?.shipmentNumber,
-      //   pdfURL: validate?.label?.pdfURL,
-      //   returnShipmentURL: validate?.label?.returnShipmentURL,
-      // });
-
-      if (isSpeedy) {
-        // create speedy label
-
-        const parcels = createParcelsFromItems(items, metadata?.orderNumber);
-        const receipt = createReceiptFromItems(items);
-
-        const recipientData = {
-          clientName: metadata.customerName,
-          email: user?.email ?? guestFormData?.email,
-        };
-
-        validate = await createShipmentSpeedy(
-          senderDataSpeedy,
-          recipientData,
-          addressFormData,
-          deliveryMethod,
-          paymentMethod,
-          selectedOffice?.id,
-          selectedCity?.id,
-          validationStreet?.id,
-          totalPrice,
-          parcels,
-          receipt,
-        );
-
-        setMetadata({
-          ...metadata,
-          shipmentNumber: validate?.id,
-        });
-      }
-
-      const res = await fetch('/api/place-order-cash', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          cartItems: items,
-          metadata,
-          // amount: convertToSubCurrency(totalPrice),
-          orderDetails: addressFormData,
-          orderMethods,
-        }),
+      const data = await placeCashOrder({
+          items: items.map((item: CartItem) => ({
+            productId: item.product.id || item.product._id,
+            variantId: item.product.variant_id || undefined,
+            sku: item.product.sku || 'N/A',
+            variantSku: item.product.variant_sku || undefined,
+            name: item.product.name || item.product.title,
+            variantName: item.product.variant_name || undefined,
+            quantity: item.quantity,
+            unitPrice: item.product.variant_price || item.product.price,
+            weight: item.product.weight || 0,
+            personalization: item.personalisation || undefined,
+          })),
+          recipientAddress: {
+            city: addressFormData?.city,
+            postalCode: addressFormData?.postalCode,
+            street: addressFormData?.street,
+            streetNumber: addressFormData?.streetNumber,
+            country: addressFormData?.country || 'BG',
+          },
+          recipientInfo: {
+            firstName: guestFormData?.firstName,
+            lastName: guestFormData?.lastName,
+            phone: addressFormData?.phoneNumber,
+            email: guestFormData?.email,
+            officeId: addressFormData?.officeCode,
+          },
+          deliveryMethod: deliveryMethod,
+          totalAmount: totalPrice + deliveryCost,
+          deliveryCost: deliveryCost,
+          totalWeight: totalWeight,
       });
 
-      const data = await res.json();
+      setResponse({ success: true, order_number: data.orderNumber });
 
-      if (!data.success) {
-        setAlertMessage({
-          title: 'Възникна грешка',
-          message: data?.error,
-        });
-        setShowAlert(true);
-      }
-
-      if (!res.ok) {
-        console.log('Response is not ok', data?.error);
-      }
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      setResponse(data);
-
-      if (
-        (isEkont && validate?.label?.totalPrice) ||
-        (isSpeedy && validate?.price?.total)
-      ) {
-        console.log(
-          `# --Send Cart Items successfuly to the backend:`,
-          data,
-          response,
-        );
-
-        setAlertMessage({
-          title: 'Успешно направена поръчка!',
-          message: 'Вашата поръчка беше успешно направена!',
-        });
-        setShowAlert(true);
-      } else {
-        setAlertMessage({
-          title: 'Възникна грешка',
-          message: 'Вашата поръчка не беше направена.',
-        });
-        setShowAlert(true);
-      }
-    } catch (error) {
+      setAlertMessage({
+        title: 'Успешно направена поръчка!',
+        message: 'Вашата поръчка беше успешно направена!',
+      });
+      setShowAlert(true);
+    } catch (error: any) {
       console.error('Error submiting cash order', error);
-    } finally {
-      setIsLoading(false);
+      setAlertMessage({
+        title: 'Възникна грешка',
+        message: error?.message || 'Възникна неочаквана грешка при запазване на поръчката.',
+      });
+      setShowAlert(true);
     }
   };
 
@@ -234,7 +159,7 @@ export const PaymentCash = ({
         onClick={handleOrderSubmit}
         aria-label="Submit order"
         className={`w-full sm:w-auto min-w-[135px] py-4 mt-4 ${isDissabled && 'cursor-not-allowed opacity-70 '} `}>
-        {isLoading || deliveryCostFlag ? (
+        {isCashPending || deliveryCostFlag ? (
           <Loader />
         ) : isDissabled ? (
           'Без наличност'

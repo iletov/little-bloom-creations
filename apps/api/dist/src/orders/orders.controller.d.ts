@@ -9,6 +9,7 @@ import { ConfirmStripeOrderUseCase } from './use-cases/confirm-stripe-order.use-
 export interface PlaceOrderResponse {
     orderNumber: string;
     clientSecret?: string;
+    paymentIntentId?: string;
 }
 export declare class OrdersController {
     private readonly placeCashOrderUseCase;

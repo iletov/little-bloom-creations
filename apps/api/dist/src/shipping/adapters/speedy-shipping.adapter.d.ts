@@ -9,6 +9,7 @@ export declare class SpeedyShippingAdapter implements IShippingProvider {
     constructor(httpService: HttpService);
     validateAddress(address: Address): Promise<boolean | Record<string, unknown>>;
     private buildBasePayload;
+    validateShipment(request: ShippingCalculationRequest): Promise<void>;
     calculateShipping(request: ShippingCalculationRequest): Promise<ShippingCalculationResult>;
     createWaybill(request: CreateWaybillRequest): Promise<CreateWaybillResult>;
     getCities(countryCode?: string): Promise<CityDto[]>;

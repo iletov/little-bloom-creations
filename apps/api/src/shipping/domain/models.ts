@@ -95,10 +95,15 @@ export interface CityDto {
 
 export interface EcontOfficeResponse {
   id: number;
+  code?: string;
   name: string;
-  cityId: number;
+  cityId?: number;
+  cityID?: number;
   address?: {
     fullAddress?: string;
+    city?: {
+      id?: number;
+    };
   };
 }
 

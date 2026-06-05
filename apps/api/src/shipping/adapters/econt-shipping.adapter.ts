@@ -99,25 +99,7 @@ export class EcontShippingAdapter implements IShippingProvider {
     const labelData: EcontLabelPayload = {
       label: {
         senderClient,
-        senderAddress: request.senderAddress
-          ? {
-              city: {
-                name: request.senderAddress.city,
-                postCode: request.senderAddress.postalCode || '1000',
-                country: { code3: 'BGR' },
-              },
-              street: request.senderAddress.street || '',
-              num: request.senderAddress.streetNumber || '',
-            }
-          : {
-              city: {
-                name: 'Sofia',
-                postCode: '1000',
-                country: { code3: 'BGR' },
-              },
-              street: '',
-              num: '',
-            },
+        senderOfficeCode: '5812',
         receiverClient: {
           name:
             request.recipientInfo.clientName ||
@@ -143,19 +125,47 @@ export class EcontShippingAdapter implements IShippingProvider {
         receiverDeliveryType: isPickup ? 'office' : 'delivery',
         packCount: request.parcels.length > 0 ? request.parcels.length : 1,
         shipmentType: 'PACK',
-        weight: request.totalWeight,
+        shipmentDescription: 'Стоки',
+        weight: request.totalWeight > 0 ? request.totalWeight : 1,
         services,
       },
       mode,
     };
 
-    if (isCreate && request.shipmentDescription) {
-      labelData.label.shipmentDescription = request.shipmentDescription;
+    if (isCreate) {
+      if (request.shipmentDescription) {
+        labelData.label.shipmentDescription = request.shipmentDescription;
+      }
       labelData.label.packingListType = 'digital';
       labelData.label.packingList = request.receiptItems || [];
     }
 
     return labelData;
+  }
+
+  async validateShipment(request: ShippingCalculationRequest): Promise<void> {
+    try {
+      const payload = this.buildLabelPayload(request, 'validate');
+
+      const response = await firstValueFrom(
+        this.httpService.post<EcontLabelResponse>(
+          `${this.econtUrl}/Shipments/LabelService.createLabel.json`,
+          payload,
+          { headers: this.getHeaders() },
+        ),
+      );
+
+      const data = response.data;
+      if (data?.label?.error) {
+        throw new Error(JSON.stringify(data.label.error));
+      }
+    } catch (error: any) {
+      const errorDetails = error.response?.data || error.message || error;
+      throw new ShippingProviderException(
+        'Failed to validate shipment with Econt',
+        errorDetails,
+      );
+    }
   }
 
   async calculateShipping(
@@ -181,10 +191,11 @@ export class EcontShippingAdapter implements IShippingProvider {
         price: data?.label?.totalPrice || 0,
         rawDetails: data as unknown as Record<string, unknown>,
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
+      const errorDetails = error.response?.data || error.message || error;
       throw new ShippingProviderException(
         'Failed to calculate shipping with Econt',
-        error,
+        errorDetails,
       );
     }
   }
@@ -250,7 +261,7 @@ export class EcontShippingAdapter implements IShippingProvider {
     try {
       const payload: Record<string, any> = { countryCode: 'BGR' };
       if (cityId) {
-        payload.cityId = Number(cityId);
+        payload.cityID = Number(cityId);
       }
 
       const response = await firstValueFrom(
@@ -261,13 +272,22 @@ export class EcontShippingAdapter implements IShippingProvider {
         ),
       );
 
-      const offices = response.data.offices || [];
+      let offices = response.data.offices || [];
+      
+      // Fallback filter if Econt ignores cityID in payload
+      if (cityId) {
+        offices = offices.filter(o => 
+          String(o.cityId) === String(cityId) || 
+          String(o.cityID) === String(cityId) || 
+          String(o.address?.city?.id) === String(cityId)
+        );
+      }
 
       return offices.map((office) => ({
-        id: office.id,
+        id: office.code || office.id,
         name: office.name,
         address: office.address?.fullAddress || '',
-        cityId: office.cityId,
+        cityId: office.cityId || office.cityID || office.address?.city?.id || 0,
       }));
     } catch (error: unknown) {
       throw new ShippingProviderException(

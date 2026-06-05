@@ -10,6 +10,7 @@ export declare class EcontShippingAdapter implements IShippingProvider {
     private getHeaders;
     validateAddress(address: Address, postalCode?: string): Promise<boolean | Record<string, unknown>>;
     private buildLabelPayload;
+    validateShipment(request: ShippingCalculationRequest): Promise<void>;
     calculateShipping(request: ShippingCalculationRequest): Promise<ShippingCalculationResult>;
     createWaybill(request: CreateWaybillRequest): Promise<CreateWaybillResult>;
     getCities(countryCode?: string): Promise<CityDto[]>;

@@ -129,7 +129,7 @@ const Header = () => {
 
   return (
     <>
-      <motion.nav className="relative bg-pink-1 text-green-dark grid justify-items-center text-[1.8rem] pt-[3.5rem] pb-[4rem]">
+      <motion.nav className="relative bg-pink-1 text-green-dark grid justify-items-center text-[1.8rem] pt-[4rem] pb-[4rem]">
         {/* <div className="text-[2.4rem] md:text-[4.2rem]">
           <Link href={'/'}>
             <Image src={'/logo-ctr.svg'} alt="logo" width={200} height={50} />
@@ -149,7 +149,7 @@ const Header = () => {
             'cursor-pointer gap-2 flex bg-white rounded-[0.8rem] border-[1px] z-20 relative',
             isSticky
               ? 'fixed top-[1rem] shadow-xl'
-              : 'absolute top-[9.5rem] shadow-lg',
+              : 'absolute top-[1rem] shadow-lg',
           )}>
           <div className="flex">
             <Link

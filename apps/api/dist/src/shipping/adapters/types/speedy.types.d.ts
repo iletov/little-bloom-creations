@@ -3,6 +3,7 @@ export interface SpeedyPayload {
     password?: string;
     sender?: {
         clientId: number | string;
+        dropoffOfficeId?: number;
         contactName?: string;
         email?: string;
         phone1?: {

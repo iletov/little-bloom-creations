@@ -1,0 +1,98 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+export interface OrderItemPayload {
+  productId: string;
+  variantId?: string;
+  sku: string;
+  variantSku?: string;
+  name: string;
+  variantName?: string;
+  quantity: number;
+  unitPrice: number;
+  weight: number;
+  personalization?: Record<string, unknown>;
+}
+
+export interface AddressPayload {
+  city?: string;
+  postalCode?: string;
+  street?: string;
+  streetNumber?: string;
+  quarter?: string;
+  siteId?: number;
+  country?: string;
+}
+
+export interface RecipientPayload {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  email?: string;
+  officeId?: string | number;
+}
+
+export interface PlaceOrderPayload {
+  items: OrderItemPayload[];
+  recipientAddress: AddressPayload;
+  recipientInfo: RecipientPayload;
+  deliveryMethod: string;
+  totalAmount: number;
+  deliveryCost: number;
+  totalWeight: number;
+}
+
+export const useInitiateStripeOrder = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: PlaceOrderPayload) => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/stripe/initiate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.message || data?.error || 'Failed to initiate Stripe order');
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      // Invalidate relevant queries like cart items if necessary
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    },
+  });
+};
+
+export const usePlaceCashOrder = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: PlaceOrderPayload) => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/cash`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.message || data?.error || 'Failed to place cash order');
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    },
+  });
+};

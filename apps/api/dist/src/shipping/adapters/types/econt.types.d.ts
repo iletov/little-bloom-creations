@@ -5,7 +5,7 @@ export interface EcontLabelPayload {
             phones: string[];
             email?: string;
         };
-        senderAddress: {
+        senderAddress?: {
             city: {
                 name: string;
                 postCode: string;
@@ -16,6 +16,7 @@ export interface EcontLabelPayload {
             street: string;
             num: string;
         };
+        senderOfficeCode?: string;
         receiverClient: {
             name: string;
             phones: string[];

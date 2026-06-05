@@ -70,6 +70,7 @@ let InitiateStripeOrderUseCase = class InitiateStripeOrderUseCase {
             return {
                 orderNumber,
                 clientSecret: paymentIntent.client_secret ?? undefined,
+                paymentIntentId: paymentIntent.id,
             };
         }
         catch (error) {

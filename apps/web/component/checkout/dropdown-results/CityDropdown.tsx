@@ -5,23 +5,18 @@ import { Input } from '@/components/ui/input';
 import { City } from '../checkout-forms/CheckoutForm';
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/component/loader/Loader';
-import { useCities } from '@/hooks/useCities';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { useCart } from '@/hooks/useCart';
 import { AddressFormData } from '@/app/store/features/stripe/stripeSlice';
 import { fullAddress } from '@/lib/form-validation/validations';
-import { useSpeedyCities } from '@/hooks/useCitiesSpeedy';
+import { useCities } from '@/hooks/api/shipping/shipping-list.hook';
+import { DeliveryMethodEnum } from '@repo/shared-types';
 
 export const CityDropdown = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [touched, setTouched] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // ekont
-  const { cities, isLoading } = useCities(false);
-  // speedy
-  const { speedyCities } = useSpeedyCities(false);
 
   const {
     searchForCity,
@@ -33,11 +28,9 @@ export const CityDropdown = () => {
 
   const { addressFormData, updateAddresData, setDeliveryCostFlag } = useCart();
 
-  // 1. which list of cities to use
-  const currentCitiesList =
-    deliveryMethod === 'ekont-office' || deliveryMethod === 'ekont-delivery'
-      ? cities
-      : speedyCities;
+  const { data: currentCitiesList, isLoading } = useCities(
+    (deliveryMethod as DeliveryMethodEnum) || null
+  );
 
   // 2. Filter ONLY the active list
   const filteredCities = useMemo(() => {
@@ -111,7 +104,7 @@ export const CityDropdown = () => {
             <>
               {filteredCities.map(city => (
                 <div
-                  key={city.nameEn + city.id}
+                  key={city.id || city.name}
                   className="px-4 py-2 text-[1.4rem] bg-white text-neutral-800 hover:bg-green-1 cursor-pointer"
                   onMouseDown={e => {
                     e.preventDefault();

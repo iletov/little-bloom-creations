@@ -13,6 +13,7 @@ export interface IShippingProvider {
     address: Address,
     postalCode?: string,
   ): Promise<boolean | Record<string, unknown>>;
+  validateShipment?(request: ShippingCalculationRequest): Promise<void>;
   calculateShipping(
     request: ShippingCalculationRequest,
   ): Promise<ShippingCalculationResult>;

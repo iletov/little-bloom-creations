@@ -39,6 +39,7 @@ let OrdersController = class OrdersController {
         return {
             orderNumber: result.orderNumber,
             clientSecret: result.clientSecret ?? undefined,
+            paymentIntentId: result.paymentIntentId,
         };
     }
     async handleStripeWebhook(req, signature) {

@@ -16,7 +16,7 @@ import { OfficeDropdown } from '../dropdown-results/OfficeDropdown';
 import { useAuth } from '@/hooks/useAuth';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { OfficeDropdownSpeedy } from '../dropdown-results/OfficeDropdownSpeedy';
+
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { validateStreetSpeedy } from '@/actions/speedy/validateStreetSpeedy';
@@ -295,9 +295,9 @@ export const CheckoutForm = () => {
           )}
         </form>
       </div>
-      {deliveryMethod === 'ekont-office' ? <OfficeDropdown /> : null}
-
-      {deliveryMethod === 'speedy-pickup' && <OfficeDropdownSpeedy />}
+      {deliveryMethod === 'ekont-office' || deliveryMethod === 'speedy-pickup' ? (
+        <OfficeDropdown />
+      ) : null}
     </div>
   );
 };

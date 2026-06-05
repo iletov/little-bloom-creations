@@ -59,10 +59,10 @@ export async function POST(req: NextRequest) {
         .from('products')
         .upsert(
           {
-            sanity_id: _id,
             sku: sku,
             price: price,
             name: name,
+            current_stock: payload.stock || 0,
           },
           {
             onConflict: 'sku',
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
       const { data: existingVariants } = await supabase
         .from('product_variants')
         .select('variant_sku')
-        .eq('parent_sku', sku);
+        .eq('parent_id', productData?.id);
 
       const existingVariantSkus = new Set(
         existingVariants?.map((v: any) => v?.variant_sku) || [],
@@ -113,15 +113,13 @@ export async function POST(req: NextRequest) {
 
       if (product?.variants?.length > 0) {
         const variantsToInsert = product?.variants.map((variant: any) => ({
-          product_id: productData?.id,
-          parent_sku: sku,
+          parent_id: productData?.id,
           variant_sku: variant?.sku,
           variant_name: variant?.name,
           // variant_type: variant.variantType,
           current_stock: variant?.stock || 0,
           price: variant?.price || 0,
           is_active: variant?.inStock !== false,
-          updated_at: new Date().toISOString(),
         }));
 
         console.log('# ---Upserting variants---', variantsToInsert.length);

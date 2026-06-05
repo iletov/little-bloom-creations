@@ -27,6 +27,12 @@ export class ShippingEngineService {
     request: ShippingCalculationRequest,
   ): Promise<ShippingCalculationResult> {
     const provider = this.factory.getProvider(request.deliveryMethod);
+    
+    // First, strictly validate the shipment address and details
+    if (provider.validateShipment) {
+      await provider.validateShipment(request);
+    }
+
     const result = await provider.calculateShipping(request);
 
     return result;

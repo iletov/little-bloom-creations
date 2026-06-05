@@ -5,7 +5,7 @@ export async function getProductBySku(sku: string) {
 
   const { data, error } = await supabase
     .from('products')
-    .select('*, variants:product_variants!product_variants_parent_sku_fkey(*)')
+    .select('*, variants:product_variants(*)')
     .eq('sku', sku)
     .eq('is_active', true)
     .maybeSingle();

@@ -34,8 +34,10 @@ export default async function Product({ params }: Props) {
   const sanityData = await getProduct(category, product);
 
   const supabaseData = await getProductBySku(sanityData?.sku as string);
-  if (!sanityData || !supabaseData) return notFound();
-
+  if (!sanityData || !supabaseData) {
+    console.error('NOT FOUND. sanityData:', !!sanityData, 'supabaseData:', !!supabaseData, 'sku:', sanityData?.sku);
+    return notFound();
+  }
   const mergeVariants = (sanityVariants: any[], supabaseVariants: any[]) => {
     return supabaseVariants.map((sbVariant: any) => {
       const match = sanityVariants.find(

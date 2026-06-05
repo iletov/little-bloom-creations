@@ -48,11 +48,9 @@ export default function CartComponent() {
             ))}
           </div>
           <div className="my-10"></div>
-
-          <OrderDetailsContainer />
         </div>
         <div className=" flex-[0.75]">
-          <OrderSummery />
+          <OrderSummery isCartView={true} />
         </div>
       </div>
     </section>

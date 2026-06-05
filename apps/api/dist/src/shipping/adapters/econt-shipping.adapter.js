@@ -73,25 +73,7 @@ let EcontShippingAdapter = class EcontShippingAdapter {
         const labelData = {
             label: {
                 senderClient,
-                senderAddress: request.senderAddress
-                    ? {
-                        city: {
-                            name: request.senderAddress.city,
-                            postCode: request.senderAddress.postalCode || '1000',
-                            country: { code3: 'BGR' },
-                        },
-                        street: request.senderAddress.street || '',
-                        num: request.senderAddress.streetNumber || '',
-                    }
-                    : {
-                        city: {
-                            name: 'Sofia',
-                            postCode: '1000',
-                            country: { code3: 'BGR' },
-                        },
-                        street: '',
-                        num: '',
-                    },
+                senderOfficeCode: '5812',
                 receiverClient: {
                     name: request.recipientInfo.clientName ||
                         `${request.recipientInfo.firstName} ${request.recipientInfo.lastName}`,
@@ -114,17 +96,34 @@ let EcontShippingAdapter = class EcontShippingAdapter {
                 receiverDeliveryType: isPickup ? 'office' : 'delivery',
                 packCount: request.parcels.length > 0 ? request.parcels.length : 1,
                 shipmentType: 'PACK',
-                weight: request.totalWeight,
+                shipmentDescription: 'Стоки',
+                weight: request.totalWeight > 0 ? request.totalWeight : 1,
                 services,
             },
             mode,
         };
-        if (isCreate && request.shipmentDescription) {
-            labelData.label.shipmentDescription = request.shipmentDescription;
+        if (isCreate) {
+            if (request.shipmentDescription) {
+                labelData.label.shipmentDescription = request.shipmentDescription;
+            }
             labelData.label.packingListType = 'digital';
             labelData.label.packingList = request.receiptItems || [];
         }
         return labelData;
+    }
+    async validateShipment(request) {
+        try {
+            const payload = this.buildLabelPayload(request, 'validate');
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.econtUrl}/Shipments/LabelService.createLabel.json`, payload, { headers: this.getHeaders() }));
+            const data = response.data;
+            if (data?.label?.error) {
+                throw new Error(JSON.stringify(data.label.error));
+            }
+        }
+        catch (error) {
+            const errorDetails = error.response?.data || error.message || error;
+            throw new exceptions_1.ShippingProviderException('Failed to validate shipment with Econt', errorDetails);
+        }
     }
     async calculateShipping(request) {
         try {
@@ -140,7 +139,8 @@ let EcontShippingAdapter = class EcontShippingAdapter {
             };
         }
         catch (error) {
-            throw new exceptions_1.ShippingProviderException('Failed to calculate shipping with Econt', error);
+            const errorDetails = error.response?.data || error.message || error;
+            throw new exceptions_1.ShippingProviderException('Failed to calculate shipping with Econt', errorDetails);
         }
     }
     async createWaybill(request) {
@@ -180,15 +180,20 @@ let EcontShippingAdapter = class EcontShippingAdapter {
         try {
             const payload = { countryCode: 'BGR' };
             if (cityId) {
-                payload.cityId = Number(cityId);
+                payload.cityID = Number(cityId);
             }
             const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.econtUrl}/Nomenclatures/NomenclaturesService.getOffices.json`, payload, { headers: this.getHeaders() }));
-            const offices = response.data.offices || [];
+            let offices = response.data.offices || [];
+            if (cityId) {
+                offices = offices.filter(o => String(o.cityId) === String(cityId) ||
+                    String(o.cityID) === String(cityId) ||
+                    String(o.address?.city?.id) === String(cityId));
+            }
             return offices.map((office) => ({
-                id: office.id,
+                id: office.code || office.id,
                 name: office.name,
                 address: office.address?.fullAddress || '',
-                cityId: office.cityId,
+                cityId: office.cityId || office.cityID || office.address?.city?.id || 0,
             }));
         }
         catch (error) {

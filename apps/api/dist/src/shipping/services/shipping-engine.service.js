@@ -24,6 +24,9 @@ let ShippingEngineService = class ShippingEngineService {
     }
     async calculateShipping(request) {
         const provider = this.factory.getProvider(request.deliveryMethod);
+        if (provider.validateShipment) {
+            await provider.validateShipment(request);
+        }
         const result = await provider.calculateShipping(request);
         return result;
     }

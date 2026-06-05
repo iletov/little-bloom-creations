@@ -140,7 +140,34 @@ export class SpeedyShippingAdapter implements IShippingProvider {
         courierServicePayer: 'RECIPIENT',
         declaredValuePayer: 'RECIPIENT',
       },
+      sender: {
+        dropoffOfficeId: 275,
+        clientId: 9999999998000,
+      },
     };
+  }
+
+  async validateShipment(request: ShippingCalculationRequest): Promise<void> {
+    try {
+      const payload = this.buildBasePayload(request);
+
+      const response = await firstValueFrom(
+        this.httpService.post<Record<string, unknown>>(
+          `${this.speedyUrl}/validation/shipment`,
+          payload,
+        ),
+      );
+
+      if (response.data?.error) {
+        throw new Error(JSON.stringify(response.data.error));
+      }
+    } catch (error: any) {
+      console.error('Speedy Validation Error:', error?.response?.data || error?.message || error);
+      throw new ShippingProviderException(
+        'Failed to validate shipment with Speedy',
+        error?.response?.data || error?.message || {},
+      );
+    }
   }
 
   async calculateShipping(
@@ -148,9 +175,6 @@ export class SpeedyShippingAdapter implements IShippingProvider {
   ): Promise<ShippingCalculationResult> {
     try {
       const payload = this.buildBasePayload(request);
-
-      // Perfectly safe - sender is typed explicitly as optional in SpeedyPayload
-      payload.sender = { clientId: 9999999998000 };
 
       const response = await firstValueFrom(
         this.httpService.post<SpeedyCalculateResponse>(
@@ -185,12 +209,15 @@ export class SpeedyShippingAdapter implements IShippingProvider {
     try {
       const payload = this.buildBasePayload(request);
 
-      payload.sender = {
-        clientId: '9999999998000',
-        contactName: request.senderInfo.name,
-        email: request.senderInfo.email,
-        phone1: { number: request.senderInfo.phone },
-      };
+      if (request.senderInfo) {
+        payload.sender = {
+          clientId: payload.sender?.clientId || 9999999998000,
+          dropoffOfficeId: payload.sender?.dropoffOfficeId,
+          contactName: request.senderInfo.name,
+          email: request.senderInfo.email,
+          phone1: { number: request.senderInfo.phone },
+        };
+      }
 
       const response = await firstValueFrom(
         this.httpService.post<SpeedyShipmentResponse>(

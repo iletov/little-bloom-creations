@@ -14,38 +14,19 @@ import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { Check, ChevronDown } from 'lucide-react';
 import React, { useState } from 'react';
 import { Loader } from '@/component/loader/Loader';
-import { useOffices } from '@/hooks/useOffices';
+import { useOffices, OfficeDto } from '@/hooks/api/shipping/shipping-list.hook';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { useCart } from '@/hooks/useCart';
 import { AddressFormData } from '@/app/store/features/stripe/stripeSlice';
-import { formatTime } from '@/lib/ekont/formatTime';
-
-export interface Office {
-  id: string;
-  name: string;
-  code: string;
-  hubCode: string;
-  address: {
-    fullAddress: string;
-    city: {
-      postCode: string;
-    };
-  };
-  normalBusinessHoursFrom: number;
-  normalBusinessHoursTo: number;
-  halfDayBusinessHoursFrom: number;
-  halfDayBusinessHoursTo: number;
-}
+import { DeliveryMethodEnum } from '@repo/shared-types';
 
 interface CustomDropdownProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
-  // selectedCityData: City | undefined;
-  // onOfficeSelect?: (office: Office) => void;
 }
+
 export const OfficeDropdown = ({
-  // options,
   placeholder = 'Select option',
   className,
   disabled = false,
@@ -57,10 +38,9 @@ export const OfficeDropdown = ({
     useSenderDetails();
   const { updateAddresData, setDeliveryCost } = useCart();
 
-  const { offices, isLoading, error } = useOffices(
-    selectedCity?.country?.code3,
+  const { data: offices, isLoading, error } = useOffices(
+    (deliveryMethod as DeliveryMethodEnum) || null,
     selectedCity?.id,
-    deliveryMethod === 'ekont-office',
   );
 
   if (isLoading)
@@ -72,18 +52,22 @@ export const OfficeDropdown = ({
 
   if (error) return <p>faild to load offices</p>;
 
-  const handleSelectOffice = async (currentOffice: Office) => {
+  const handleSelectOffice = async (currentOffice: OfficeDto) => {
     setSelectedOffice(currentOffice);
-    updateAddresData({ officeCode: currentOffice?.code } as AddressFormData); // setDeliveryCostFlag(true);
+    updateAddresData({ officeCode: currentOffice?.id } as AddressFormData);
     setDeliveryCost(0);
     setOpen(false);
   };
 
+  const filteredByCityOffices = offices?.filter(
+    office => String(office.cityId) === String(selectedCity?.id)
+  ) || [];
+
   const filteredOffices = searchQuery
-    ? offices?.filter(office =>
+    ? filteredByCityOffices?.filter(office =>
         office.name.toLowerCase().includes(searchQuery.toLowerCase()),
       )
-    : offices;
+    : filteredByCityOffices;
 
   return (
     <section className=" w-full relative space-y-2">
@@ -104,7 +88,7 @@ export const OfficeDropdown = ({
             {selectedOffice ? (
               <p className="flex gap-2 ">
                 <span>{selectedOffice.name}</span>
-                <span>({selectedOffice.code})</span>
+                <span>({selectedOffice.id})</span>
               </p>
             ) : (
               <p className="text-white">{placeholder}</p>
@@ -151,21 +135,10 @@ export const OfficeDropdown = ({
                         <div className="flex flex-col items-start justify-center ">
                           <div className="flex gap-2 font-bold [&>p]:text-[1.4rem]">
                             <p>{office.name}</p>
-                            <p>({office.code})</p>
+                            <p>({office.id})</p>
                           </div>
                           <div className="flex gap-1 [&>p]:text-[1.2rem]">
-                            <p>{office.address.city.postCode},</p>
-                            <p>{office.address.fullAddress}</p>
-                          </div>
-                          <div className="flex gap-1 [&>p]:text-[1.2rem]">
-                            <p>Понеделник - Петък:</p>
-                            <p>{formatTime(office.normalBusinessHoursFrom)}</p>
-                            <p>{formatTime(office.normalBusinessHoursTo)}</p>
-                          </div>
-                          <div className="flex gap-1 [&>p]:text-[1.2rem]">
-                            <p>Събота:</p>
-                            <p>{formatTime(office.halfDayBusinessHoursFrom)}</p>
-                            <p>{formatTime(office.halfDayBusinessHoursTo)}</p>
+                            <p>{office.address}</p>
                           </div>
                         </div>
                       </CommandItem>

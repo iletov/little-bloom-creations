@@ -8,5 +8,6 @@ export declare class InitiateStripeOrderUseCase {
     execute(dto: PlaceStripeOrderDto): Promise<{
         orderNumber: string;
         clientSecret: string | undefined;
+        paymentIntentId: string;
     }>;
 }

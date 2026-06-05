@@ -110,12 +110,28 @@ let SpeedyShippingAdapter = class SpeedyShippingAdapter {
                 courierServicePayer: 'RECIPIENT',
                 declaredValuePayer: 'RECIPIENT',
             },
+            sender: {
+                dropoffOfficeId: 275,
+                clientId: 9999999998000,
+            },
         };
+    }
+    async validateShipment(request) {
+        try {
+            const payload = this.buildBasePayload(request);
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.speedyUrl}/validation/shipment`, payload));
+            if (response.data?.error) {
+                throw new Error(JSON.stringify(response.data.error));
+            }
+        }
+        catch (error) {
+            console.error('Speedy Validation Error:', error?.response?.data || error?.message || error);
+            throw new exceptions_1.ShippingProviderException('Failed to validate shipment with Speedy', error?.response?.data || error?.message || {});
+        }
     }
     async calculateShipping(request) {
         try {
             const payload = this.buildBasePayload(request);
-            payload.sender = { clientId: 9999999998000 };
             const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.speedyUrl}/calculate`, payload));
             console.log('Speedy API Response Data:', JSON.stringify(response.data, null, 2));
             const calculations = response.data?.calculations;
@@ -135,12 +151,15 @@ let SpeedyShippingAdapter = class SpeedyShippingAdapter {
     async createWaybill(request) {
         try {
             const payload = this.buildBasePayload(request);
-            payload.sender = {
-                clientId: '9999999998000',
-                contactName: request.senderInfo.name,
-                email: request.senderInfo.email,
-                phone1: { number: request.senderInfo.phone },
-            };
+            if (request.senderInfo) {
+                payload.sender = {
+                    clientId: payload.sender?.clientId || 9999999998000,
+                    dropoffOfficeId: payload.sender?.dropoffOfficeId,
+                    contactName: request.senderInfo.name,
+                    email: request.senderInfo.email,
+                    phone1: { number: request.senderInfo.phone },
+                };
+            }
             const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.speedyUrl}/shipment`, payload));
             const data = response.data;
             return {

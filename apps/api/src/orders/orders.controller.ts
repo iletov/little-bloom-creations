@@ -20,6 +20,7 @@ import { ConfirmStripeOrderUseCase } from './use-cases/confirm-stripe-order.use-
 export interface PlaceOrderResponse {
   orderNumber: string;
   clientSecret?: string;
+  paymentIntentId?: string;
 }
 
 @Controller('orders')
@@ -48,6 +49,7 @@ export class OrdersController {
     return {
       orderNumber: result.orderNumber,
       clientSecret: result.clientSecret ?? undefined,
+      paymentIntentId: result.paymentIntentId,
     };
   }
 
