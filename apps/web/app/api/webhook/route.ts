@@ -1,4 +1,5 @@
 import stripe from '@/lib/stripe';
+// ТОЗИ ФАЙЛ Е МИГРИРАН В NESTJS, ВЕЧЕ НЕ СЕ ИЗПОЛЗВА И Е ГОТОВ ЗА ТРИЕНЕ
 import { NextResponse, NextRequest } from 'next/server';
 import { headers } from 'next/headers';
 import Stripe from 'stripe';

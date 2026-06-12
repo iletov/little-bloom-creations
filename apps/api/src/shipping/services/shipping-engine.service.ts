@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ShippingProviderFactory } from '../factories/shipping-provider.factory';
 import {
+  Address,
   CityDto,
   CreateWaybillRequest,
   CreateWaybillResult,
@@ -36,6 +37,15 @@ export class ShippingEngineService {
     const result = await provider.calculateShipping(request);
 
     return result;
+  }
+
+  async validateAddress(
+    providerName: DeliveryMethodEnum,
+    address: Address,
+    postalCode?: string,
+  ): Promise<boolean | Record<string, unknown>> {
+    const provider = this.factory.getProvider(providerName);
+    return provider.validateAddress(address, postalCode);
   }
 
   async getCities(

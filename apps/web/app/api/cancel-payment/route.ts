@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+// ТОЗИ ФАЙЛ Е МИГРИРАН В NESTJS, ВЕЧЕ НЕ СЕ ИЗПОЛЗВА И Е ГОТОВ ЗА ТРИЕНЕ
 import Stripe from 'stripe';
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);

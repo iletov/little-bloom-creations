@@ -1,4 +1,5 @@
 'use server';
+// ТОЗИ ФАЙЛ Е МИГРИРАН В NESTJS, ВЕЧЕ НЕ СЕ ИЗПОЛЗВА И Е ГОТОВ ЗА ТРИЕНЕ
 import { Buffer } from 'buffer';
 
 export const validateAddress = async (data: any, postalCode: string) => {

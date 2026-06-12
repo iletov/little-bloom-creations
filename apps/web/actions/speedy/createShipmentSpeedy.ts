@@ -1,4 +1,5 @@
 'use server';
+// ТОЗИ ФАЙЛ Е МИГРИРАН В NESTJS, ВЕЧЕ НЕ СЕ ИЗПОЛЗВА И Е ГОТОВ ЗА ТРИЕНЕ
 
 import { ReceiptItem } from '@/lib/utils/createReceiptFromItems';
 import { parcelsType } from './calculateLabelSpeedy';

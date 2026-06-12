@@ -6,6 +6,8 @@ import { ShippingProviderFactory } from './factories/shipping-provider.factory';
 import { ShippingEngineService } from './services/shipping-engine.service';
 import { ShippingController } from './shipping.controller';
 import { CalculateShippingUseCase } from './use-cases/calculate-shipping.use-case';
+import { ValidateAddressUseCase } from './use-cases/validate-address.use-case';
+import { CreateWaybillUseCase } from './use-cases/create-waybill.use-case';
 
 @Module({
   imports: [HttpModule],
@@ -15,8 +17,11 @@ import { CalculateShippingUseCase } from './use-cases/calculate-shipping.use-cas
     ShippingProviderFactory,
     ShippingEngineService,
     CalculateShippingUseCase,
+    ValidateAddressUseCase,
+    CreateWaybillUseCase,
   ],
   controllers: [ShippingController],
   exports: [ShippingEngineService],
 })
 export class ShippingModule {}
+

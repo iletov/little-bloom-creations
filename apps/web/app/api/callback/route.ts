@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabaseServer';
+// ТОЗИ ФАЙЛ Е МИГРИРАН В NESTJS, ВЕЧЕ НЕ СЕ ИЗПОЛЗВА И Е ГОТОВ ЗА ТРИЕНЕ
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {

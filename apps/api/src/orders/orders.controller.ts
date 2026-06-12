@@ -16,6 +16,8 @@ import { StripeService } from '../stripe/stripe.service';
 import { PlaceStripeOrderDto } from './dto/place-stripe-order.dto';
 import Stripe from 'stripe';
 import { ConfirmStripeOrderUseCase } from './use-cases/confirm-stripe-order.use-case';
+import { CancelStripeOrderUseCase } from './use-cases/cancel-stripe-order.use-case';
+import { CancelStripeOrderDto } from './dto/cancel-stripe-order.dto';
 
 export interface PlaceOrderResponse {
   orderNumber: string;
@@ -29,6 +31,7 @@ export class OrdersController {
     private readonly placeCashOrderUseCase: PlaceCashOrderUseCase,
     private readonly initiateStripeOrderUseCase: InitiateStripeOrderUseCase,
     private readonly confirmStripeOrderUseCase: ConfirmStripeOrderUseCase,
+    private readonly cancelStripeOrderUseCase: CancelStripeOrderUseCase,
     private readonly stripeService: StripeService,
   ) {}
 
@@ -51,6 +54,11 @@ export class OrdersController {
       clientSecret: result.clientSecret ?? undefined,
       paymentIntentId: result.paymentIntentId,
     };
+  }
+
+  @Post('stripe/cancel')
+  async cancelStripeOrder(@Body() dto: CancelStripeOrderDto) {
+    return this.cancelStripeOrderUseCase.execute(dto);
   }
 
   @Post('stripe/webhook')

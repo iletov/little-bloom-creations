@@ -1,4 +1,5 @@
 import { createClient, createServiceClient } from '@/lib/supabaseServer';
+// ТОЗИ ФАЙЛ Е МИГРИРАН В NESTJS, ВЕЧЕ НЕ СЕ ИЗПОЛЗВА И Е ГОТОВ ЗА ТРИЕНЕ
 import { unstable_cache } from 'next/cache';
 
 export const getAllProducts = unstable_cache(

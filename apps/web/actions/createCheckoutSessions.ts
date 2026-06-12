@@ -1,4 +1,5 @@
 // 'use server';
+// ТОЗИ ФАЙЛ Е МИГРИРАН В NESTJS, ВЕЧЕ НЕ СЕ ИЗПОЛЗВА И Е ГОТОВ ЗА ТРИЕНЕ
 
 // import { CartItem } from '@/app/store/features/cart/cartSlice';
 // import stripe from '@/lib/stripe';

@@ -104,9 +104,9 @@ export default function CheckoutPage() {
           `# Payment Intent created successfuly! Cart Items are send to backend`,
           items,
         );
-        console.log('# Response : ', data);
+        // console.log('# Response : ', data);
       }
-    } catch (error: any) {
+    } catch (error : any) {
       console.error('Error creating checkout session', error);
       setAlertMessage({
         title: 'Възникна грешка',

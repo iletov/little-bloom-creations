@@ -1,3 +1,4 @@
+// ТОЗИ ФАЙЛ Е МИГРИРАН В NESTJS, ВЕЧЕ НЕ СЕ ИЗПОЛЗВА И Е ГОТОВ ЗА ТРИЕНЕ
 import { createClient } from '@/lib/supabaseServer';
 
 export async function getProductBySku(sku: string) {

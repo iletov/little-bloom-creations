@@ -2,15 +2,17 @@
 
 import { useQuery } from '@tanstack/react-query';
 
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+
 const fetchSanityEkont = async () => {
-  const res = await fetch('/api/sanity-data');
+  const res = await fetch(`${API_URL}/sanity/sender-ekont`);
 
   if (!res.ok) throw new Error('Failed to fetch data from API route');
   return res.json();
 };
 
 const fetchSanitySpeedy = async () => {
-  const res = await fetch('/api/sanity-data-speedy');
+  const res = await fetch(`${API_URL}/sanity/sender-speedy`);
 
   if (!res.ok) throw new Error('Failed to fetch data from API route');
   return res.json();
