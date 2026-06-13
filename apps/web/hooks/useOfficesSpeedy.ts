@@ -1,3 +1,5 @@
+// TODO: MIGRATED TO NESTJS - READY TO BE DELETED.
+/*
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -36,3 +38,4 @@ export function useOfficesSpeedy(
     isFetching,
   };
 }
+*/

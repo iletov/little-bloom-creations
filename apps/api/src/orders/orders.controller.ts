@@ -5,6 +5,8 @@ import {
   Req,
   Headers,
   BadRequestException,
+  Get,
+  Param,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import type { RawBodyRequest } from '@nestjs/common'; // Оправя грешката с decorated signature
@@ -18,6 +20,7 @@ import Stripe from 'stripe';
 import { ConfirmStripeOrderUseCase } from './use-cases/confirm-stripe-order.use-case';
 import { CancelStripeOrderUseCase } from './use-cases/cancel-stripe-order.use-case';
 import { CancelStripeOrderDto } from './dto/cancel-stripe-order.dto';
+import { GetOrderStatusUseCase } from './use-cases/get-order-status.use-case';
 
 export interface PlaceOrderResponse {
   orderNumber: string;
@@ -32,8 +35,14 @@ export class OrdersController {
     private readonly initiateStripeOrderUseCase: InitiateStripeOrderUseCase,
     private readonly confirmStripeOrderUseCase: ConfirmStripeOrderUseCase,
     private readonly cancelStripeOrderUseCase: CancelStripeOrderUseCase,
+    private readonly getOrderStatusUseCase: GetOrderStatusUseCase,
     private readonly stripeService: StripeService,
   ) {}
+
+  @Get('status/:orderNumber')
+  async getOrderStatus(@Param('orderNumber') orderNumber: string) {
+    return this.getOrderStatusUseCase.execute(orderNumber);
+  }
 
   @Post('cash')
   async placeCashOrder(
@@ -79,7 +88,7 @@ export class OrdersController {
       throw new BadRequestException(`Webhook Error: ${err.message}`);
     }
 
-    if (event.type === 'payment_intent.succeeded') {
+    if (event.type === 'payment_intent.amount_capturable_updated') {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
       const orderId = paymentIntent.metadata.orderId;
 
@@ -92,7 +101,8 @@ export class OrdersController {
           `[Stripe Webhook] Fulfillment failed for ${orderId}:`,
           error,
         );
-        await this.stripeService.refundPayment(paymentIntent.id, error.message);
+        // We do NOT call refundPayment here because ConfirmStripeOrderUseCase 
+        // already cancels the uncaptured PaymentIntent.
       }
     }
 

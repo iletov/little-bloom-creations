@@ -246,6 +246,7 @@ export class EcontShippingAdapter implements IShippingProvider {
       return cities.map((city) => ({
         id: city.id,
         name: city.name,
+        nameEn: city.nameEn,
         postCode: city.postCode,
         region: city.regionName || '',
       }));

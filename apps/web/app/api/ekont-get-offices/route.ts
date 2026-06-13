@@ -1,3 +1,5 @@
+// TODO: MIGRATED TO NESTJS - READY TO BE DELETED.
+/*
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -49,3 +51,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+*/

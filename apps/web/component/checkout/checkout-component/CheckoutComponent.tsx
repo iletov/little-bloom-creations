@@ -13,8 +13,6 @@ import { Button } from '@/components/ui/button';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { AlertBox } from '@/component/modals/AlertBox';
 import { useSenderInfo } from '@/hooks/useSenderInfo';
-import { createLabel } from '@/actions/ekont/createLabel';
-import { createShipmentSpeedy } from '@/actions/speedy/createShipmentSpeedy';
 import { useAuth } from '@/hooks/useAuth';
 import { createParcelsFromItems } from '@/lib/utils/createParcelsFromItems';
 import { createReceiptFromItems } from '@/lib/utils/createReceiptFromItems';
@@ -77,60 +75,9 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
       return 0;
     }
 
-    let validate;
-
-    const shipmentDescription = createReceiptFromItems(items)
-      ?.map(item => item.description)
-      .join(', ');
-
-    if (isEkont) {
-      validate = await createLabel(
-        senderData,
-        guestFormData,
-        addressFormData,
-        totalPrice,
-        deliveryMethod,
-        paymentMethod,
-        shipmentDescription,
-        totalWeight,
-        undefined as any
-      );
-    }
-
-    if (isSpeedy) {
-      const recipientData = {
-        clientName: metadata.customerName,
-        email: user?.email ?? guestFormData?.email,
-      };
-
-      const parcels = createParcelsFromItems(items, metadata?.orderNumber);
-      const receipt = createReceiptFromItems(items);
-
-      validate = await createShipmentSpeedy(
-        senderDataSpeedy,
-        recipientData,
-        addressFormData,
-        deliveryMethod,
-        paymentMethod,
-        selectedOffice?.id,
-        selectedCity?.id,
-        validationStreet?.id,
-        totalPrice,
-        parcels,
-        receipt,
-      );
-    }
-
-    if (
-      (isEkont && validate?.label?.totalPrice) ||
-      (isSpeedy && validate?.price?.total)
-    ) {
-      setAlertMessage({
-        title: 'Успешно направена поръчка!',
-        message: 'Вашата поръчка беше успешно направена!',
-      });
-      setShowAlert(true);
-    }
+    // The waybill creation for Stripe orders is now handled by the backend 
+    // inside the Stripe Webhook (POST /webhooks/stripe) after successful payment.
+    // We only need to confirm the payment with Stripe here.
 
     const { error: submitError } = await elements.submit();
 

@@ -1,3 +1,4 @@
+// TODO: LEGACY CODE - NOT USED ANYWHERE. TO BE DELETED.
 'use client';
 import { Input } from '@/components/ui/input';
 import React, { useState } from 'react';

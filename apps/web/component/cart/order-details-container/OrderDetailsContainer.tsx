@@ -5,16 +5,11 @@ import { CheckoutForm } from '@/component/checkout/checkout-forms/CheckoutForm';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCart } from '@/hooks/useCart';
-import { useCities } from '@/hooks/useCities';
-import { useSpeedyCities } from '@/hooks/useCitiesSpeedy';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 
 import React from 'react';
 
 export const OrderDetailsContainer = () => {
-  const { refetchEkont } = useCities(false);
-  const { refetchSpeedyCities } = useSpeedyCities(false);
-
   const { updateAddresData, setDeliveryCost } = useCart();
   const {
     setDeliveryMethod,
@@ -25,9 +20,6 @@ export const OrderDetailsContainer = () => {
   } = useSenderDetails();
 
   const handleSelectDeliveryCompany = (value: string) => {
-    const isEkont = value.startsWith('ekont');
-    const isSpeedy = value.startsWith('speedy');
-
     // reset delivery cost
     setDeliveryCost(0);
 
@@ -46,10 +38,6 @@ export const OrderDetailsContainer = () => {
       apartmentNo: '',
       other: '',
     } as AddressFormData);
-
-    // Refetch cities for the selected provider
-    if (isEkont) refetchEkont();
-    if (isSpeedy) refetchSpeedyCities();
 
     setDeliveryMethod(value);
   };

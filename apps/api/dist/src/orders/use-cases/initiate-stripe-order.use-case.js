@@ -13,12 +13,15 @@ exports.InitiateStripeOrderUseCase = void 0;
 const common_1 = require("@nestjs/common");
 const orders_repository_1 = require("../repositories/orders.repository");
 const stripe_service_1 = require("../../stripe/stripe.service");
+const products_repository_1 = require("../../products/products.repository");
 let InitiateStripeOrderUseCase = class InitiateStripeOrderUseCase {
     ordersRepo;
     stripeService;
-    constructor(ordersRepo, stripeService) {
+    productsRepo;
+    constructor(ordersRepo, stripeService, productsRepo) {
         this.ordersRepo = ordersRepo;
         this.stripeService = stripeService;
+        this.productsRepo = productsRepo;
     }
     async execute(dto) {
         try {
@@ -49,18 +52,35 @@ let InitiateStripeOrderUseCase = class InitiateStripeOrderUseCase {
                 streetNumber: dto.recipientAddress.streetNumber || null,
                 officeCode: dto.recipientInfo.officeId || null,
             };
-            const itemsData = dto.items.map((item) => ({
-                orderId: '',
-                productId: item.productId,
-                variantId: item.variantId || null,
-                name: item.name,
-                variantName: item.variantName || null,
-                quantity: item.quantity,
-                unitPrice: item.unitPrice.toString(),
-                subtotal: (item.unitPrice * item.quantity).toString(),
-                weight: item.weight.toString(),
-                personalization: item.personalization || null,
-            }));
+            const itemsData = [];
+            for (const item of dto.items) {
+                if (!item.sku || item.sku === 'N/A') {
+                    throw new common_1.InternalServerErrorException(`Item ${item.name} is missing SKU`);
+                }
+                const product = await this.productsRepo.findBySku(item.sku);
+                if (!product) {
+                    throw new common_1.InternalServerErrorException(`Product with SKU ${item.sku} not found in database`);
+                }
+                let variantId = null;
+                if (item.variantSku && product.variants) {
+                    const variant = product.variants.find((v) => v.variant_sku === item.variantSku || v.variantSku === item.variantSku);
+                    if (variant) {
+                        variantId = variant.id;
+                    }
+                }
+                itemsData.push({
+                    orderId: '',
+                    productId: product.id,
+                    variantId: variantId,
+                    name: item.name,
+                    variantName: item.variantName || null,
+                    quantity: item.quantity,
+                    unitPrice: item.unitPrice.toString(),
+                    subtotal: (item.unitPrice * item.quantity).toString(),
+                    weight: item.weight.toString(),
+                    personalization: item.personalization || null,
+                });
+            }
             const orderId = await this.ordersRepo.createFullOrder(orderData, shippingData, itemsData);
             const paymentIntent = await this.stripeService.createPaymentIntent(totalAmount, {
                 orderId: orderId,
@@ -83,6 +103,7 @@ exports.InitiateStripeOrderUseCase = InitiateStripeOrderUseCase;
 exports.InitiateStripeOrderUseCase = InitiateStripeOrderUseCase = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [orders_repository_1.OrdersRepository,
-        stripe_service_1.StripeService])
+        stripe_service_1.StripeService,
+        products_repository_1.ProductsRepository])
 ], InitiateStripeOrderUseCase);
 //# sourceMappingURL=initiate-stripe-order.use-case.js.map

@@ -168,6 +168,7 @@ let EcontShippingAdapter = class EcontShippingAdapter {
             return cities.map((city) => ({
                 id: city.id,
                 name: city.name,
+                nameEn: city.nameEn,
                 postCode: city.postCode,
                 region: city.regionName || '',
             }));

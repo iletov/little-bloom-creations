@@ -8,9 +8,8 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import { Popover } from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { Check, ChevronDown } from 'lucide-react';
 import React, { useState } from 'react';
 import { Loader } from '@/component/loader/Loader';
@@ -100,7 +99,7 @@ export const OfficeDropdown = ({
           align="start"
           side="bottom"
           sideOffset={10}
-          className=" md:w-[calc(100%-1.26rem)] p-0 border-[1px] shadow-lg rounded-xl font-montserrat">
+          className=" md:w-[calc(100%-1.26rem)] p-0 border-[1px] shadow-lg rounded-xl font-montserrat bg-white">
           <Command>
             <CommandInput
               placeholder="Search offices..."

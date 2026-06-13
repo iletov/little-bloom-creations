@@ -101,12 +101,42 @@
 - `supabase/dashboard/getOrders.ts` -> NestJS ендпойнт `GET /admin/orders` (защитен).
 - `supabase/dashboard/updateOrder.ts` -> NestJS ендпойнт `PATCH /admin/orders/:id` (защитен).
 
-### 5. Комуникация и Форми (`CommunicationModule` или `FormsModule`)
-Тези Server Actions трябва да станат NestJS ендпойнти:
-- `createContactUs.ts` -> `POST /contact`.
-- `createEventForm.ts` -> `POST /events`.
+### 5. Комуникация и Форми [ ОТПАДА - LEGACY ]
+Тези Server Actions (`createContactUs.ts` и `createEventForm.ts`) са идентифицирани като legacy код, който не се използва никъде в текущото Next.js приложение. Вместо да се мигрират, те са маркирани за изтриване.
 
-### 6. Sanity CMS Интеграция (`SanityModule` / `WebhooksModule`)
-Тези API рутове трябва да се мигрират към NestJS:
-- `/api/sanity-data`, `/api/sanity-data-speedy`
-- `/api/webhook-sanity`, `/api/webhook-status`
+### 6. Sanity CMS Интеграция (`SanityModule`) [ ГОТОВО ЗА ТЕСТ ]
+Тези API рутове вече са мигрирани към NestJS и маркирани за изтриване от фронтенда:
+- `/api/sanity-data`, `/api/sanity-data-speedy` -> `GET /sanity/sender-ekont` и `GET /sanity/sender-speedy`
+- `/api/webhook-sanity` -> `POST /webhooks/sanity`
+
+*Забележка: Рутът `/api/webhook-status` беше успешно мигриран към `OrdersModule` в NestJS (`GET /orders/status/:orderNumber`). Старият файл е маркиран за изтриване.*
+
+---
+
+## Добавено на 12.06.2026: Финална Фронтенд Интеграция (`apps/web`)
+
+След успешното изграждане на NestJS бекенда, последната фаза е пренасочването на фронтенд приложението да използва новия API (`NEXT_PUBLIC_API_URL=http://localhost:3001`), заменяйки старите Server Actions и локални `/api` рутове.
+
+> [!IMPORTANT]
+> **Архитектурни Правила за Фронтенда:**
+> 1. **Продукти (Каталог):** Извличането на продукти (от Sanity / Postgres) остава в **Server Components**, за да се запази SEO оптимизацията и бързото първоначално зареждане (SSR).
+> 2. **Динамични данни и Интеракции (Куриери, Поръчки):** Извличането на градове, офиси (Еконт и Спиди), калкулацията на доставка и изпращането на поръчки **ЗАДЪЛЖИТЕЛНО се извършва чрез React Query хукове** (client-side data fetching), за да се осигури кеширане, автоматично презареждане при грешка и оптимално UX преживяване.
+
+### Стъпка 1: Куриерски Услуги (Cities & Offices) чрез React Query [ ИЗПЪЛНЕНО НА 12.06.2026 ]
+Замяна на старите локални API извиквания с React Query хукове, сочещи към NestJS:
+- Подмяна в `apps/web/hooks/useCities.ts` и `useCitiesSpeedy.ts` -> `GET /shipping/cities?courier=ekont/speedy`
+- Подмяна в `apps/web/hooks/useOffices.ts` и `useOfficesSpeedy.ts` -> `GET /shipping/offices?courier=ekont/speedy`
+
+### Стъпка 2: Калкулация на Доставка [ ИЗПЪЛНЕНО НА 13.06.2026 ]
+- В страницата за чекаут (`checkout/page.tsx` и хуковете) премахнахме `calculateLabel` (Server Action) и използваме React Query mutation към `POST /shipping/calculate`.
+
+### Стъпка 3: Плащания и Създаване на Поръчки [ ИЗПЪЛНЕНО НА 13.06.2026 ]
+- `PaymentCash.tsx` -> Използва React Query mutation към `POST /orders/cash`.
+- `stripeSlice.tsx` и `CheckoutComponent.tsx` -> Използват React Query mutation към `POST /orders/stripe/initiate`. Премахнато е ръчното генериране на товарителници от фронтенда (вече се извършва от бекенд Webhook-а).
+- `success/page.tsx` -> Във фронтенда е мигриран да слуша през NestJS.
+
+### Стъпка 4: Продуктов Каталог (Server Components)
+- Обновяване на `getAllProducts.ts` и `getProductBySku.ts`, за да правят директен `fetch` към новия `GET /products` ендпойнт в NestJS, вместо директни заявки през `@supabase/supabase-js`.
+
+### Стъпка 5: Почистване на Legacy Код
+- Изтриване на всички изоставени Server Actions, локални API рутове и неизползвани компоненти от `apps/web`.

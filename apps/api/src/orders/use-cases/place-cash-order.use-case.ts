@@ -58,19 +58,42 @@ export class PlaceCashOrderUseCase {
         officeCode: dto.recipientInfo.officeId || null,
       };
 
-      const itemsData: InsertOrderItemType[] = dto.items.map((item) => ({
-        id: uuidv4(),
-        orderId,
-        productId: item.productId,
-        variantId: item.variantId || null,
-        name: item.name,
-        variantName: item.variantName || null,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice.toString(),
-        subtotal: (item.unitPrice * item.quantity).toString(),
-        weight: item.weight.toString(),
-        personalization: item.personalization || null,
-      }));
+      const itemsData: InsertOrderItemType[] = [];
+      for (const item of dto.items) {
+        if (!item.sku || item.sku === 'N/A') {
+          throw new BadRequestException(`Item ${item.name} is missing SKU`);
+        }
+
+        const product = await this.productsRepo.findBySku(item.sku);
+
+        if (!product) {
+          throw new BadRequestException(`Product with SKU ${item.sku} not found in database`);
+        }
+
+        let variantId: string | null = null;
+        if (item.variantSku && product.variants) {
+           const variant = product.variants.find(
+             (v) => v.variant_sku === item.variantSku || (v as typeof v & { variantSku?: string }).variantSku === item.variantSku
+           );
+           if (variant) {
+             variantId = variant.id;
+           }
+        }
+
+        itemsData.push({
+          id: uuidv4(),
+          orderId,
+          productId: product.id,
+          variantId: variantId,
+          name: item.name,
+          variantName: item.variantName || null,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice.toString(),
+          subtotal: (item.unitPrice * item.quantity).toString(),
+          weight: item.weight.toString(),
+          personalization: item.personalization || null,
+        });
+      }
 
       await this.ordersRepo.createFullOrder(orderData, shippingData, itemsData);
 

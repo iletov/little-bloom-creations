@@ -267,6 +267,7 @@ export class SpeedyShippingAdapter implements IShippingProvider {
       return sites.map((site) => ({
         id: site.id,
         name: site.name,
+        nameEn: site.nameEn,
         postCode: site.postCode,
         region: site.municipality || '',
       }));

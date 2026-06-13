@@ -1,3 +1,5 @@
+// TODO: MIGRATED TO NESTJS - READY TO BE DELETED.
+/*
 'use client';
 import { City } from '@/component/checkout/checkout-forms/CheckoutForm';
 import { useQuery } from '@tanstack/react-query';
@@ -24,9 +26,6 @@ export function useSpeedyCities(enabled: boolean = true) {
     enabled: enabled,
     staleTime: 24 * 60 * 60 * 1000, // 24 hours - data considered fresh
     gcTime: 24 * 60 * 60 * 1000, // 24 hours - cache retention time (formerly cacheTime)
-    // refetchOnWindowFocus: false,
-    // refetchOnReconnect: false,
-    // refetchOnMount: false,
   });
 
   return {
@@ -37,3 +36,4 @@ export function useSpeedyCities(enabled: boolean = true) {
     refetchSpeedyCities: refetch,
   };
 }
+*/

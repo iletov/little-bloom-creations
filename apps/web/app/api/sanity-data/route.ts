@@ -1,3 +1,4 @@
+// TODO: MIGRATED TO NESTJS - READY TO BE DELETED.
 import { getEkontSenderDetails } from '@/sanity/lib/fetch/ekontData';
 import { NextResponse } from 'next/server';
 

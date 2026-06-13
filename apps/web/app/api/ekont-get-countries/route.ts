@@ -1,3 +1,5 @@
+// TODO: MIGRATED TO NESTJS - READY TO BE DELETED.
+/*
 import { NextRequest, NextResponse } from 'next/server';
 //NOT IN USE!
 export async function GET() {
@@ -41,3 +43,5 @@ export async function GET() {
     );
   }
 }
+
+*/

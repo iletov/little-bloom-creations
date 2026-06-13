@@ -12,6 +12,7 @@ const products_controller_1 = require("./products.controller");
 const products_repository_1 = require("./products.repository");
 const get_all_active_products_use_case_1 = require("./use-cases/get-all-active-products.use-case");
 const get_product_by_sku_use_case_1 = require("./use-cases/get-product-by-sku.use-case");
+const check_product_quantity_use_case_1 = require("./use-cases/check-product-quantity.use-case");
 let ProductsModule = class ProductsModule {
 };
 exports.ProductsModule = ProductsModule;
@@ -22,10 +23,12 @@ exports.ProductsModule = ProductsModule = __decorate([
             products_repository_1.ProductsRepository,
             get_all_active_products_use_case_1.GetAllActiveProductsUseCase,
             get_product_by_sku_use_case_1.GetProductBySkuUseCase,
+            check_product_quantity_use_case_1.CheckProductQuantityUseCase,
         ],
         exports: [
             get_all_active_products_use_case_1.GetAllActiveProductsUseCase,
             get_product_by_sku_use_case_1.GetProductBySkuUseCase,
+            check_product_quantity_use_case_1.CheckProductQuantityUseCase,
             products_repository_1.ProductsRepository,
         ],
     })

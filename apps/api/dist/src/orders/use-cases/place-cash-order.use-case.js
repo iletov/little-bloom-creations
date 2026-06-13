@@ -55,19 +55,36 @@ let PlaceCashOrderUseCase = class PlaceCashOrderUseCase {
                 streetNumber: dto.recipientAddress.streetNumber || null,
                 officeCode: dto.recipientInfo.officeId || null,
             };
-            const itemsData = dto.items.map((item) => ({
-                id: (0, uuid_1.v4)(),
-                orderId,
-                productId: item.productId,
-                variantId: item.variantId || null,
-                name: item.name,
-                variantName: item.variantName || null,
-                quantity: item.quantity,
-                unitPrice: item.unitPrice.toString(),
-                subtotal: (item.unitPrice * item.quantity).toString(),
-                weight: item.weight.toString(),
-                personalization: item.personalization || null,
-            }));
+            const itemsData = [];
+            for (const item of dto.items) {
+                if (!item.sku || item.sku === 'N/A') {
+                    throw new common_1.BadRequestException(`Item ${item.name} is missing SKU`);
+                }
+                const product = await this.productsRepo.findBySku(item.sku);
+                if (!product) {
+                    throw new common_1.BadRequestException(`Product with SKU ${item.sku} not found in database`);
+                }
+                let variantId = null;
+                if (item.variantSku && product.variants) {
+                    const variant = product.variants.find((v) => v.variant_sku === item.variantSku || v.variantSku === item.variantSku);
+                    if (variant) {
+                        variantId = variant.id;
+                    }
+                }
+                itemsData.push({
+                    id: (0, uuid_1.v4)(),
+                    orderId,
+                    productId: product.id,
+                    variantId: variantId,
+                    name: item.name,
+                    variantName: item.variantName || null,
+                    quantity: item.quantity,
+                    unitPrice: item.unitPrice.toString(),
+                    subtotal: (item.unitPrice * item.quantity).toString(),
+                    weight: item.weight.toString(),
+                    personalization: item.personalization || null,
+                });
+            }
             await this.ordersRepo.createFullOrder(orderData, shippingData, itemsData);
             return { orderNumber };
         });

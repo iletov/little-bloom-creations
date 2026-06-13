@@ -16,15 +16,21 @@ exports.ProductsController = void 0;
 const common_1 = require("@nestjs/common");
 const get_all_active_products_use_case_1 = require("./use-cases/get-all-active-products.use-case");
 const get_product_by_sku_use_case_1 = require("./use-cases/get-product-by-sku.use-case");
+const check_product_quantity_use_case_1 = require("./use-cases/check-product-quantity.use-case");
 let ProductsController = class ProductsController {
     getAllActiveProductsUseCase;
     getProductBySkuUseCase;
-    constructor(getAllActiveProductsUseCase, getProductBySkuUseCase) {
+    checkProductQuantityUseCase;
+    constructor(getAllActiveProductsUseCase, getProductBySkuUseCase, checkProductQuantityUseCase) {
         this.getAllActiveProductsUseCase = getAllActiveProductsUseCase;
         this.getProductBySkuUseCase = getProductBySkuUseCase;
+        this.checkProductQuantityUseCase = checkProductQuantityUseCase;
     }
     async getAllActive() {
         return this.getAllActiveProductsUseCase.execute();
+    }
+    async checkQuantity(data) {
+        return this.checkProductQuantityUseCase.execute(data.cartItems);
     }
     async getBySku(sku) {
         return this.getProductBySkuUseCase.execute(sku);
@@ -38,6 +44,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "getAllActive", null);
 __decorate([
+    (0, common_1.Post)('check-quantity'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "checkQuantity", null);
+__decorate([
     (0, common_1.Get)(':sku'),
     __param(0, (0, common_1.Param)('sku')),
     __metadata("design:type", Function),
@@ -47,6 +60,7 @@ __decorate([
 exports.ProductsController = ProductsController = __decorate([
     (0, common_1.Controller)('products'),
     __metadata("design:paramtypes", [get_all_active_products_use_case_1.GetAllActiveProductsUseCase,
-        get_product_by_sku_use_case_1.GetProductBySkuUseCase])
+        get_product_by_sku_use_case_1.GetProductBySkuUseCase,
+        check_product_quantity_use_case_1.CheckProductQuantityUseCase])
 ], ProductsController);
 //# sourceMappingURL=products.controller.js.map

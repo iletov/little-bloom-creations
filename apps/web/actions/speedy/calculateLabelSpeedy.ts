@@ -1,3 +1,4 @@
+// TODO: MIGRATED TO NESTJS - READY TO BE DELETED.
 'use server';
 
 import { ReceiptItem } from '@/lib/utils/createReceiptFromItems';

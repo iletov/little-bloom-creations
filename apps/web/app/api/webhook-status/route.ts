@@ -1,3 +1,4 @@
+// TODO: MIGRATED TO NESTJS - READY TO BE DELETED.
 // app/api/webhook-status/route.ts
 import { createClient } from '@/lib/supabaseServer';
 import { NextResponse } from 'next/server';

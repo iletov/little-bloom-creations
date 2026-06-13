@@ -105,4 +105,14 @@ export class OrdersRepository extends BaseRepository {
       .set({ stripePaymentIntentId: paymentIntentId })
       .where(eq(orders.id, orderId));
   }
+  async findByOrderNumber(orderNumber: string, tx?: any) {
+    const dbExecutor = tx || this.db;
+
+    const [order] = await dbExecutor
+      .select()
+      .from(orders)
+      .where(eq(orders.orderNumber, orderNumber));
+
+    return order || null;
+  }
 }

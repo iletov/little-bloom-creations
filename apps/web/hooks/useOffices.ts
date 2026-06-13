@@ -1,3 +1,5 @@
+// TODO: MIGRATED TO NESTJS - READY TO BE DELETED.
+/*
 'use client';
 
 import { Office } from '@/component/checkout/dropdown-results/OfficeDropdown';
@@ -7,9 +9,6 @@ const officesFetcher = async (
   countryCode: string | undefined,
   cityId: string | undefined,
 ) => {
-  // console.log('Fetching offices for:', { countryCode, cityId });
-  // if (!countryCode || !cityId) return;
-
   const res = await fetch('/api/ekont-get-offices', {
     method: 'POST',
     headers: {
@@ -35,9 +34,6 @@ export function useOffices(
     enabled: !!countryCode && !!cityId && enabled,
     staleTime: 24 * 60 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
-    // refetchOnWindowFocus: false,
-    // refetchOnReconnect: false,
-    // refetchOnMount: false,
   });
 
   return {
@@ -47,3 +43,4 @@ export function useOffices(
     isFetching,
   };
 }
+*/

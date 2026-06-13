@@ -1,3 +1,4 @@
+// TODO: LEGACY CODE - NOT USED ANYWHERE. TO BE DELETED.
 'use server';
 
 import { backendClient } from '@/sanity/lib/backendClient';

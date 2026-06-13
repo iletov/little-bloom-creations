@@ -8,7 +8,7 @@ import { useSearchParams } from 'next/navigation';
 
 async function checkWebhookStatus(orderNumber: string) {
   const response = await fetch(
-    `/api/webhook-status?order_number=${orderNumber}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/orders/status/${orderNumber}`,
   );
 
   if (!response.ok) {
@@ -46,7 +46,7 @@ function SuccessContent() {
 
   const status = data?.status;
   const order = data?.order;
-  const errorMessage = data?.error || error?.message;
+  const errorMessage = data?.error || data?.message || error?.message || '';
 
   dispatchPaymentIntentId(null);
 

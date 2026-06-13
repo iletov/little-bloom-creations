@@ -1,3 +1,4 @@
+// TODO: MIGRATED TO NESTJS - READY TO BE DELETED.
 'use server';
 // ТОЗИ ФАЙЛ Е МИГРИРАН В NESTJS, ВЕЧЕ НЕ СЕ ИЗПОЛЗВА И Е ГОТОВ ЗА ТРИЕНЕ
 

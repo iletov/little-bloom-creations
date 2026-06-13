@@ -1,14 +1,17 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { OrdersRepository } from '../repositories/orders.repository';
+import { OrdersRepository, InsertOrderItemType } from '../repositories/orders.repository';
 import { StripeService } from '../../stripe/stripe.service';
 import { PlaceStripeOrderDto } from '../dto/place-stripe-order.dto';
 import { OrderStatus, PaymentMethodEnum } from '@repo/shared-types';
+
+import { ProductsRepository } from '../../products/products.repository';
 
 @Injectable()
 export class InitiateStripeOrderUseCase {
   constructor(
     private readonly ordersRepo: OrdersRepository,
     private readonly stripeService: StripeService,
+    private readonly productsRepo: ProductsRepository,
   ) {}
 
   async execute(dto: PlaceStripeOrderDto) {
@@ -45,18 +48,41 @@ export class InitiateStripeOrderUseCase {
         officeCode: dto.recipientInfo.officeId || null,
       };
 
-      const itemsData = dto.items.map((item) => ({
-        orderId: '',
-        productId: item.productId,
-        variantId: item.variantId || null,
-        name: item.name,
-        variantName: item.variantName || null,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice.toString(),
-        subtotal: (item.unitPrice * item.quantity).toString(),
-        weight: item.weight.toString(),
-        personalization: item.personalization || null,
-      }));
+      const itemsData: InsertOrderItemType[] = [];
+      for (const item of dto.items) {
+        if (!item.sku || item.sku === 'N/A') {
+          throw new InternalServerErrorException(`Item ${item.name} is missing SKU`);
+        }
+
+        const product = await this.productsRepo.findBySku(item.sku);
+
+        if (!product) {
+          throw new InternalServerErrorException(`Product with SKU ${item.sku} not found in database`);
+        }
+
+        let variantId: string | null = null;
+        if (item.variantSku && product.variants) {
+           const variant = product.variants.find(
+             (v) => v.variant_sku === item.variantSku || (v as typeof v & { variantSku?: string }).variantSku === item.variantSku
+           );
+           if (variant) {
+             variantId = variant.id;
+           }
+        }
+
+        itemsData.push({
+          orderId: '',
+          productId: product.id,
+          variantId: variantId,
+          name: item.name,
+          variantName: item.variantName || null,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice.toString(),
+          subtotal: (item.unitPrice * item.quantity).toString(),
+          weight: item.weight.toString(),
+          personalization: item.personalization || null,
+        });
+      }
 
       const orderId = await this.ordersRepo.createFullOrder(
         orderData,

@@ -67,6 +67,14 @@ let OrdersRepository = class OrdersRepository extends base_repository_1.BaseRepo
             .set({ stripePaymentIntentId: paymentIntentId })
             .where((0, drizzle_orm_1.eq)(schema_1.orders.id, orderId));
     }
+    async findByOrderNumber(orderNumber, tx) {
+        const dbExecutor = tx || this.db;
+        const [order] = await dbExecutor
+            .select()
+            .from(schema_1.orders)
+            .where((0, drizzle_orm_1.eq)(schema_1.orders.orderNumber, orderNumber));
+        return order || null;
+    }
 };
 exports.OrdersRepository = OrdersRepository;
 exports.OrdersRepository = OrdersRepository = __decorate([

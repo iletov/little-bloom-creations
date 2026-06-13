@@ -1,3 +1,4 @@
+// TODO: LEGACY CODE - NOT USED ANYWHERE. TO BE DELETED.
 import { ContactUsProps } from '@/actions/createContactUs';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';

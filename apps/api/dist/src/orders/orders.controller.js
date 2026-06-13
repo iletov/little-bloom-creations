@@ -20,16 +20,26 @@ const initiate_stripe_order_use_case_1 = require("./use-cases/initiate-stripe-or
 const stripe_service_1 = require("../stripe/stripe.service");
 const place_stripe_order_dto_1 = require("./dto/place-stripe-order.dto");
 const confirm_stripe_order_use_case_1 = require("./use-cases/confirm-stripe-order.use-case");
+const cancel_stripe_order_use_case_1 = require("./use-cases/cancel-stripe-order.use-case");
+const cancel_stripe_order_dto_1 = require("./dto/cancel-stripe-order.dto");
+const get_order_status_use_case_1 = require("./use-cases/get-order-status.use-case");
 let OrdersController = class OrdersController {
     placeCashOrderUseCase;
     initiateStripeOrderUseCase;
     confirmStripeOrderUseCase;
+    cancelStripeOrderUseCase;
+    getOrderStatusUseCase;
     stripeService;
-    constructor(placeCashOrderUseCase, initiateStripeOrderUseCase, confirmStripeOrderUseCase, stripeService) {
+    constructor(placeCashOrderUseCase, initiateStripeOrderUseCase, confirmStripeOrderUseCase, cancelStripeOrderUseCase, getOrderStatusUseCase, stripeService) {
         this.placeCashOrderUseCase = placeCashOrderUseCase;
         this.initiateStripeOrderUseCase = initiateStripeOrderUseCase;
         this.confirmStripeOrderUseCase = confirmStripeOrderUseCase;
+        this.cancelStripeOrderUseCase = cancelStripeOrderUseCase;
+        this.getOrderStatusUseCase = getOrderStatusUseCase;
         this.stripeService = stripeService;
+    }
+    async getOrderStatus(orderNumber) {
+        return this.getOrderStatusUseCase.execute(orderNumber);
     }
     async placeCashOrder(dto) {
         return this.placeCashOrderUseCase.execute(dto);
@@ -42,6 +52,9 @@ let OrdersController = class OrdersController {
             paymentIntentId: result.paymentIntentId,
         };
     }
+    async cancelStripeOrder(dto) {
+        return this.cancelStripeOrderUseCase.execute(dto);
+    }
     async handleStripeWebhook(req, signature) {
         if (!signature || !req.rawBody) {
             throw new common_1.BadRequestException('Missing signature or raw body');
@@ -53,7 +66,7 @@ let OrdersController = class OrdersController {
         catch (err) {
             throw new common_1.BadRequestException(`Webhook Error: ${err.message}`);
         }
-        if (event.type === 'payment_intent.succeeded') {
+        if (event.type === 'payment_intent.amount_capturable_updated') {
             const paymentIntent = event.data.object;
             const orderId = paymentIntent.metadata.orderId;
             try {
@@ -62,13 +75,19 @@ let OrdersController = class OrdersController {
             }
             catch (error) {
                 console.error(`[Stripe Webhook] Fulfillment failed for ${orderId}:`, error);
-                await this.stripeService.refundPayment(paymentIntent.id, error.message);
             }
         }
         return { received: true };
     }
 };
 exports.OrdersController = OrdersController;
+__decorate([
+    (0, common_1.Get)('status/:orderNumber'),
+    __param(0, (0, common_1.Param)('orderNumber')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "getOrderStatus", null);
 __decorate([
     (0, common_1.Post)('cash'),
     __param(0, (0, common_1.Body)()),
@@ -84,6 +103,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "initiateStripeOrder", null);
 __decorate([
+    (0, common_1.Post)('stripe/cancel'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [cancel_stripe_order_dto_1.CancelStripeOrderDto]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "cancelStripeOrder", null);
+__decorate([
     (0, common_1.Post)('stripe/webhook'),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Headers)('stripe-signature')),
@@ -96,6 +122,8 @@ exports.OrdersController = OrdersController = __decorate([
     __metadata("design:paramtypes", [place_cash_order_use_case_1.PlaceCashOrderUseCase,
         initiate_stripe_order_use_case_1.InitiateStripeOrderUseCase,
         confirm_stripe_order_use_case_1.ConfirmStripeOrderUseCase,
+        cancel_stripe_order_use_case_1.CancelStripeOrderUseCase,
+        get_order_status_use_case_1.GetOrderStatusUseCase,
         stripe_service_1.StripeService])
 ], OrdersController);
 //# sourceMappingURL=orders.controller.js.map

@@ -1,3 +1,4 @@
+// TODO: MIGRATED TO NESTJS - READY TO BE DELETED.
 import { headers } from 'next/headers';
 // ТОЗИ ФАЙЛ Е МИГРИРАН В NESTJS, ВЕЧЕ НЕ СЕ ИЗПОЛЗВА И Е ГОТОВ ЗА ТРИЕНЕ
 import { NextRequest, NextResponse } from 'next/server';

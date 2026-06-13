@@ -64,6 +64,78 @@ let ProductsRepository = class ProductsRepository extends base_repository_1.Base
             }
         }
     }
+    async upsertProduct(data) {
+        const result = await this.db
+            .insert(schema_1.products)
+            .values({
+            sku: data.sku,
+            name: data.name,
+            price: data.price.toString(),
+            currentStock: data.currentStock,
+        })
+            .onConflictDoUpdate({
+            target: schema_1.products.sku,
+            set: {
+                ...Object.keys(data).reduce((acc, key) => {
+                    if (['id', 'createdAt', 'currentStock'].includes(key))
+                        return acc;
+                    const colName = (0, drizzle_orm_1.getTableColumns)(schema_1.products)[key]
+                        ?.name;
+                    if (!colName)
+                        return acc;
+                    return {
+                        ...acc,
+                        [colName]: drizzle_orm_1.sql.raw(`excluded.${colName}`),
+                    };
+                }, {}),
+            },
+        })
+            .returning();
+        return result[0];
+    }
+    async upsertVariants(variants) {
+        if (variants.length === 0)
+            return;
+        const variantsToInsert = variants.map(v => ({
+            ...v,
+            price: v.price.toString(),
+        }));
+        await this.db
+            .insert(schema_1.productVariants)
+            .values(variantsToInsert)
+            .onConflictDoUpdate({
+            target: schema_1.productVariants.variantSku,
+            set: {
+                ...Object.keys(variants[0]).reduce((acc, key) => {
+                    if (['id', 'createdAt', 'currentStock'].includes(key))
+                        return acc;
+                    const colName = (0, drizzle_orm_1.getTableColumns)(schema_1.productVariants)[key]?.name;
+                    if (!colName)
+                        return acc;
+                    return {
+                        ...acc,
+                        [colName]: drizzle_orm_1.sql.raw(`excluded.${colName}`),
+                    };
+                }, {}),
+            },
+        });
+    }
+    async deleteVariantsNotInList(parentId, variantSkusToKeep) {
+        const existingVariants = await this.db.query.productVariants.findMany({
+            where: (0, drizzle_orm_1.eq)(schema_1.productVariants.parentId, parentId),
+            columns: { variantSku: true }
+        });
+        const existingSkus = existingVariants.map(v => v.variantSku);
+        const skusToDelete = existingSkus.filter(sku => !variantSkusToKeep.includes(sku));
+        if (skusToDelete.length > 0) {
+            for (const sku of skusToDelete) {
+                await this.db.delete(schema_1.productVariants).where((0, drizzle_orm_1.eq)(schema_1.productVariants.variantSku, sku));
+            }
+        }
+    }
+    async deleteProductBySku(sku) {
+        await this.db.delete(schema_1.products).where((0, drizzle_orm_1.eq)(schema_1.products.sku, sku));
+    }
 };
 exports.ProductsRepository = ProductsRepository;
 exports.ProductsRepository = ProductsRepository = __decorate([

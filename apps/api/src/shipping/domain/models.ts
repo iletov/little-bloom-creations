@@ -74,6 +74,7 @@ export interface CreateWaybillResult {
 export interface EcontCityResponse {
   id: number;
   name: string;
+  nameEn?: string;
   postCode: string;
   regionName?: string;
   // ... може да има и други полета, но тези ни стигат
@@ -82,6 +83,7 @@ export interface EcontCityResponse {
 export interface SpeedyCityResponse {
   id: number;
   name: string;
+  nameEn?: string;
   postCode: string;
   municipality?: string;
 }
@@ -89,6 +91,7 @@ export interface SpeedyCityResponse {
 export interface CityDto {
   id: string | number;
   name: string;
+  nameEn?: string;
   postCode: string;
   region?: string;
 }

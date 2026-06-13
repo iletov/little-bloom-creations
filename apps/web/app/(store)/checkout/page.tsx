@@ -1,4 +1,5 @@
 'use client';
+import { cn } from '@/lib/utils';
 import React, { useState } from 'react';
 import { CardPayment } from '@/component/checkout/card-payment/CardPayment';
 import { PaymentCash } from '@/component/checkout/payment-cash/PaymentCash';
@@ -42,6 +43,7 @@ export default function CheckoutPage() {
     deliveryCost,
     setDeliveryCostFlag,
     setDeliveryCost,
+    setMetadata,
   } = useCart();
 
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
@@ -99,6 +101,10 @@ export default function CheckoutPage() {
       if (data?.clientSecret) {
         dispatchClientSecret(data?.clientSecret);
         dispatchPaymentIntentId(data?.paymentIntentId);
+        
+        if (data?.orderNumber) {
+           setMetadata({ ...metadata, orderNumber: data.orderNumber });
+        }
 
         console.log(
           `# Payment Intent created successfuly! Cart Items are send to backend`,
@@ -171,6 +177,22 @@ export default function CheckoutPage() {
     }
   };
 
+  const isOfficeDelivery = deliveryMethod?.includes('office') || deliveryMethod === 'speedy-pickup';
+  const isAddressDelivery = deliveryMethod?.includes('delivery');
+
+  const isFormValid = Boolean(
+    guestFormData?.firstName &&
+    guestFormData?.lastName &&
+    guestFormData?.email &&
+    addressFormData?.phoneNumber &&
+    addressFormData?.city &&
+    deliveryMethod &&
+    (
+      (isOfficeDelivery && addressFormData?.officeCode) ||
+      (isAddressDelivery && addressFormData?.street && addressFormData?.streetNumber)
+    )
+  );
+
   const lableStyles = `px-[1rem] cursor-pointer hover:shadow-md py-[1.25rem] border-[1px] text-[1rem] md:text-[1.375rem] font-normal leading-[120%] gap-3 md:gap-1 text-foreground font-montserrat w-full md:w-fit flex md:flex-col justify-start items-center md:items-start transition-all duration-300 ease-in-out bg-secondaryPurple/15 rounded-xl `;
 
   return (
@@ -188,45 +210,47 @@ export default function CheckoutPage() {
 
         <OrderDetailsContainer />
 
-        <div className="mt-10">
-          <Label
-            htmlFor="ekont-office"
-            className={` space-x-2 mt-3 mb-2 text-[2rem] cursor-pointer font-montserrat`}>
-            Метод на плащане
-          </Label>
-          <RadioGroup
-            value={paymentMethod || ''}
-            onValueChange={handlePaymentChange}
-            className="mt-5">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex w-full md:w-fit ">
-                <RadioGroupItem value="cash" id="cash" className="sr-only" />
-                <Label
-                  htmlFor="cash"
-                  className={`${paymentMethod === 'cash' ? 'shadow-md border-green-5 ' : ''} ${lableStyles} ${isStripePending ? 'pointer-events-none opacity-50' : ''}`}>
-                  <Euro size={24} />
-                  <span>Наложен платеж</span>
-                </Label>
+        <div className={cn("transition-opacity duration-300", !isFormValid ? "opacity-50 pointer-events-none" : "opacity-100")}>
+          <div className="mt-10">
+            <Label
+              htmlFor="ekont-office"
+              className="space-x-2 mt-3 mb-2 text-[2rem] cursor-pointer font-montserrat">
+              Метод на плащане
+            </Label>
+            <RadioGroup
+              value={paymentMethod || ''}
+              onValueChange={handlePaymentChange}
+              className="mt-5">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex w-full md:w-fit ">
+                  <RadioGroupItem value="cash" id="cash" className="sr-only" />
+                  <Label
+                    htmlFor="cash"
+                    className={cn(lableStyles, paymentMethod === 'cash' && "shadow-md border-green-5", isStripePending && "pointer-events-none opacity-50")}>
+                    <Euro size={24} />
+                    <span>Наложен платеж</span>
+                  </Label>
+                </div>
+                <div className="flex">
+                  <RadioGroupItem value="bank" id="bank" className="sr-only" />
+                  <Label
+                    htmlFor="bank"
+                    className={cn(lableStyles, paymentMethod === 'bank' && "shadow-md border-green-5")}>
+                    <CreditCard size={24} />
+                    <span>С карта - онлайн</span>
+                  </Label>
+                </div>
               </div>
-              <div className="flex">
-                <RadioGroupItem value="bank" id="bank" className="sr-only" />
-                <Label
-                  htmlFor="bank"
-                  className={`${paymentMethod === 'bank' ? 'shadow-md border-green-5' : ''}  ${lableStyles}`}>
-                  <CreditCard size={24} />
-                  <span>С карта - онлайн</span>
-                </Label>
-              </div>
-            </div>
-          </RadioGroup>
-        </div>
+            </RadioGroup>
+          </div>
 
-        <div className="mt-5 mb-16">
-          {paymentMethod === 'cash' ? (
-            <PaymentCash paymentMethod={paymentMethod} />
-          ) : paymentMethod === 'bank' ? (
-            <CardPayment paymentMethod={paymentMethod} />
-          ) : null}
+          <div className="mt-5 mb-16">
+            {paymentMethod === 'cash' ? (
+              <PaymentCash paymentMethod={paymentMethod} />
+            ) : paymentMethod === 'bank' ? (
+              <CardPayment paymentMethod={paymentMethod} />
+            ) : null}
+          </div>
         </div>
       </div>
 

@@ -15,6 +15,8 @@ const stripe_module_1 = require("../stripe/stripe.module");
 const products_module_1 = require("../products/products.module");
 const confirm_stripe_order_use_case_1 = require("./use-cases/confirm-stripe-order.use-case");
 const initiate_stripe_order_use_case_1 = require("./use-cases/initiate-stripe-order.use-case");
+const cancel_stripe_order_use_case_1 = require("./use-cases/cancel-stripe-order.use-case");
+const get_order_status_use_case_1 = require("./use-cases/get-order-status.use-case");
 let OrdersModule = class OrdersModule {
 };
 exports.OrdersModule = OrdersModule;
@@ -27,6 +29,8 @@ exports.OrdersModule = OrdersModule = __decorate([
             place_cash_order_use_case_1.PlaceCashOrderUseCase,
             initiate_stripe_order_use_case_1.InitiateStripeOrderUseCase,
             confirm_stripe_order_use_case_1.ConfirmStripeOrderUseCase,
+            cancel_stripe_order_use_case_1.CancelStripeOrderUseCase,
+            get_order_status_use_case_1.GetOrderStatusUseCase,
         ],
         exports: [orders_repository_1.OrdersRepository],
     })

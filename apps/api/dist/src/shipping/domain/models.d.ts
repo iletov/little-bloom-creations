@@ -65,18 +65,21 @@ export interface CreateWaybillResult {
 export interface EcontCityResponse {
     id: number;
     name: string;
+    nameEn?: string;
     postCode: string;
     regionName?: string;
 }
 export interface SpeedyCityResponse {
     id: number;
     name: string;
+    nameEn?: string;
     postCode: string;
     municipality?: string;
 }
 export interface CityDto {
     id: string | number;
     name: string;
+    nameEn?: string;
     postCode: string;
     region?: string;
 }

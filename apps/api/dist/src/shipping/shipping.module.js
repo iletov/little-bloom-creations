@@ -15,6 +15,8 @@ const shipping_provider_factory_1 = require("./factories/shipping-provider.facto
 const shipping_engine_service_1 = require("./services/shipping-engine.service");
 const shipping_controller_1 = require("./shipping.controller");
 const calculate_shipping_use_case_1 = require("./use-cases/calculate-shipping.use-case");
+const validate_address_use_case_1 = require("./use-cases/validate-address.use-case");
+const create_waybill_use_case_1 = require("./use-cases/create-waybill.use-case");
 let ShippingModule = class ShippingModule {
 };
 exports.ShippingModule = ShippingModule;
@@ -27,6 +29,8 @@ exports.ShippingModule = ShippingModule = __decorate([
             shipping_provider_factory_1.ShippingProviderFactory,
             shipping_engine_service_1.ShippingEngineService,
             calculate_shipping_use_case_1.CalculateShippingUseCase,
+            validate_address_use_case_1.ValidateAddressUseCase,
+            create_waybill_use_case_1.CreateWaybillUseCase,
         ],
         controllers: [shipping_controller_1.ShippingController],
         exports: [shipping_engine_service_1.ShippingEngineService],
