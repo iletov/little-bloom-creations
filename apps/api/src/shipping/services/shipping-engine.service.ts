@@ -51,9 +51,10 @@ export class ShippingEngineService {
   async getCities(
     providerName: DeliveryMethodEnum,
     countryCode?: string,
+    search?: string,
   ): Promise<CityDto[]> {
     const provider = this.factory.getProvider(providerName);
-    const result = await provider.getCities(countryCode);
+    const result = await provider.getCities(countryCode, search);
 
     return result;
   }

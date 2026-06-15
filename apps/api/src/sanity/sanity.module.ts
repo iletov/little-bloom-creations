@@ -9,5 +9,6 @@ import { ProductsModule } from '../products/products.module';
   imports: [ProductsModule],
   controllers: [SanityWebhooksController, SanityController],
   providers: [SyncSanityProductUseCase, GetSanitySenderInfoUseCase],
+  exports: [GetSanitySenderInfoUseCase],
 })
 export class SanityModule {}

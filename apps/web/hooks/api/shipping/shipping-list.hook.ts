@@ -22,9 +22,10 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 export const useCities = (
   courier: DeliveryMethodEnum | null,
   countryCode?: string,
+  search?: string,
 ) => {
   return useQuery({
-    queryKey: ['shipping', 'cities', courier, countryCode],
+    queryKey: ['shipping', 'cities', courier, countryCode, search],
     queryFn: async (): Promise<CityDto[]> => {
       if (!courier) return [];
 
@@ -32,6 +33,9 @@ export const useCities = (
       url.searchParams.append('courier', courier);
       if (countryCode) {
         url.searchParams.append('countryCode', countryCode);
+      }
+      if (search) {
+        url.searchParams.append('search', search);
       }
 
       const response = await fetch(url.toString(), {

@@ -11,6 +11,7 @@ import { AddressFormData } from '@/app/store/features/stripe/stripeSlice';
 import { fullAddress } from '@/lib/form-validation/validations';
 import { useCities } from '@/hooks/api/shipping/shipping-list.hook';
 import { DeliveryMethodEnum } from '@repo/shared-types';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
 export const CityDropdown = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -28,8 +29,12 @@ export const CityDropdown = () => {
 
   const { addressFormData, updateAddresData, setDeliveryCostFlag } = useCart();
 
+  const debouncedSearchCity = useDebouncedValue(searchForCity, 500);
+
   const { data: currentCitiesList, isLoading } = useCities(
-    (deliveryMethod as DeliveryMethodEnum) || null
+    (deliveryMethod as DeliveryMethodEnum) || null,
+    undefined,
+    debouncedSearchCity.length >= 2 ? debouncedSearchCity : undefined
   );
 
   // 2. Filter ONLY the active list

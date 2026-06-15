@@ -39,13 +39,19 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
           className="w-auto h-44 rounded-md overflow-hidden"
           // onClick={redirectToProductPage}
         >
-          <Image
-            src={urlFor(group.product.images?.[0] as Reference).url()}
-            alt={group.product.name || ''}
-            width={120}
-            height={120}
-            className="w-full h-full object-fill"
-          />
+          {group.product.images?.[0] ? (
+            <Image
+              src={urlFor(group.product.images[0] as Reference).url()}
+              alt={group.product.name || ''}
+              width={120}
+              height={120}
+              className="w-full h-full object-fill"
+            />
+          ) : (
+            <div className="w-[120px] h-[120px] bg-slate-200 flex items-center justify-center text-slate-400 text-sm">
+              No Image
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">

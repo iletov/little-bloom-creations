@@ -18,6 +18,6 @@ export interface IShippingProvider {
     request: ShippingCalculationRequest,
   ): Promise<ShippingCalculationResult>;
   createWaybill(request: CreateWaybillRequest): Promise<CreateWaybillResult>;
-  getCities(countryCode?: string): Promise<CityDto[]>;
+  getCities(countryCode?: string, search?: string): Promise<CityDto[]>;
   getOffices(cityId?: string | number): Promise<OfficeDto[]>;
 }

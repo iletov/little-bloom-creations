@@ -17,7 +17,7 @@ export const validateAddressSpeedy = async (
   const password = process.env.SPEEDY_PASS;
 
   const recipient =
-    deliveryMethod === 'speedy-pickup'
+    deliveryMethod === 'speedy-office'
       ? {
           phone1: {
             number: addressData?.phoneNumber,

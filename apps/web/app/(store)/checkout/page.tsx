@@ -27,7 +27,7 @@ import { OrderDetailsContainer } from '@/component/cart/order-details-container/
 import { OrderSummery } from '@/component/cart/order-summery/OrderSummery';
 
 export default function CheckoutPage() {
-  const { deliveryMethod, selectedCity } = useSenderDetails();
+  const { deliveryMethod, selectedCity, validationStreet } = useSenderDetails();
   const { senderData, senderDataSpeedy } = useSenderInfo();
   const {
     items,
@@ -56,12 +56,18 @@ export default function CheckoutPage() {
 
   const handleCardPayment = async () => {
     setPaymentMethod('bank');
-    labelValidation('stripe');
+    
+    let currentDeliveryCost = deliveryCost;
+    try {
+      currentDeliveryCost = await labelValidation('stripe');
+    } catch (error) {
+      return; // Stop execution if validation fails
+    }
 
     const orderMethods = {
       deliveryMethod: deliveryMethod,
       paymentMethod: 'bank',
-      deliveryCost: deliveryCost,
+      deliveryCost: currentDeliveryCost,
     };
 
     try {
@@ -73,9 +79,9 @@ export default function CheckoutPage() {
             variantSku: item.product.variant_sku || undefined,
             name: item.product.name || item.product.title,
             variantName: item.product.variant_name || undefined,
-            quantity: item.quantity,
-            unitPrice: item.product.variant_price || item.product.price,
-            weight: item.product.weight || 0,
+            quantity: Number(item.quantity || 1),
+            unitPrice: Number(item.product.variant_price || item.product.price || 0),
+            weight: Number(item.product.weight || 0),
             personalization: item.personalisation || undefined,
           })),
           recipientAddress: {
@@ -84,6 +90,8 @@ export default function CheckoutPage() {
             street: addressFormData?.street,
             streetNumber: addressFormData?.streetNumber,
             country: addressFormData?.country || 'BG',
+            siteId: selectedCity?.id,
+            streetId: validationStreet?.id,
           },
           recipientInfo: {
             firstName: guestFormData?.firstName,
@@ -93,9 +101,9 @@ export default function CheckoutPage() {
             officeId: addressFormData?.officeCode ? String(addressFormData.officeCode) : undefined,
           },
           deliveryMethod: deliveryMethod,
-          totalAmount: totalPrice + deliveryCost,
-          deliveryCost: deliveryCost,
-          totalWeight: totalWeight > 0 ? totalWeight : 1,
+          totalAmount: Number((totalPrice || 0) + (currentDeliveryCost || 0)),
+          deliveryCost: Number(currentDeliveryCost || 0),
+          totalWeight: Number(totalWeight > 0 ? totalWeight : 1),
       });
 
       if (data?.clientSecret) {
@@ -124,8 +132,12 @@ export default function CheckoutPage() {
 
   const handleCashPayment = async () => {
     setPaymentMethod('cash');
-    labelValidation('cash');
-    setIsDissabled(false);
+    try {
+      await labelValidation('cash');
+      setIsDissabled(false);
+    } catch (error) {
+      // Alert is shown inside labelValidation
+    }
   };
 
   const labelValidation = async (selectedPaymentMethod: string) => {
@@ -137,13 +149,15 @@ export default function CheckoutPage() {
       const data = await calculateShipping({
           deliveryMethod,
           paymentMethod: selectedPaymentMethod,
-          totalWeight: totalWeight > 0 ? totalWeight : 1,
-          totalAmount: totalPrice,
+          totalWeight: Number(totalWeight) > 0 ? Number(totalWeight) : 1,
+          totalAmount: Number(totalPrice),
           recipientAddress: {
             city: addressFormData?.city,
             postalCode: addressFormData?.postalCode,
             street: addressFormData?.street,
             streetNumber: addressFormData?.streetNumber,
+            siteId: selectedCity?.id,
+            streetId: validationStreet?.id,
           },
           recipientInfo: {
             firstName: guestFormData?.firstName,
@@ -156,6 +170,7 @@ export default function CheckoutPage() {
       });
 
       setDeliveryCost(data.price || 0);
+      return data.price || 0;
 
     } catch (error: any) {
       console.error('Shipping calculation error:', error);
@@ -164,6 +179,7 @@ export default function CheckoutPage() {
         message: error?.message || 'Моля, уверете се, че сте попълнили коректно всички данни за доставка.',
       });
       setShowAlert(true);
+      throw error;
     } finally {
       setDeliveryCostFlag(false);
     }
@@ -177,7 +193,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const isOfficeDelivery = deliveryMethod?.includes('office') || deliveryMethod === 'speedy-pickup';
+  const isOfficeDelivery = deliveryMethod?.includes('office') || deliveryMethod === 'speedy-office';
   const isAddressDelivery = deliveryMethod?.includes('delivery');
 
   const isFormValid = Boolean(

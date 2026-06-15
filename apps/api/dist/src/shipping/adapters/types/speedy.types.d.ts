@@ -2,7 +2,7 @@ export interface SpeedyPayload {
     userName?: string;
     password?: string;
     sender?: {
-        clientId: number | string;
+        clientId?: number | string;
         dropoffOfficeId?: number;
         contactName?: string;
         email?: string;
@@ -26,12 +26,14 @@ export interface SpeedyPayload {
             entranceNo?: string;
             floorNo?: string;
             apartmentNo?: string;
+            addressNote?: string;
         };
         addressLocation?: {
             siteId?: number;
         };
     };
     service: {
+        pickupDate?: string;
         autoAdjustPickupDate: boolean;
         serviceId?: number;
         serviceIds?: number[];

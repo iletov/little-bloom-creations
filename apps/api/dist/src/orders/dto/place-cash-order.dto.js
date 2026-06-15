@@ -79,6 +79,7 @@ class OrderAddressDto {
     streetNumber;
     quarter;
     siteId;
+    streetId;
     country;
 }
 exports.OrderAddressDto = OrderAddressDto;
@@ -111,6 +112,11 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], OrderAddressDto.prototype, "siteId", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], OrderAddressDto.prototype, "streetId", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),

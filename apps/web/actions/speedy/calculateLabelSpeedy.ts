@@ -26,7 +26,7 @@ export const calculateLabelSpeedy = async (
   const isPaymentCash = paymentMethod === 'cash';
 
   const recipient =
-    deliveryMethod === 'speedy-pickup'
+    deliveryMethod === 'speedy-office'
       ? {
           privatePerson: true,
           pickupOfficeId: officeId,

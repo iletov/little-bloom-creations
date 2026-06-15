@@ -29,6 +29,7 @@ export default async function OrdersPage() {
               data={orders.allOrders}
               basePath="/dashboard/orders"
               idKey="order_number"
+              exportFileName="Orders_Export"
             />
           </Suspense>
         </CardContent>

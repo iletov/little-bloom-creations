@@ -161,7 +161,7 @@ let EcontShippingAdapter = class EcontShippingAdapter {
             throw new exceptions_1.ShippingProviderException('Failed to create waybill with Econt', error);
         }
     }
-    async getCities(countryCode = 'BGR') {
+    async getCities(countryCode = 'BGR', search) {
         try {
             const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.econtUrl}/Nomenclatures/NomenclaturesService.getCities.json`, { countryCode }, { headers: this.getHeaders() }));
             const cities = response.data.cities;

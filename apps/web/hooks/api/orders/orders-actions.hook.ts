@@ -20,6 +20,7 @@ export interface AddressPayload {
   streetNumber?: string;
   quarter?: string;
   siteId?: number;
+  streetId?: number;
   country?: string;
 }
 

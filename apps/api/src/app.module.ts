@@ -6,6 +6,7 @@ import { ProductsModule } from './products/products.module';
 import { ShippingModule } from './shipping/shipping.module';
 import { OrdersModule } from './orders/orders.module';
 import { SanityModule } from './sanity/sanity.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { SanityModule } from './sanity/sanity.module';
     ShippingModule,
     OrdersModule,
     SanityModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

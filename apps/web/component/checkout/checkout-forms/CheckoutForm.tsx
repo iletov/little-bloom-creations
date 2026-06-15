@@ -295,7 +295,7 @@ export const CheckoutForm = () => {
           )}
         </form>
       </div>
-      {deliveryMethod === 'ekont-office' || deliveryMethod === 'speedy-pickup' ? (
+      {deliveryMethod === 'ekont-office' || deliveryMethod === 'speedy-office' ? (
         <OfficeDropdown />
       ) : null}
     </div>

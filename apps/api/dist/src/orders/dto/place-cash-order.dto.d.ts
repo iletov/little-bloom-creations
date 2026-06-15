@@ -18,6 +18,7 @@ export declare class OrderAddressDto {
     streetNumber?: string;
     quarter?: string;
     siteId?: number;
+    streetId?: number;
     country?: string;
 }
 export declare class OrderRecipientDto {

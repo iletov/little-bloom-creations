@@ -1,19 +1,19 @@
-import { createClient, createServiceClient } from '@/lib/supabaseServer';
-// ТОЗИ ФАЙЛ Е МИГРИРАН В NESTJS, ВЕЧЕ НЕ СЕ ИЗПОЛЗВА И Е ГОТОВ ЗА ТРИЕНЕ
 import { unstable_cache } from 'next/cache';
+
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
 
 export const getAllProducts = unstable_cache(
   async () => {
-    const supabase = createServiceClient();
-
-    const { data, error } = await supabase.from('products').select('*');
-
-    if (error) {
-      console.error('Error fetching products from Supabase:', error);
+    try {
+      const res = await fetch(`${API_URL}/products`, {
+        next: { tags: ['dashboard-products'], revalidate: 360 },
+      });
+      if (!res.ok) throw new Error('Failed to fetch products');
+      return res.json();
+    } catch (error) {
+      console.error('Error fetching products from NestJS:', error);
       return null;
     }
-
-    return data;
   },
   ['dashboard-products'],
   {
@@ -24,19 +24,18 @@ export const getAllProducts = unstable_cache(
 
 export const getProductVariants = unstable_cache(
   async () => {
-    const supabase = createServiceClient();
-
-    const { data: variants, error } = await supabase
-      .from('product_variants')
-      .select('*')
-      .order('parent_sku', { ascending: true });
-
-    if (error) {
-      console.error('Error fetching product variants from Supabase:', error);
+    // In NestJS, variants are returned nested inside products.
+    // If we need a flat list of variants, we can extract them from getAllProducts.
+    try {
+      const products = await getAllProducts();
+      if (!products) return null;
+      
+      const variants = products.flatMap((p: any) => p.variants || []);
+      return variants;
+    } catch (error) {
+      console.error('Error fetching product variants:', error);
       return null;
     }
-
-    return variants;
   },
   ['dashboard-product-variants'],
   {
@@ -44,3 +43,17 @@ export const getProductVariants = unstable_cache(
     revalidate: 360,
   },
 );
+
+export const getSingleProduct = async (sku: string) => {
+  try {
+    const res = await fetch(`${API_URL}/products/${sku}`, {
+      next: { tags: [`product-${sku}`], revalidate: 0 }, // dynamic fetch for admin
+    });
+    if (!res.ok) throw new Error(`Failed to fetch product ${sku}`);
+    return res.json();
+  } catch (error) {
+    console.error(`Error fetching single product ${sku}:`, error);
+    return null;
+  }
+};
+

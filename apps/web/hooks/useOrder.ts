@@ -71,6 +71,49 @@ export function useUpdateOrder(orderId: string) {
     onSuccess: () => {
       toast.success('Order updated successfully');
       queryClient.invalidateQueries({ queryKey: orderKeys.detail(orderId) });
+      queryClient.invalidateQueries({ queryKey: orderKeys.all });
     },
+  });
+}
+
+import { generateWaybill, cancelOrder } from '@/supabase/dashboard/orderActions';
+
+export function useGenerateWaybill(orderId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const result = await generateWaybill(orderId);
+      if (!result.success) throw new Error(result.error);
+      return result.data;
+    },
+    onSuccess: () => {
+      toast.success('Waybill generated successfully');
+      queryClient.invalidateQueries({ queryKey: orderKeys.detail(orderId) });
+      queryClient.invalidateQueries({ queryKey: orderKeys.all });
+    },
+    onError: (err) => {
+      toast.error(`Failed to generate waybill: ${err.message}`);
+    }
+  });
+}
+
+export function useCancelOrder(orderId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const result = await cancelOrder(orderId);
+      if (!result.success) throw new Error(result.error);
+      return result.data;
+    },
+    onSuccess: () => {
+      toast.success('Order cancelled and inventory restored');
+      queryClient.invalidateQueries({ queryKey: orderKeys.detail(orderId) });
+      queryClient.invalidateQueries({ queryKey: orderKeys.all });
+    },
+    onError: (err) => {
+      toast.error(`Failed to cancel order: ${err.message}`);
+    }
   });
 }

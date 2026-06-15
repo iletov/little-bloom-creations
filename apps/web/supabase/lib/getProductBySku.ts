@@ -1,20 +1,18 @@
-// ТОЗИ ФАЙЛ Е МИГРИРАН В NESTJS, ВЕЧЕ НЕ СЕ ИЗПОЛЗВА И Е ГОТОВ ЗА ТРИЕНЕ
-import { createClient } from '@/lib/supabaseServer';
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
 
 export async function getProductBySku(sku: string) {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from('products')
-    .select('*, variants:product_variants(*)')
-    .eq('sku', sku)
-    .eq('is_active', true)
-    .maybeSingle();
-
-  if (error) {
-    console.error('Error fetching product from Supabase:', error);
+  try {
+    const res = await fetch(`${API_URL}/products/${sku}`, {
+      next: { tags: [`product-${sku}`], revalidate: 360 },
+    });
+    
+    if (!res.ok) {
+      throw new Error(`Failed to fetch product ${sku}`);
+    }
+    
+    return await res.json();
+  } catch (error) {
+    console.error(`Error fetching product ${sku} from NestJS:`, error);
     return null;
   }
-
-  return data;
 }

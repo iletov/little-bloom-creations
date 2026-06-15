@@ -34,9 +34,9 @@ let ShippingEngineService = class ShippingEngineService {
         const provider = this.factory.getProvider(providerName);
         return provider.validateAddress(address, postalCode);
     }
-    async getCities(providerName, countryCode) {
+    async getCities(providerName, countryCode, search) {
         const provider = this.factory.getProvider(providerName);
-        const result = await provider.getCities(countryCode);
+        const result = await provider.getCities(countryCode, search);
         return result;
     }
     async getOffices(providerName, cityId) {

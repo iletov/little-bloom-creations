@@ -32,18 +32,11 @@ export default async function SingleOrder({
   if (!order) {
     return (
       <section className="max-w-[1600px] p-10 space-y-8">
-        <Link href={{ pathname: '/dashboard/orders' }}>
-          <Button
-            variant="primery"
-            size="icon"
-            className="bg-[#FAFAFA] w-16 h-16">
-            <ChevronLeft size={16} />
-          </Button>
-        </Link>
+        <BackButton />
         <div className="text-center py-20">
-          <h1 className="text-2xl font-semibold">Order not found</h1>
-          <p className="text-gray-600 mt-2">
-            The order with ID &quot{id}&quot could not be found.
+          <h1 className="text-3xl font-semibold">Order not found</h1>
+          <p className="text-slate-400 mt-2 text-[1.6rem]">
+            The order with ID &quot;{id}&quot; could not be found.
           </p>
         </div>
       </section>

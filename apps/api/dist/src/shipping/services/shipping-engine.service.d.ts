@@ -7,6 +7,6 @@ export declare class ShippingEngineService {
     createWaybill(request: CreateWaybillRequest): Promise<CreateWaybillResult>;
     calculateShipping(request: ShippingCalculationRequest): Promise<ShippingCalculationResult>;
     validateAddress(providerName: DeliveryMethodEnum, address: Address, postalCode?: string): Promise<boolean | Record<string, unknown>>;
-    getCities(providerName: DeliveryMethodEnum, countryCode?: string): Promise<CityDto[]>;
+    getCities(providerName: DeliveryMethodEnum, countryCode?: string, search?: string): Promise<CityDto[]>;
     getOffices(providerName: DeliveryMethodEnum, cityId?: string | number): Promise<OfficeDto[]>;
 }

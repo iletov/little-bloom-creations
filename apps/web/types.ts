@@ -45,6 +45,7 @@ export type OrderItems = {
 
 // types/order.ts
 export interface Order {
+  id: string;
   order_number: string;
   created_at: string;
   status: string;

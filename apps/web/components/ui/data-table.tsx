@@ -1,4 +1,5 @@
 'use client';
+import * as XLSX from 'xlsx';
 
 import {
   ColumnDef,
@@ -30,7 +31,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from './dropdown-menu';
-import { ChevronDown, Search } from 'lucide-react';
+import { ChevronDown, Search, Download } from 'lucide-react';
 import { Input } from './input';
 
 interface DataTableProps<TData, TValue> {
@@ -40,6 +41,8 @@ interface DataTableProps<TData, TValue> {
   searchPlaceholder?: string;
   basePath?: string;
   idKey?: string;
+  disablePagination?: boolean;
+  exportFileName?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -49,6 +52,8 @@ export function DataTable<TData, TValue>({
   searchPlaceholder = 'Search...',
   basePath,
   idKey,
+  disablePagination = false,
+  exportFileName,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -75,6 +80,34 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const handleExportExcel = () => {
+    if (!exportFileName) return;
+
+    // Get header keys from columns (excluding actions column)
+    const headerIds = columns
+      .map(c => c.id || (c as any).accessorKey)
+      .filter((id): id is string => !!id && id !== 'actions');
+
+    // Build array of plain objects for xlsx
+    const worksheetData = table.getFilteredRowModel().rows.map(row => {
+      const obj: Record<string, string> = {};
+      headerIds.forEach(header => {
+        let value = (row.original as any)[header];
+        if (typeof value === 'object' && value !== null) {
+          if (Array.isArray(value)) value = `[${value.length} items]`;
+          else value = JSON.stringify(value);
+        }
+        obj[header] = String(value ?? '');
+      });
+      return obj;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData, { header: headerIds });
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Export');
+    XLSX.writeFile(workbook, `${exportFileName}.xlsx`);
+  };
+
   return (
     <div className="space-y-4">
       {/* Toolbar */}
@@ -96,10 +129,29 @@ export function DataTable<TData, TValue>({
           </div>
         )}
 
-        {/* Column visibility toggle */}
-        <DropdownMenu>
+        {/* Actions Container */}
+        <div className="flex items-center gap-4 ml-auto">
+          {/* Export Button */}
+          {exportFileName && (
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={handleExportExcel}
+              className="bg-[#20212b] border border-slate-700/50 text-slate-300 hover:bg-emerald-600/20 hover:text-emerald-400 hover:border-emerald-600/50 px-4 py-2 text-[1.4rem] transition-all"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Export Excel
+            </Button>
+          )}
+
+          {/* Column visibility toggle */}
+          <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="xl" className="ml-auto">
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="bg-[#20212b] border border-slate-700/50 text-slate-300 hover:bg-[#30313b] hover:text-white px-4 py-2 text-[1.4rem]"
+            >
               Columns <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -120,6 +172,7 @@ export function DataTable<TData, TValue>({
               })}
           </DropdownMenuContent>
         </DropdownMenu>
+        </div>
       </div>
 
       {/* Table */}
@@ -185,24 +238,80 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-end space-x-2">
-        <Button
-          variant="outline"
-          className="bg-[#404040] text-[1.6rem] text-foreground"
-          size="lg"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}>
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          className="bg-[#404040] text-[1.6rem] text-foreground"
-          size="lg"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}>
-          Next
-        </Button>
+      {!disablePagination && (
+        <div className="flex items-center justify-between px-2 text-[1.4rem] text-slate-300 mt-4">
+        <div className="flex-1 text-muted-foreground">
+          {table.getFilteredSelectedRowModel().rows.length > 0 ? (
+            <>
+              {table.getFilteredSelectedRowModel().rows.length} of{' '}
+              {table.getFilteredRowModel().rows.length} row(s) selected.
+            </>
+          ) : (
+            <>Total {table.getFilteredRowModel().rows.length} rows</>
+          )}
+        </div>
+        <div className="flex items-center space-x-6 lg:space-x-8">
+          <div className="flex items-center space-x-3">
+            <p className="font-medium text-[1.4rem]">Rows per page</p>
+            <select
+              value={table.getState().pagination.pageSize}
+              onChange={e => {
+                table.setPageSize(Number(e.target.value));
+              }}
+              className="h-10 w-[80px] rounded-md border border-slate-700 bg-[#20212b] px-3 py-1 text-[1.4rem] focus:outline-none focus:ring-1 focus:ring-green-500 cursor-pointer appearance-none"
+            >
+              {[10, 20, 30, 40, 50].map(pageSize => (
+                <option key={pageSize} value={pageSize}>
+                  {pageSize}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex w-[120px] items-center justify-center font-medium text-[1.4rem]">
+            Page {table.getState().pagination.pageIndex + 1} of{' '}
+            {table.getPageCount()}
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              className="h-10 w-10 p-0 bg-[#404040] text-foreground border-slate-700 hover:bg-[#505050]"
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <span className="sr-only">Go to first page</span>
+              {'<<'}
+            </Button>
+            <Button
+              variant="outline"
+              className="h-10 w-10 p-0 bg-[#404040] text-foreground border-slate-700 hover:bg-[#505050]"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <span className="sr-only">Go to previous page</span>
+              {'<'}
+            </Button>
+            <Button
+              variant="outline"
+              className="h-10 w-10 p-0 bg-[#404040] text-foreground border-slate-700 hover:bg-[#505050]"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <span className="sr-only">Go to next page</span>
+              {'>'}
+            </Button>
+            <Button
+              variant="outline"
+              className="h-10 w-10 p-0 bg-[#404040] text-foreground border-slate-700 hover:bg-[#505050]"
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+            >
+              <span className="sr-only">Go to last page</span>
+              {'>>'}
+            </Button>
+          </div>
+        </div>
       </div>
+      )}
     </div>
   );
 }

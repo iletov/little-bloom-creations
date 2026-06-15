@@ -21,6 +21,7 @@ exports.SanityModule = SanityModule = __decorate([
         imports: [products_module_1.ProductsModule],
         controllers: [sanity_webhooks_controller_1.SanityWebhooksController, sanity_controller_1.SanityController],
         providers: [sync_sanity_product_use_case_1.SyncSanityProductUseCase, get_sanity_sender_info_use_case_1.GetSanitySenderInfoUseCase],
+        exports: [get_sanity_sender_info_use_case_1.GetSanitySenderInfoUseCase],
     })
 ], SanityModule);
 //# sourceMappingURL=sanity.module.js.map

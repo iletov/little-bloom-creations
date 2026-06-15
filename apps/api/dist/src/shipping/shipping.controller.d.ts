@@ -12,7 +12,7 @@ export declare class ShippingController {
     private readonly validateAddressUseCase;
     private readonly createWaybillUseCase;
     constructor(shippingEngine: ShippingEngineService, calculateShippingUseCase: CalculateShippingUseCase, validateAddressUseCase: ValidateAddressUseCase, createWaybillUseCase: CreateWaybillUseCase);
-    getCities(courier: DeliveryMethodEnum, countryCode?: string): Promise<import("./domain/models").CityDto[]>;
+    getCities(courier: DeliveryMethodEnum, countryCode?: string, search?: string): Promise<import("./domain/models").CityDto[]>;
     getOffices(courier: DeliveryMethodEnum, cityId?: string): Promise<import("./domain/models").OfficeDto[]>;
     calculateShipping(dto: CalculateShippingDto): Promise<import("./domain/models").ShippingCalculationResult>;
     validateAddress(dto: ValidateAddressDto): Promise<boolean | Record<string, unknown>>;

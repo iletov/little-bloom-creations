@@ -25,7 +25,7 @@ export const createShipmentSpeedy = async (
   const isPaymentCash = paymentMethod === 'cash';
 
   const recipient =
-    deliveryMethod === 'speedy-pickup'
+    deliveryMethod === 'speedy-office'
       ? {
           phone1: {
             number: addressData?.phoneNumber,
@@ -44,12 +44,12 @@ export const createShipmentSpeedy = async (
           email: recipientData?.email,
           address: {
             siteId,
-            streetId,
-            streetNo: addressData?.streetNumber,
-            blockNo: addressData?.blockNo,
-            entranceNo: addressData?.entranceNo,
-            floorNo: addressData?.floorNo,
-            apartmentNo: addressData?.apartmentNo,
+            addressNote: `${addressData?.street || ''} ${addressData?.streetNumber || ''}`.trim(),
+            ...(streetId ? { streetId } : {}),
+            ...(addressData?.blockNo ? { blockNo: addressData.blockNo } : {}),
+            ...(addressData?.entranceNo ? { entranceNo: addressData.entranceNo } : {}),
+            ...(addressData?.floorNo ? { floorNo: addressData.floorNo } : {}),
+            ...(addressData?.apartmentNo ? { apartmentNo: addressData.apartmentNo } : {}),
           },
         };
 

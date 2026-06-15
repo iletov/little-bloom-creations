@@ -1,74 +1,50 @@
+'use server';
+
 import { createClient } from '@/lib/supabaseServer';
 
-export async function getMetrics() {
+export async function getMetrics(days: number = 7) {
   const supabase = await createClient();
-  // Get today's orders
-  const { data: todayOrders } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('status', 'confirmed')
-    .gte('created_at', new Date().toISOString().split('T')[0]);
+  const { data: { session } } = await supabase.auth.getSession();
 
-  const { data: allOrders } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('status', 'confirmed');
+  const token = session?.access_token || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+  if (!token) {
+    console.error('Unauthorized access to getMetrics');
+    return {
+      todayRevenue: "0.00",
+      todayOrdersCount: 0,
+      pendingOrdersCount: 0,
+      productsCount: 0,
+      allRevenue: "0.00",
+    };
+  }
 
-  const todayRevenue =
-    todayOrders?.reduce(
-      (total, order) => total + parseFloat(order.subtotal),
-      0,
-    ) || 0;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  
+  try {
+    const response = await fetch(`${apiUrl}/admin/metrics?days=${days}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      next: { revalidate: 60 },
+    });
 
-  const allRevenue =
-    allOrders?.reduce((total, order) => total + order.subtotal, 0) || 0;
+    if (!response.ok) {
+      console.error('Failed to fetch metrics:', await response.text());
+      throw new Error('Failed to fetch metrics');
+    }
 
-  const todayOrdersCount = todayOrders?.length || 0;
-
-  // Get pending orders count
-  const { data: pendingOrders } = await supabase
-    .from('orders')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'pending');
-
-  // Get products count
-  const { count: productsCount } = await supabase
-    .from('products')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_active', true);
-
-  const { count: productVariantsCount } = await supabase
-    .from('product_variants')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_active', true);
-
-  // // Get low stock products
-  // const { count: lowStockProductsCount } = await supabase
-  //   .from('products')
-  //   .select('*', { count: 'exact', head: true })
-  //   .eq('is_active', true)
-  //   // .is('has_variants', false) // Only products without variants
-  //   .lte('current_stock', 10);
-
-  // // Get low stock variants
-  // const { count: lowStockVariantsCount } = await supabase
-  //   .from('product_variants')
-  //   .select('*', { count: 'exact', head: true })
-  //   .eq('is_active', true)
-  //   .lte('current_stock', 10);
-
-  // Combine both counts
-  // const totalLowStock =
-  //   (lowStockProductsCount || 0) + (lowStockVariantsCount || 0);
-
-  const totalProductsCount = (productsCount || 0) + (productVariantsCount || 0);
-
-  return {
-    todayRevenue,
-    todayOrdersCount,
-    pendingOrdersCount: pendingOrders?.length || 0,
-    productsCount: totalProductsCount,
-    allRevenue: allRevenue.toFixed(2),
-    // lowStockCount: totalLowStock,
-  };
+    const metrics = await response.json();
+    return metrics;
+  } catch (error) {
+    console.error('Error fetching metrics from NestJS:', error);
+    return {
+      todayRevenue: "0.00",
+      todayOrdersCount: 0,
+      pendingOrdersCount: 0,
+      productsCount: 0,
+      allRevenue: "0.00",
+    };
+  }
 }

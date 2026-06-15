@@ -3,6 +3,7 @@ import { sanityFetch } from '../live';
 import { unstable_cache } from 'next/cache';
 
 const productQuery = `    
+      _id,
       name, 
       slug, 
       description,
@@ -139,7 +140,7 @@ export const getProducts = unstable_cache(
   ['products'],
   {
     tags: ['products'],
-    revalidate: 3600,
+    revalidate: 1,
   },
 );
 

@@ -22,7 +22,13 @@ async function RecentOrders() {
         </div>
       </CardHeader>
       <CardContent>
-        <DataTable columns={columns} data={orders.recentOrders} />
+        <DataTable 
+          columns={columns} 
+          data={orders.recentOrders} 
+          basePath="/dashboard/orders" 
+          idKey="order_number" 
+          disablePagination={true}
+        />
       </CardContent>
     </Card>
   );

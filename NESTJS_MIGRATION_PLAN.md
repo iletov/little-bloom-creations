@@ -1,142 +1,76 @@
 # План за Миграция: Next.js към NestJS & Drizzle ORM
 
-Този план описва последователните стъпки за миграция на бекенда, използвайки **Clean Architecture (Domain-Driven Design)** с ясно разделение на Контролери, Use Case-ове, Инфраструктурни услуги и Репозитории.
-
-## Стъпка 1: Настройка на Drizzle ORM, База Данни и Конфигурации (Основа) [ ГОТОВО ЗА ТЕСТ ]
-- Инсталиране на Drizzle ORM и PostgreSQL драйвър (`postgres-js`) в `apps/api`.
-- Дефиниране на `schema.ts` (таблици: `products`, `product_variants`, `orders`, `order_shipping`, `order_items`, `webhook_events`).
-- Интегриране на `@nestjs/config` (`ConfigModule.forRoot({ isGlobal: true })`) за сигурно четене на `.env` променливите (DATABASE_URL, STRIPE_SECRET_KEY и др.).
-- **Управление на миграциите:** Генериране на миграции чрез `drizzle-kit generate`. Поради специфики на Supabase, SQL файловете се изпълняват директно в SQL Editor-а на платформата (избягваме `drizzle-kit push`).
-
-## Стъпка 2: Споделени Типове и Валидация (class-validator) [ ГОТОВО ЗА ТЕСТ ]
-- Използване на `class-validator` и `class-transformer` за дефиниране на NestJS DTO (Data Transfer Objects) (напр. `PlaceCashOrderDto`, `PlaceStripeOrderDto`).
-- Имплементиране на глобален `ValidationPipe` в `main.ts` на NestJS (`whitelist: true`, `transform: true`).
-- Споделените интерфейси и enums остават в `@repo/shared-types`, за да се ползват и от фронтенда.
-
-## Стъпка 3: Глобална Обработка на Грешки (Global Exception Filter) [ ГОТОВО ЗА ТЕСТ ]
-- Създаване на NestJS Exception Filter, който прихваща всички `HttpException` (и вътрешни грешки).
-- Форматиране на JSON отговора за грешка така, че да съвпада на 100% със стария формат от Next.js API Routes. Това гарантира, че съществуващата логика във фронтенда за Toast нотификации няма да се счупи.
-
-## Стъпка 4: Куриерски Услуги - Списъци (Имплементирано) [ ГОТОВО ЗА ТЕСТ ]
-- Завършване на `ShippingModule` с контролери за извличане на статични данни.
-- Интеграция на `EkontService` и `SpeedyService` зад общ интерфейс.
-- Поддръжка на рутовете `GET /shipping/cities` и `GET /shipping/offices` чрез подаване на query параметър `courier` (ekont-office, speedy-delivery и т.н.).
-
-## Стъпка 5: Калкулация на Доставка (Stateless логика) [ ГОТОВО ЗА ТЕСТ ]
-- Мигриране на логиката от Server Actions (`calculateLabel` и `calculateLabelSpeedy`) в съответните NestJS сървиси.
-- Създаване на ендпойнт `POST /shipping/calculate`.
-- Обновяване на фронтенд функцията `labelValidation`, за да прави HTTP заявка към NestJS, вместо да вика Server Action.
-
-## Стъпка 6: Четене на Продукти и Метрики (Read-only бази данни)
-- Създаване на `ProductsModule` и `MetricsModule`.
-- Мигриране на заявките от `supabase/lib/getAllProducts.ts` и `supabase/dashboard/getMetrics.ts`, използвайки Drizzle ORM (напр. `db.query.products.findMany(...)`).
-- Пренасочване на фронтенда (Admin Dashboard и Каталог) да чете от тези NestJS ендпойнти.
-
-## Стъпка 7: Авторизация на Потребители (Auth Guard)
-- Имплементиране на NestJS Guard (`SupabaseAuthGuard`), който валидира JWT Access Token-а, изпратен от фронтенда в `Authorization` хедъра (използвайки `@supabase/supabase-js` само за верификация на токена).
-
-## Стъпка 8: Поръчки и Транзакции (Core Business Logic)
-- Използване на `OrdersModule` с `OrdersRepository` (който вече поддържа Drizzle транзакции `tx`).
-- Имплементиране на `PlaceCashOrderUseCase`:
-  1. Създаване на поръчката със статус `confirmed` в базата.
-  2. Намаляване на складовите наличности.
-  3. **Генериране на товарителници:** Товарителниците НЕ се генерират автоматично при създаване на поръчката. Всички товарителници (за наложен платеж и Stripe) се генерират ръчно от администратора през Dashboard-а на по-късен етап.
-- Ендпойнт: `POST /orders/cash`.
-
-## Стъпка 9: Stripe Интеграция и Webhooks (Имплементирано) [ ГОТОВО ЗА ТЕСТ ]
-- Имплементиране на `InitiateStripeOrderUseCase` (`POST /orders/stripe/initiate`): Създава поръчка със статус `pending`, записва данните и връща `clientSecret`.
-- Имплементиране на `ConfirmStripeOrderUseCase` чрез Webhook (`POST /orders/stripe/webhook`): 
-  1. Парсва raw body и валидира Stripe Signature.
-  2. При `payment_intent.succeeded` сменя статуса на `confirmed`.
-  3. Намалява наличностите на стоката (inventory).
-  4. Товарителницата се генерира ръчно впоследствие от администратора през Dashboard-а.
-  5. При липса на наличност (race condition) – автоматичен Refund през `StripeService`.
-
-## Стъпка 10: Финално Почистване
-- Изтриване на старите Next.js API Routes и Server Actions от `apps/web`.
-- Премахване на `@supabase/supabase-js` от бекенд заявките във фронтенда, където вече не е нужен.
-
-## Какво ни предстои (Следващи стъпки по План)
-
-За да завършим миграцията на 100%, предстои да имплементираме следните стъпки:
-
-1. **Калкулация на Доставка (POST `/shipping/calculate`):** [ ГОТОВО ЗА ТЕСТ ]
-   - Трябва да добавим рут `POST /shipping/calculate` в `shipping.controller.ts`, който да извиква `calculateShipping` от `ShippingEngineService`.
-   - Ще обновим фронтенд логиката, за да прави реална HTTP заявка към този ендпоинт вместо стария Next.js Server Action.
-
-2. **Довършване на Stripe Webhook Логиката (Inventory & Shipping):**
-   - В `ConfirmStripeOrderUseCase` трябва да се добави реалното намаляване на наличностите (`decreaseStockSafely`), за да може стоката да се отписва от базата данни чак при успешно плащане.
-   
-
-3. **Модул за Метрики (`MetricsModule`):**
-   - Трябва да създадем модула и да мигрираме SQL заявките за администраторския панел (таблото за управление/dashboard) към NestJS с Drizzle ORM.
-
-4. **Потребителска Авторизация (`SupabaseAuthGuard`):**
-   - Имплементиране на NestJS Guard, който да защитава администраторските ендпоинтове, проверявайки JWT токените, изпратени от фронтенда през Supabase.
-
-5. **Финално прочистване и пренасочване:**
-   - Премахване на старите Server Actions / API Routes от фронтенд приложението (`apps/web`) и насочването му изцяло към новия NestJS бекенд.
-
-## Добавено на 11.06.2026: Допълнителни елементи за миграция (Открити при анализ)
-
-След подробен анализ на `apps/web/app/api`, `apps/web/actions` и `apps/web/supabase`, бяха идентифицирани следните допълнителни компоненти, които трябва да бъдат мигрирани към NestJS:
-
-### 1. Куриерски Модул (`ShippingModule`) - Допълнения [ ГОТОВО ЗА ТЕСТ ]
-Освен калкулацията на цени и извличането на градове/офиси:
-- **Валидация на адреси:** `validateAddress.ts`, `validateAddressSpeedy.ts`, `validateStreetSpeedy.ts`.
-- **Генериране на товарителници (за ръчно създаване):** `createLabel.ts`, `createShipmentSpeedy.ts`.
-- **Стари API рутове за изчистване:** `/api/ekont-get-cities`, `/api/ekont-get-countries`, `/api/ekont-get-offices`, `/api/speedy-get-cities`, `/api/speedy-get-offices`.
-
-### 2. Поръчки и Плащания (`OrdersModule` & `StripeModule`) - Допълнения [ ГОТОВО ЗА ТЕСТ ]
-- **Плащания:** Мигриране на `createCheckoutSessions.ts` и `cancelPaymentIntent.ts` към `StripeService`.
-- **Стари API рутове за премахване/подмяна:** `/api/place-order-cash`, `/api/payment-intent`, `/api/cancel-payment`, `/api/webhook`, `/api/callback`.
-
-### 3. Продуктов Каталог и Наличности (`ProductsModule`) [ ГОТОВО ЗА ТЕСТ ]
-Директните заявки към Supabase от фронтенда трябва да се заменят с NestJS ендпойнти:
-- **Наличности и картинки:** `checkQuantity.ts` (мигриран в `CheckProductQuantityUseCase`), `loadMoreImages.ts` (маркиран като legacy).
-- **Четене на продукти (от `supabase/lib`):** `getAllProducts.ts` (`GET /products`), `getProductBySku.ts` (`GET /products/:sku`).
-
-### 4. Административен Панел / Dashboard (`MetricsModule` & `AdminModule`)
-Освен вече предвидения `getMetrics`:
-- `supabase/dashboard/getOrders.ts` -> NestJS ендпойнт `GET /admin/orders` (защитен).
-- `supabase/dashboard/updateOrder.ts` -> NestJS ендпойнт `PATCH /admin/orders/:id` (защитен).
-
-### 5. Комуникация и Форми [ ОТПАДА - LEGACY ]
-Тези Server Actions (`createContactUs.ts` и `createEventForm.ts`) са идентифицирани като legacy код, който не се използва никъде в текущото Next.js приложение. Вместо да се мигрират, те са маркирани за изтриване.
-
-### 6. Sanity CMS Интеграция (`SanityModule`) [ ГОТОВО ЗА ТЕСТ ]
-Тези API рутове вече са мигрирани към NestJS и маркирани за изтриване от фронтенда:
-- `/api/sanity-data`, `/api/sanity-data-speedy` -> `GET /sanity/sender-ekont` и `GET /sanity/sender-speedy`
-- `/api/webhook-sanity` -> `POST /webhooks/sanity`
-
-*Забележка: Рутът `/api/webhook-status` беше успешно мигриран към `OrdersModule` в NestJS (`GET /orders/status/:orderNumber`). Старият файл е маркиран за изтриване.*
+Този план описва последователните стъпки за миграция на приложението, използвайки **Clean Architecture (Domain-Driven Design)**. Задачите са групирани по ключови бизнес домейни, като за всеки домейн е посочен статусът на бекенд и фронтенд интеграцията.
 
 ---
 
-## Добавено на 12.06.2026: Финална Фронтенд Интеграция (`apps/web`)
+## 1. Фундамент и Инфраструктура (Foundation & Infrastructure)
 
-След успешното изграждане на NestJS бекенда, последната фаза е пренасочването на фронтенд приложението да използва новия API (`NEXT_PUBLIC_API_URL=http://localhost:3001`), заменяйки старите Server Actions и локални `/api` рутове.
+**Бекенд (NestJS):**
+- [x] **Настройка на Drizzle ORM и PostgreSQL:** Инсталиране на драйвъри, конфигуриране на `schema.ts`, управление на миграции. `[ ГОТОВО ЗА ТЕСТ ]`
+- [x] **Споделени Типове и Валидация:** Интеграция на `class-validator`, глобален `ValidationPipe` и споделени DTOs. `[ ГОТОВО ЗА ТЕСТ ]`
+- [x] **Глобална Обработка на Грешки:** Създаване на глобален Exception Filter, съвместим със съществуващия фронтенд формат. `[ ГОТОВО ЗА ТЕСТ ]`
 
-> [!IMPORTANT]
-> **Архитектурни Правила за Фронтенда:**
-> 1. **Продукти (Каталог):** Извличането на продукти (от Sanity / Postgres) остава в **Server Components**, за да се запази SEO оптимизацията и бързото първоначално зареждане (SSR).
-> 2. **Динамични данни и Интеракции (Куриери, Поръчки):** Извличането на градове, офиси (Еконт и Спиди), калкулацията на доставка и изпращането на поръчки **ЗАДЪЛЖИТЕЛНО се извършва чрез React Query хукове** (client-side data fetching), за да се осигури кеширане, автоматично презареждане при грешка и оптимално UX преживяване.
+---
 
-### Стъпка 1: Куриерски Услуги (Cities & Offices) чрез React Query [ ИЗПЪЛНЕНО НА 12.06.2026 ]
-Замяна на старите локални API извиквания с React Query хукове, сочещи към NestJS:
-- Подмяна в `apps/web/hooks/useCities.ts` и `useCitiesSpeedy.ts` -> `GET /shipping/cities?courier=ekont/speedy`
-- Подмяна в `apps/web/hooks/useOffices.ts` и `useOfficesSpeedy.ts` -> `GET /shipping/offices?courier=ekont/speedy`
+## 2. Куриерски Услуги и Доставка (Shipping)
 
-### Стъпка 2: Калкулация на Доставка [ ИЗПЪЛНЕНО НА 13.06.2026 ]
-- В страницата за чекаут (`checkout/page.tsx` и хуковете) премахнахме `calculateLabel` (Server Action) и използваме React Query mutation към `POST /shipping/calculate`.
+**Бекенд (NestJS):**
+- [x] **Списъци с Градове и Офиси:** Интеграция на Еконт и Спиди зад общ интерфейс (`GET /shipping/cities`, `GET /shipping/offices`). `[ ГОТОВО ЗА ТЕСТ ]`
+- [x] **Калкулация на Доставка:** Мигриране на логиката за пресмятане на цената в NestJS сървиси (`POST /shipping/calculate`). `[ ГОТОВО ЗА ТЕСТ ]`
+- [x] **Генериране на Товарителници:** Валидация на адреси и ръчно генериране на товарителници от администратор. `[ ГОТОВО ЗА ТЕСТ ]`
 
-### Стъпка 3: Плащания и Създаване на Поръчки [ ИЗПЪЛНЕНО НА 13.06.2026 ]
-- `PaymentCash.tsx` -> Използва React Query mutation към `POST /orders/cash`.
-- `stripeSlice.tsx` и `CheckoutComponent.tsx` -> Използват React Query mutation към `POST /orders/stripe/initiate`. Премахнато е ръчното генериране на товарителници от фронтенда (вече се извършва от бекенд Webhook-а).
-- `success/page.tsx` -> Във фронтенда е мигриран да слуша през NestJS.
+**Фронтенд (Next.js):**
+- [x] **Интеграция на Локации:** Замяна на старите API извиквания с React Query хукове (`useCities.ts`, `useOffices.ts`). `[ ИЗПЪЛНЕНО НА 12.06.2026 ]`
+- [x] **Интеграция на Калкулация:** Обновяване на Checkout формата да извиква новия бекенд за цената на доставка. `[ ИЗПЪЛНЕНО НА 13.06.2026 ]`
 
-### Стъпка 4: Продуктов Каталог (Server Components)
-- Обновяване на `getAllProducts.ts` и `getProductBySku.ts`, за да правят директен `fetch` към новия `GET /products` ендпойнт в NestJS, вместо директни заявки през `@supabase/supabase-js`.
+---
 
-### Стъпка 5: Почистване на Legacy Код
-- Изтриване на всички изоставени Server Actions, локални API рутове и неизползвани компоненти от `apps/web`.
+## 3. Продуктов Каталог и Наличности (Products)
+
+**Бекенд (NestJS):**
+- [x] **Четене на продукти:** Мигриране на заявките за продукти към Drizzle ORM (`GET /products`, `GET /products/:sku`). `[ ГОТОВО ЗА ТЕСТ ]`
+- [x] **Проверка на количества:** Създаване на `CheckProductQuantityUseCase`. `[ ГОТОВО ЗА ТЕСТ ]`
+
+**Фронтенд (Next.js):**
+- [x] **Интеграция на Каталог (Server Components):** Обновяване на `getAllProducts.ts` и `getProductBySku.ts` да правят директен `fetch` към NestJS, вместо през Supabase клиент. `[ ИЗПЪЛНЕНО НА 13.06.2026 ]`
+
+---
+
+## 4. Поръчки и Плащания (Orders & Payments)
+
+**Бекенд (NestJS):**
+- [x] **Наложен платеж:** Имплементиране на създаване на поръчки със статус `confirmed` (`POST /orders/cash`). `[ ГОТОВО ЗА ТЕСТ ]`
+- [x] **Stripe Интеграция:** Създаване на `pending` поръчка и връщане на `clientSecret` (`POST /orders/stripe/initiate`). `[ ГОТОВО ЗА ТЕСТ ]`
+- [x] **Stripe Webhooks:** Обработка на `payment_intent.succeeded` и актуализиране на статуса към `confirmed`. `[ ГОТОВО ЗА ТЕСТ ]`
+- [x] **Stripe Inventory Sync:** Намаляване на складовите наличности при успешен Stripe Webhook. `[ ГОТОВО ЗА ТЕСТ ]`
+
+**Фронтенд (Next.js):**
+- [x] **Интеграция при плащане:** `PaymentCash.tsx` и `CheckoutComponent.tsx` вече използват React Query хукове към новите ендпойнти. `[ ИЗПЪЛНЕНО НА 13.06.2026 ]`
+
+---
+
+## 5. Административен Панел и Метрики (Dashboard & Admin)
+
+**Бекенд (NestJS):**
+- [x] **Потребителска Авторизация:** Имплементиране на `SupabaseAuthGuard` за валидация на JWT токени. `[ ГОТОВО ЗА ТЕСТ ]`
+- [x] **Модул за Метрики (`MetricsModule`):** Мигриране на SQL заявките за таблото за управление (приходи, брой поръчки и продукти). `[ ГОТОВО ЗА ТЕСТ ]`
+- [x] **Управление на поръчки:** Създаване на ендпойнти за четене и промяна на статуси (`GET /admin/orders`, `PATCH /admin/orders/:id`). `[ ГОТОВО ЗА ТЕСТ ]`
+- [x] **Замяна на Server Action:** Преминаване от директен ъпдейт в Supabase към извикване на `PATCH /admin/orders/:id`.
+- [ ] **(БЪДЕЩА ЗАДАЧА) Защита на Админ Панела:** Създаване на `/login` страница и Next.js Middleware, който изисква реална Supabase сесия за достъп до `/admin` или `/dashboard` рутовете (в момента се използва `SERVICE_ROLE_KEY` fallback за разработка).
+
+**Фронтенд (Next.js):**
+- [x] **Интеграция на Dashboard:** Пренасочване на статистиките (`getMetrics.ts`) и административния списък с поръчки да четат от NestJS. `[ ИЗПЪЛНЕНО ]`
+
+---
+
+## 6. Съдържание и CMS (Sanity)
+
+**Бекенд (NestJS):**
+- [x] **Sanity Интеграция:** Миграция на Webhooks и рутовете за податели (`GET /sanity/sender-ekont`, `GET /sanity/sender-speedy`). `[ ГОТОВО ЗА ТЕСТ ]`
+
+---
+
+## 7. Финално Почистване (Cleanup)
+
+- [ ] **Премахване на Legacy код:** Изтриване на всички изоставени Next.js Server Actions, локални API рутове и директни заявки с `@supabase/supabase-js` от фронтенда. `[ ПРЕДСТОИ ]`

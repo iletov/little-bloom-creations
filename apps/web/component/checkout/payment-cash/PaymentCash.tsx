@@ -97,9 +97,9 @@ export const PaymentCash = ({
             variantSku: item.product.variant_sku || undefined,
             name: item.product.name || item.product.title,
             variantName: item.product.variant_name || undefined,
-            quantity: item.quantity,
-            unitPrice: item.product.variant_price || item.product.price,
-            weight: item.product.weight || 0,
+            quantity: Number(item.quantity || 1),
+            unitPrice: Number(item.product.variant_price || item.product.price || 0),
+            weight: Number(item.product.weight || 0),
             personalization: item.personalisation || undefined,
           })),
           recipientAddress: {
@@ -108,18 +108,20 @@ export const PaymentCash = ({
             street: addressFormData?.street,
             streetNumber: addressFormData?.streetNumber,
             country: addressFormData?.country || 'BG',
+            siteId: selectedCity?.id,
+            streetId: validationStreet?.id,
           },
           recipientInfo: {
             firstName: guestFormData?.firstName,
             lastName: guestFormData?.lastName,
             phone: addressFormData?.phoneNumber,
             email: guestFormData?.email,
-            officeId: addressFormData?.officeCode,
+            officeId: addressFormData?.officeCode ? String(addressFormData.officeCode) : undefined,
           },
           deliveryMethod: deliveryMethod,
-          totalAmount: totalPrice + deliveryCost,
-          deliveryCost: deliveryCost,
-          totalWeight: totalWeight,
+          totalAmount: Number((totalPrice || 0) + (deliveryCost || 0)),
+          deliveryCost: Number(deliveryCost || 0),
+          totalWeight: Number(totalWeight) > 0 ? Number(totalWeight) : 1,
       });
 
       setResponse({ success: true, order_number: data.orderNumber });

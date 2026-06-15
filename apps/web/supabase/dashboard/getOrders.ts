@@ -1,129 +1,99 @@
-import { createClient, createServiceClient } from '@/lib/supabaseServer';
-import { unstable_cache } from 'next/cache';
+import { createClient } from '@/lib/supabaseServer';
 
-// Helper function to transform order data
-function transformOrders(orders: any[]) {
-  return orders.map((order: any) => ({
-    ...order,
-    delivery_method:
-      order.delivery_method.includes('office') ||
-      order.delivery_method.includes('pickup')
-        ? 'office'
-        : 'delivery',
-    delivery_company: order.delivery_method.startsWith('ekont')
-      ? 'ekont'
-      : 'speedy',
-  }));
-}
+export async function getOrders() {
+  const supabase = await createClient();
+  const { data: { session } } = await supabase.auth.getSession();
 
-const orderParameters = `
-      order_number,
-      created_at,
-      status,
-      delivery_method,
-      payment_method,
-      delivery_cost,
-      total_amount,
-      subtotal,
-      shipment_number,
-      `;
+  const token = session?.access_token || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+  if (!token) {
+    console.error('Unauthorized access to getOrders');
+    return { recentOrders: [], allOrders: [] };
+  }
 
-export const getOrders = unstable_cache(
-  async () => {
-    const supabase = createServiceClient();
-    const orderQuery =
-      orderParameters +
-      `
-      order_shipping (
-        full_name,
-        email
-      )
-    `;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-    const { data: recentOrdersData, error } = await supabase
-      .from('orders')
-      .select(orderQuery)
-      .order('created_at', { ascending: false })
-      .limit(10);
+  try {
+    const response = await fetch(`${apiUrl}/admin/orders`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      next: {
+        tags: ['dashboard-orders'],
+        revalidate: 360,
+      },
+    });
 
-    if (error) {
-      console.error('Supabase query error:', error);
+    if (!response.ok) {
+      console.error('Failed to fetch orders:', await response.text());
+      return { recentOrders: [], allOrders: [] };
     }
 
-    const recentOrders = recentOrdersData
-      ? transformOrders(recentOrdersData)
-      : [];
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching orders from NestJS:', error);
+    return { recentOrders: [], allOrders: [] };
+  }
+}
 
-    const { data: allOrdersData } = await supabase
-      .from('orders')
-      .select(orderQuery)
-      .order('created_at', { ascending: false });
+export async function getSingleOrder(id: string) {
+  const supabase = await createClient();
+  const { data: { session } } = await supabase.auth.getSession();
 
-    const allOrders = allOrdersData ? transformOrders(allOrdersData) : [];
+  const token = session?.access_token || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+  if (!token) {
+    console.error('Unauthorized access to getSingleOrder');
+    return null;
+  }
 
-    return {
-      recentOrders,
-      allOrders: allOrders || [],
-    };
-  },
-  ['dashboard-orders'],
-  {
-    tags: ['dashboard-orders'],
-    revalidate: 360,
-  },
-);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-export const getSingleOrder = (id: string) => {
-  return unstable_cache(
-    async () => {
-      const supabase = createServiceClient();
+  try {
+    const response = await fetch(`${apiUrl}/admin/orders/${id}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      next: {
+        tags: ['single-order', id],
+        revalidate: 360,
+      },
+    });
 
-      const orderQuery = orderParameters + `order_shipping (*),order_items (*)`;
+    if (!response.ok) {
+      console.error(`Failed to fetch single order ${id}:`, await response.text());
+      return null;
+    }
 
-      const { data: orderData, error } = await supabase
-        .from('orders')
-        .select(orderQuery)
-        .eq('order_number', id)
-        .single();
-
-      if (error || !orderData) {
-        console.error('Supabase query error:', error);
-        return null;
-      }
-
-      const order = orderData as any;
-
-      const transformedOrder = {
-        ...order,
-        delivery_method:
-          order.delivery_method.includes('office') ||
-          order.delivery_method.includes('pickup')
-            ? 'office'
-            : 'delivery',
-        delivery_company: order.delivery_method.startsWith('ekont')
-          ? 'ekont'
-          : 'speedy',
-      };
-
-      return transformedOrder;
-    },
-    ['single-order', id],
-    {
-      tags: ['single-order', id],
-      revalidate: 360,
-    },
-  )();
-};
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching single order from NestJS:', error);
+    return null;
+  }
+}
 
 // For use in generateStaticParams (build time)
+// For use in generateStaticParams (build time)
 export async function getOrdersForStaticParams() {
-  const { createServiceClient } = await import('@/lib/supabaseServer');
-  const supabase = createServiceClient();
-
-  const { data: allOrdersData } = await supabase
-    .from('orders')
-    .select('order_number')
-    .order('created_at', { ascending: false });
-
-  return allOrdersData || [];
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  try {
+    const response = await fetch(`${apiUrl}/admin/orders`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) return [];
+    
+    const data = await response.json();
+    return data.allOrders || [];
+  } catch (error) {
+    return [];
+  }
 }

@@ -52,7 +52,7 @@ export const OrderDetailsContainer = () => {
       label: 'Доставка с куриер на Eконт',
     },
     {
-      value: 'speedy-pickup',
+      value: 'speedy-office',
       label: 'Доставка до офис на Спиди',
     },
     {

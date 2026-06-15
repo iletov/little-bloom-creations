@@ -28,11 +28,13 @@ export default async function Products() {
   // console.log(variants);
 
   const products = supabaseData?.map((product: any) => {
+    const sanityProduct = sanityData?.find((s: any) => s.sku === product.sku);
     const variants = productVariants?.filter(
       (variant: any) => variant.parent_sku === product.sku,
     );
     return {
       ...product,
+      sanityId: sanityProduct?._id,
       variants,
     };
   });

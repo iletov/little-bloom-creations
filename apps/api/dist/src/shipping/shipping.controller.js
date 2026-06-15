@@ -33,10 +33,10 @@ let ShippingController = class ShippingController {
         this.validateAddressUseCase = validateAddressUseCase;
         this.createWaybillUseCase = createWaybillUseCase;
     }
-    async getCities(courier, countryCode) {
+    async getCities(courier, countryCode, search) {
         if (!courier)
             throw new common_1.BadRequestException('Courier is required');
-        return this.shippingEngine.getCities(courier, countryCode);
+        return this.shippingEngine.getCities(courier, countryCode, search);
     }
     async getOffices(courier, cityId) {
         if (!courier)
@@ -58,8 +58,9 @@ __decorate([
     (0, common_1.Get)('cities'),
     __param(0, (0, common_1.Query)('courier')),
     __param(1, (0, common_1.Query)('countryCode')),
+    __param(2, (0, common_1.Query)('search')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], ShippingController.prototype, "getCities", null);
 __decorate([

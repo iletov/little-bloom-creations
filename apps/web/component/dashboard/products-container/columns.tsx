@@ -4,23 +4,25 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, Edit, ExternalLink } from 'lucide-react';
+import { ArrowUpDown, Edit, ExternalLink, CheckCircle2, XCircle, Package, MoreHorizontal, Eye } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
+import { StockBadge, ActiveStatusBadge } from '@/component/dashboard/badges/ProductBadges';
 
 interface Product {
   id: string;
   name?: string;
   sku: string;
-  sanity_id: string;
+  sanityId: string;
   price: number;
-  current_stock: number;
-  is_active: boolean;
+  currentStock: number;
+  isActive: boolean;
   variants?: Array<{
     variant_sku: string;
     variant_name: string;
     price: number;
-    current_stock: number;
-    is_active: boolean;
+    currentStock: number;
+    isActive: boolean;
   }>;
 }
 
@@ -28,7 +30,7 @@ export const productColumns: ColumnDef<Product>[] = [
   {
     accessorFn: row => row.sku,
     id: 'sku',
-    header: () => <div className="text-[1.6rem] font-[600]">'SKU'</div>,
+    header: () => <div className="text-[1.6rem] font-[600] text-muted-foreground">SKU</div>,
     cell: ({ row }) => {
       const product = row.original;
 
@@ -54,7 +56,7 @@ export const productColumns: ColumnDef<Product>[] = [
   },
   {
     id: 'name',
-    header: () => <div className="text-[1.6rem] font-[600]">'Product'</div>,
+    header: () => <div className="text-[1.6rem] font-[600] text-muted-foreground">Product</div>,
     cell: ({ row }) => {
       const product = row.original;
 
@@ -84,14 +86,12 @@ export const productColumns: ColumnDef<Product>[] = [
     accessorKey: 'price',
     header: ({ column }) => {
       return (
-        <Button
-          variant="outline"
-          className="bg-[#404040] text-[1.6rem] text-foreground"
-          size="lg"
+        <div
+          className="flex items-center cursor-pointer text-[1.6rem] font-[600] text-muted-foreground hover:text-slate-200 transition-colors"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Price
-          <ArrowUpDown className="h-4 w-4" />
-        </Button>
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </div>
       );
     },
     cell: ({ row }) => {
@@ -100,7 +100,7 @@ export const productColumns: ColumnDef<Product>[] = [
       return (
         <div className="space-y-2">
           <div className="font-medium text-2xl">
-            {product.price.toFixed(2)} BGN
+            {Number(product.price).toFixed(2)} €
           </div>
 
           {/* Show variant prices */}
@@ -110,7 +110,7 @@ export const productColumns: ColumnDef<Product>[] = [
                 <div
                   key={variant.variant_sku}
                   className="text-xl text-gray-300">
-                  └─ {variant.price.toFixed(2)} BGN
+                  └─ {Number(variant.price).toFixed(2)} €
                 </div>
               ))}
             </div>
@@ -120,17 +120,15 @@ export const productColumns: ColumnDef<Product>[] = [
     },
   },
   {
-    accessorKey: 'current_stock',
+    accessorKey: 'currentStock',
     header: ({ column }) => {
       return (
-        <Button
-          variant="outline"
-          className="bg-[#404040] text-[1.6rem] text-foreground"
-          size="lg"
+        <div
+          className="flex items-center cursor-pointer text-[1.6rem] font-[600] text-muted-foreground hover:text-slate-200 transition-colors"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Stock
-          <ArrowUpDown className="w-4 h-4" />
-        </Button>
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </div>
       );
     },
     cell: ({ row }) => {
@@ -138,14 +136,14 @@ export const productColumns: ColumnDef<Product>[] = [
 
       return (
         <div className="space-y-2">
-          <StockBadge stock={product.current_stock} />
+          <StockBadge stock={product.currentStock} />
 
           {/* Show variant stock */}
           {product.variants && product.variants.length > 0 && (
             <div className="space-y-1.5 pl-4 border-l-[1px] border-gray-500">
               {product.variants.map(variant => (
                 <div key={variant.variant_sku}>
-                  <StockBadge stock={variant.current_stock} />
+                  <StockBadge stock={variant.currentStock} />
                 </div>
               ))}
             </div>
@@ -155,62 +153,51 @@ export const productColumns: ColumnDef<Product>[] = [
     },
   },
   {
-    accessorKey: 'is_active',
-    header: () => <div className="text-[1.6rem] font-[600]">'Status'</div>,
+    accessorKey: 'isActive',
+    header: () => <div className="text-[1.6rem] font-[600] text-muted-foreground">Status</div>,
     cell: ({ row }) => {
-      const isActive = row.getValue('is_active') as boolean;
+      const isActive = row.getValue('isActive') as boolean;
+
+      return <ActiveStatusBadge isActive={isActive} className="px-3 py-1" />;
+    },
+  },
+  {
+    id: 'actions',
+    cell: ({ row }) => {
+      const product = row.original;
 
       return (
-        <Badge variant={isActive ? 'active' : 'inactive'}>
-          {isActive ? 'Active' : 'Inactive'}
-        </Badge>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="outline" 
+              className="h-10 w-10 p-0 bg-[#20212b] border border-slate-700/50 text-slate-300 hover:bg-[#30313b] hover:text-white rounded-full flex items-center justify-center"
+            >
+              <span className="sr-only text-[1.6rem]">Open menu</span>
+              <MoreHorizontal className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-[#20212b] border-slate-700 text-slate-200">
+            <DropdownMenuItem asChild className="text-[1.4rem] cursor-pointer hover:bg-[#30313b] focus:bg-[#30313b] focus:text-white">
+              <Link href={`/dashboard/products/${product.sku}`}>
+                <Eye className="mr-2 h-4 w-4" />
+                View Details
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-slate-700" />
+            <DropdownMenuItem asChild className="text-[1.4rem] cursor-pointer hover:bg-[#30313b] focus:bg-[#30313b] focus:text-white">
+              <Link
+                href={`/studio/intent/edit/id=${product.sanityId};type=productType`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit in Sanity
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       );
     },
   },
-  // {
-  //   id: 'actions',
-  //   cell: ({ row }) => {
-  //     const product = row.original;
-
-  //     return (
-  //       <div className="flex items-center gap-2">
-  //         {/* Edit Stock */}
-  //         <Button variant="outline" size="lg" asChild>
-  //           <Link href={`/dashboard/products/${product.sku}/stock`}>
-  //             <Edit className="h-4 w-4 mr-1" />
-  //             Edit Stock
-  //           </Link>
-  //         </Button>
-
-  //         {/* View in Sanity */}
-  //         {/* <Button variant="ghost" size="sm" asChild>
-  //           <Link
-  //             href={`https://${process.env.NEXT_PUBLIC_SANITY_PROJECT_ID}.sanity.studio/desk/product;${product.sanity_id}`}
-  //             target="_blank"
-  //             rel="noopener noreferrer"
-  //           >
-  //             <ExternalLink className="h-4 w-4" />
-  //           </Link>
-  //         </Button> */}
-  //       </div>
-  //     );
-  //   },
-  // },
 ];
-
-// Helper component for stock badge
-function StockBadge({ stock, small }: { stock: number; small?: boolean }) {
-  const getColor = () => {
-    if (stock === 0) return 'bg-red-800/40 text-red-300 hover:bg-red-400/40';
-    if (stock <= 5)
-      return 'bg-yellow-800/40 text-yellow-300 hover:bg-yellow-400/40';
-    if (stock <= 20) return 'bg-blue-800/40 text-blue-300 hover:bg-blue-400/40';
-    return 'bg-green-800/40 text-green-300 hover:bg-green-400/40';
-  };
-
-  return (
-    <Badge className={`${getColor()} ${small ? 'text-lg' : 'text-xl'}`}>
-      {stock} units
-    </Badge>
-  );
-}

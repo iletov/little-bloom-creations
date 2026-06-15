@@ -9,11 +9,11 @@ const BackButton = () => {
   return (
     <div className="sticky top-0 z-50">
       <Button
-        variant="primery"
+        variant="outline"
         size="icon"
-        className="bg-[#FAFAFA] w-12 h-12"
+        className="w-12 h-12 rounded-full border-slate-700 bg-[#20212b] text-slate-300 hover:bg-[#30313b] hover:text-white transition-colors"
         onClick={() => router.back()}>
-        <ChevronLeft size={16} />
+        <ChevronLeft size={20} />
       </Button>
     </div>
   );

@@ -232,7 +232,7 @@ export class EcontShippingAdapter implements IShippingProvider {
     }
   }
 
-  async getCities(countryCode: string = 'BGR'): Promise<CityDto[]> {
+  async getCities(countryCode: string = 'BGR', search?: string): Promise<CityDto[]> {
     try {
       const response = await firstValueFrom(
         this.httpService.post<{ cities: EcontCityResponse[] }>(

@@ -13,6 +13,8 @@ const ProductsContainer = ({
   data: any;
   variants: any;
 }) => {
+  const safeProducts = products || [];
+  const safeVariants = variants || [];
   return (
     <section className="w-full min-h-[80svh] bg-gray-700 rounded-lg p-6">
       <div className="space-y-6">
@@ -53,7 +55,7 @@ const ProductsContainer = ({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-5xl font-[500]">{products.length}</div>
+              <div className="text-5xl font-[500]">{safeProducts.length}</div>
             </CardContent>
           </Card>
 
@@ -64,7 +66,7 @@ const ProductsContainer = ({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-5xl font-[500]">{variants.length}</div>
+              <div className="text-5xl font-[500]">{safeVariants.length}</div>
             </CardContent>
           </Card>
 
@@ -76,10 +78,10 @@ const ProductsContainer = ({
             </CardHeader>
             <CardContent>
               <div className="text-5xl font-[500] text-red-600">
-                {products?.reduce((acc: number, product: any) => {
-                  const productCount = product.current_stock <= 5 ? 1 : 0;
+                {safeProducts.reduce((acc: number, product: any) => {
+                  const productCount = product.currentStock <= 5 ? 1 : 0;
                   const variantCount =
-                    product.variants?.filter((v: any) => v.current_stock <= 5)
+                    product.variants?.filter((v: any) => v.currentStock <= 5)
                       .length || 0;
                   return acc + productCount + variantCount;
                 }, 0) || 0}
@@ -96,9 +98,10 @@ const ProductsContainer = ({
           <CardContent>
             <DataTable
               columns={productColumns}
-              data={products}
+              data={safeProducts}
               searchKey="sku"
               searchPlaceholder="Search by product SKU..."
+              exportFileName="Products_Export"
               basePath="/dashboard/products"
               idKey="sku"
             />

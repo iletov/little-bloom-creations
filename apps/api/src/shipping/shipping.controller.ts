@@ -21,9 +21,10 @@ export class ShippingController {
   async getCities(
     @Query('courier') courier: DeliveryMethodEnum,
     @Query('countryCode') countryCode?: string,
+    @Query('search') search?: string,
   ) {
     if (!courier) throw new BadRequestException('Courier is required');
-    return this.shippingEngine.getCities(courier, countryCode);
+    return this.shippingEngine.getCities(courier, countryCode, search);
   }
 
   @Get('offices')

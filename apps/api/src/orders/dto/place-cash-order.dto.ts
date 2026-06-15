@@ -57,6 +57,7 @@ export class OrderAddressDto {
   @IsString() @IsOptional() streetNumber?: string;
   @IsString() @IsOptional() quarter?: string;
   @IsNumber() @IsOptional() siteId?: number;
+  @IsNumber() @IsOptional() streetId?: number;
   @IsString() @IsOptional() country?: string;
 }
 

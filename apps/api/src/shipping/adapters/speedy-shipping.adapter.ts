@@ -55,10 +55,11 @@ export class SpeedyShippingAdapter implements IShippingProvider {
         ),
       );
       return response.data;
-    } catch (error: unknown) {
+    } catch (error: any) {
+      console.error('Speedy API Error:', error?.response?.data || error?.message || error);
       throw new ShippingProviderException(
         'Failed to validate address with Speedy',
-        error,
+        error?.response?.data || error?.message || {},
       );
     }
   }
@@ -85,12 +86,13 @@ export class SpeedyShippingAdapter implements IShippingProvider {
     } else {
       recipient.address = {
         siteId: request.recipientAddress.siteId,
-        streetId: request.recipientAddress.streetId,
-        streetNo: request.recipientAddress.streetNumber,
-        blockNo: request.recipientAddress.blockNo,
-        entranceNo: request.recipientAddress.entranceNo,
-        floorNo: request.recipientAddress.floorNo,
-        apartmentNo: request.recipientAddress.apartmentNo,
+        addressNote: `${request.recipientAddress.street || ''} ${request.recipientAddress.streetNumber || ''}`.trim(),
+        ...(request.recipientAddress['streetId'] && request.recipientAddress.streetNumber
+          ? { 
+              streetId: request.recipientAddress['streetId'],
+              streetNo: request.recipientAddress.streetNumber 
+            }
+          : {}),
       };
       recipient.addressLocation = { siteId: request.recipientAddress.siteId };
     }
@@ -142,7 +144,9 @@ export class SpeedyShippingAdapter implements IShippingProvider {
       },
       sender: {
         dropoffOfficeId: 275,
-        clientId: 9999999998000,
+        phone1: { number: '0888112233' },
+        contactName: 'IVAN PETROV',
+        email: 'ivan@petrov.bg',
       },
     };
   }
@@ -183,7 +187,7 @@ export class SpeedyShippingAdapter implements IShippingProvider {
         ),
       );
 
-      console.log('Speedy API Response Data:', JSON.stringify(response.data, null, 2));
+      // console.log('Speedy API Response Data:', JSON.stringify(response.data, null, 2));
 
       const calculations = response.data?.calculations;
       if (!calculations || calculations.length === 0) {
@@ -211,7 +215,6 @@ export class SpeedyShippingAdapter implements IShippingProvider {
 
       if (request.senderInfo) {
         payload.sender = {
-          clientId: payload.sender?.clientId || 9999999998000,
           dropoffOfficeId: payload.sender?.dropoffOfficeId,
           contactName: request.senderInfo.name,
           email: request.senderInfo.email,
@@ -233,15 +236,16 @@ export class SpeedyShippingAdapter implements IShippingProvider {
         price: data.price?.total || 0,
         rawDetails: data as unknown as Record<string, unknown>,
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
+      console.error('Speedy API Error:', error?.response?.data || error?.message || error);
       throw new ShippingProviderException(
         'Failed to create waybill with Speedy',
-        error,
+        error?.response?.data || error?.message || {},
       );
     }
   }
 
-  async getCities(countryCode?: string): Promise<CityDto[]> {
+  async getCities(countryCode?: string, search?: string): Promise<CityDto[]> {
     try {
       const response = await lastValueFrom(
         this.httpService.post<{ sites: SpeedyCityResponse[] }>(
@@ -252,6 +256,8 @@ export class SpeedyShippingAdapter implements IShippingProvider {
             // Speedy използва countryId 100 за България. Може да се мапне динамично при нужда.
             countryId:
               countryCode === 'BGR' || !countryCode ? '100' : countryCode,
+            name: search || '', // Use search parameter or empty string
+            limit: 9999, // Fetch up to 9999 cities instead of default 10
           },
           {
             headers: {
@@ -271,10 +277,11 @@ export class SpeedyShippingAdapter implements IShippingProvider {
         postCode: site.postCode,
         region: site.municipality || '',
       }));
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Speedy API Error:', error?.response?.data || error?.message || error);
       throw new ShippingProviderException(
         'Failed to fetch cities from Speedy',
-        error,
+        error?.response?.data || error?.message || {},
       );
     }
   }
@@ -285,6 +292,7 @@ export class SpeedyShippingAdapter implements IShippingProvider {
         userName: this.userName,
         password: this.password,
         countryId: '100',
+        limit: 9999,
       };
 
       if (cityId) {
@@ -312,10 +320,11 @@ export class SpeedyShippingAdapter implements IShippingProvider {
           '',
         cityId: office.siteId,
       }));
-    } catch (error: unknown) {
+    } catch (error: any) {
+      console.error('Speedy API Error:', error?.response?.data || error?.message || error);
       throw new ShippingProviderException(
         'Failed to fetch offices from Speedy',
-        error,
+        error?.response?.data || error?.message || {},
       );
     }
   }

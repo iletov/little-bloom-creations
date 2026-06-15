@@ -39,7 +39,8 @@ let SpeedyShippingAdapter = class SpeedyShippingAdapter {
             return response.data;
         }
         catch (error) {
-            throw new exceptions_1.ShippingProviderException('Failed to validate address with Speedy', error);
+            console.error('Speedy API Error:', error?.response?.data || error?.message || error);
+            throw new exceptions_1.ShippingProviderException('Failed to validate address with Speedy', error?.response?.data || error?.message || {});
         }
     }
     buildBasePayload(request) {
@@ -59,12 +60,13 @@ let SpeedyShippingAdapter = class SpeedyShippingAdapter {
         else {
             recipient.address = {
                 siteId: request.recipientAddress.siteId,
-                streetId: request.recipientAddress.streetId,
-                streetNo: request.recipientAddress.streetNumber,
-                blockNo: request.recipientAddress.blockNo,
-                entranceNo: request.recipientAddress.entranceNo,
-                floorNo: request.recipientAddress.floorNo,
-                apartmentNo: request.recipientAddress.apartmentNo,
+                addressNote: `${request.recipientAddress.street || ''} ${request.recipientAddress.streetNumber || ''}`.trim(),
+                ...(request.recipientAddress['streetId'] && request.recipientAddress.streetNumber
+                    ? {
+                        streetId: request.recipientAddress['streetId'],
+                        streetNo: request.recipientAddress.streetNumber
+                    }
+                    : {}),
             };
             recipient.addressLocation = { siteId: request.recipientAddress.siteId };
         }
@@ -112,7 +114,9 @@ let SpeedyShippingAdapter = class SpeedyShippingAdapter {
             },
             sender: {
                 dropoffOfficeId: 275,
-                clientId: 9999999998000,
+                phone1: { number: '0888112233' },
+                contactName: 'IVAN PETROV',
+                email: 'ivan@petrov.bg',
             },
         };
     }
@@ -133,7 +137,6 @@ let SpeedyShippingAdapter = class SpeedyShippingAdapter {
         try {
             const payload = this.buildBasePayload(request);
             const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.speedyUrl}/calculate`, payload));
-            console.log('Speedy API Response Data:', JSON.stringify(response.data, null, 2));
             const calculations = response.data?.calculations;
             if (!calculations || calculations.length === 0) {
                 throw new Error('No calculations returned from Speedy');
@@ -153,7 +156,6 @@ let SpeedyShippingAdapter = class SpeedyShippingAdapter {
             const payload = this.buildBasePayload(request);
             if (request.senderInfo) {
                 payload.sender = {
-                    clientId: payload.sender?.clientId || 9999999998000,
                     dropoffOfficeId: payload.sender?.dropoffOfficeId,
                     contactName: request.senderInfo.name,
                     email: request.senderInfo.email,
@@ -169,15 +171,18 @@ let SpeedyShippingAdapter = class SpeedyShippingAdapter {
             };
         }
         catch (error) {
-            throw new exceptions_1.ShippingProviderException('Failed to create waybill with Speedy', error);
+            console.error('Speedy API Error:', error?.response?.data || error?.message || error);
+            throw new exceptions_1.ShippingProviderException('Failed to create waybill with Speedy', error?.response?.data || error?.message || {});
         }
     }
-    async getCities(countryCode) {
+    async getCities(countryCode, search) {
         try {
             const response = await (0, rxjs_2.lastValueFrom)(this.httpService.post(`${this.speedyUrl}/location/site`, {
                 userName: this.userName,
                 password: this.password,
                 countryId: countryCode === 'BGR' || !countryCode ? '100' : countryCode,
+                name: search || '',
+                limit: 9999,
             }, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -193,7 +198,8 @@ let SpeedyShippingAdapter = class SpeedyShippingAdapter {
             }));
         }
         catch (error) {
-            throw new exceptions_1.ShippingProviderException('Failed to fetch cities from Speedy', error);
+            console.error('Speedy API Error:', error?.response?.data || error?.message || error);
+            throw new exceptions_1.ShippingProviderException('Failed to fetch cities from Speedy', error?.response?.data || error?.message || {});
         }
     }
     async getOffices(cityId) {
@@ -202,6 +208,7 @@ let SpeedyShippingAdapter = class SpeedyShippingAdapter {
                 userName: this.userName,
                 password: this.password,
                 countryId: '100',
+                limit: 9999,
             };
             if (cityId) {
                 payload.siteId = Number(cityId);
@@ -220,7 +227,8 @@ let SpeedyShippingAdapter = class SpeedyShippingAdapter {
             }));
         }
         catch (error) {
-            throw new exceptions_1.ShippingProviderException('Failed to fetch offices from Speedy', error);
+            console.error('Speedy API Error:', error?.response?.data || error?.message || error);
+            throw new exceptions_1.ShippingProviderException('Failed to fetch offices from Speedy', error?.response?.data || error?.message || {});
         }
     }
 };

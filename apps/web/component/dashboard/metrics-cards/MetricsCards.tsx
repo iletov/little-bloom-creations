@@ -13,6 +13,12 @@ async function MetricsCards({ metrics }: { metrics: any }) {
   // console.log('metrics', metrics);
   const cards = [
     {
+      title: 'Total Revenue',
+      value: metrics?.allRevenue + ' €',
+      icon: Euro,
+      bgColor: 'bg-gradient-to-r from-[#10b981] to-[#047857]', // emerald green
+    },
+    {
       title: 'Today Revenue',
       value: metrics?.todayRevenue + ' €',
       icon: Euro,
@@ -50,7 +56,7 @@ async function MetricsCards({ metrics }: { metrics: any }) {
   ];
 
   return (
-    <div className="grid gap-10 grid-cols-1 md:grid-cols-3">
+    <div className="grid gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
       {cards?.map((card, index) => (
         <Card key={card.title} className={`pt-4 px-3 ${card.bgColor}`}>
           <CardHeader className="flex flex-row items-center justify-between">
@@ -59,12 +65,14 @@ async function MetricsCards({ metrics }: { metrics: any }) {
             </CardTitle>
           </CardHeader>
           <CardContent className="flex justify-between items-center">
-            <div className={`p-2 rounded-[0.75rem]`}>
+            <div className={`p-2 rounded-[0.75rem] shrink-0`}>
               <card.icon
-                className={`h-28 w-28 rotate-[-25deg] opacity-40 stroke-[0.4px]`}
+                className={`h-24 w-24 rotate-[-25deg] opacity-40 stroke-[0.4px]`}
               />
             </div>
-            <div className="text-[4.6rem] font-[500]">{card.value}</div>
+            <div className="text-[3.2rem] xl:text-[3.8rem] font-[500] whitespace-nowrap ml-2">
+              {card.value}
+            </div>
           </CardContent>
         </Card>
       ))}
