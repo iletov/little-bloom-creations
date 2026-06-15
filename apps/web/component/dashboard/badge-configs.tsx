@@ -1,6 +1,6 @@
-import { Clock, CheckCircle2, Truck, XCircle, RefreshCcw, Building2, MapPin, Package, CreditCard, Banknote } from 'lucide-react';
+import { Clock, CheckCircle2, Truck, XCircle, RefreshCcw, Building2, MapPin, Package, CreditCard, Banknote, LucideIcon } from 'lucide-react';
 
-export const statusConfig: Record<string, { className: string; icon: any }> = {
+export const statusConfig: Record<string, { className: string; icon: LucideIcon }> = {
   pending: {
     className: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20 hover:bg-yellow-500/20',
     icon: Clock,
@@ -31,7 +31,7 @@ export const statusConfig: Record<string, { className: string; icon: any }> = {
   },
 };
 
-export const deliveryConfig: Record<string, { className: string; icon: any }> = {
+export const deliveryConfig: Record<string, { className: string; icon: LucideIcon }> = {
   ekont: {
     className: 'bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20',
     icon: Package,
@@ -50,7 +50,7 @@ export const deliveryConfig: Record<string, { className: string; icon: any }> = 
   },
 };
 
-export const paymentConfig: Record<string, { className: string; icon: any }> = {
+export const paymentConfig: Record<string, { className: string; icon: LucideIcon }> = {
   stripe: {
     className: 'bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20',
     icon: CreditCard,

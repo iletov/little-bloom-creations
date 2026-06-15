@@ -135,3 +135,45 @@ export type Title = {
   highlightedWord?: string;
   highlightedColor?: string;
 };
+
+export interface DashboardVariant {
+  variant_sku: string;
+  variant_name: string;
+  price: number;
+  currentStock: number;
+  isActive: boolean;
+  parent_sku?: string;
+}
+
+export interface DashboardProduct {
+  id: string;
+  name?: string;
+  sku: string;
+  sanityId?: string;
+  price: number;
+  currentStock: number;
+  isActive: boolean;
+  variants?: DashboardVariant[];
+  sanity?: any;
+}
+
+export interface ChartData {
+  date: string;
+  revenue: number;
+}
+
+export interface DeliveryChartData {
+  name: string;
+  count: number;
+  fill?: string;
+}
+
+export interface DashboardMetrics {
+  todayRevenue: string | number;
+  todayOrdersCount: number;
+  pendingOrdersCount: number;
+  productsCount?: number;
+  allRevenue: string | number;
+  chartData?: ChartData[];
+  deliveryChartData?: DeliveryChartData[];
+}

@@ -85,7 +85,6 @@ export declare class AdminRepository {
             unitPrice: string;
             personalization: unknown;
             product: {
-                length: string | null;
                 id: string;
                 name: string;
                 sku: string;
@@ -94,6 +93,7 @@ export declare class AdminRepository {
                 weight: string | null;
                 width: string | null;
                 height: string | null;
+                length: string | null;
                 depth: string | null;
                 currentStock: number;
                 isActive: boolean;

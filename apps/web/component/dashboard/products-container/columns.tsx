@@ -9,24 +9,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import Link from 'next/link';
 import { StockBadge, ActiveStatusBadge } from '@/component/dashboard/badges/ProductBadges';
 
-interface Product {
-  id: string;
-  name?: string;
-  sku: string;
-  sanityId: string;
-  price: number;
-  currentStock: number;
-  isActive: boolean;
-  variants?: Array<{
-    variant_sku: string;
-    variant_name: string;
-    price: number;
-    currentStock: number;
-    isActive: boolean;
-  }>;
-}
+import { DashboardProduct } from '@/types';
 
-export const productColumns: ColumnDef<Product>[] = [
+export const productColumns: ColumnDef<DashboardProduct>[] = [
   {
     accessorFn: row => row.sku,
     id: 'sku',

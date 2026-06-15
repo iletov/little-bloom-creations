@@ -5,13 +5,14 @@ import { Plus, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import { productColumns } from './columns';
+import { DashboardProduct, DashboardVariant } from '@/types';
 
 const ProductsContainer = ({
   data: products,
   variants,
 }: {
-  data: any;
-  variants: any;
+  data: DashboardProduct[];
+  variants: DashboardVariant[];
 }) => {
   const safeProducts = products || [];
   const safeVariants = variants || [];
@@ -78,11 +79,11 @@ const ProductsContainer = ({
             </CardHeader>
             <CardContent>
               <div className="text-5xl font-[500] text-red-600">
-                {safeProducts.reduce((acc: number, product: any) => {
+                {safeProducts.reduce((acc: number, product: DashboardProduct) => {
                   const productCount = product.currentStock <= 5 ? 1 : 0;
                   const variantCount =
-                    product.variants?.filter((v: any) => v.currentStock <= 5)
-                      .length || 0;
+                    product.variants?.filter((v: DashboardVariant) => v.currentStock <= 5)
+                      ?.length || 0;
                   return acc + productCount + variantCount;
                 }, 0) || 0}
               </div>

@@ -13,41 +13,22 @@ import {
   LabelList,
 } from 'recharts';
 import DeliveryChart from './DeliveryChart';
+import { useQuery } from '@tanstack/react-query';
+import { DashboardMetrics } from '@/types';
 
-export default function RevenueChart({ initialMetrics }: { initialMetrics: any }) {
+export default function RevenueChart({ initialMetrics }: { initialMetrics: DashboardMetrics }) {
   const [days, setDays] = useState<number>(7);
-  const [data, setData] = useState<any[]>(initialMetrics?.chartData || []);
-  const [deliveryData, setDeliveryData] = useState<any[]>(initialMetrics?.deliveryChartData || []);
-  const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    let isMounted = true;
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const metrics = await getMetrics(days);
-        if (isMounted && metrics) {
-          if (metrics.chartData) setData(metrics.chartData);
-          if (metrics.deliveryChartData) setDeliveryData(metrics.deliveryChartData);
-        }
-      } catch (error) {
-        console.error('Failed to fetch chart data:', error);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
+  const { data: metrics, isLoading } = useQuery<DashboardMetrics>({
+    queryKey: ['dashboard-metrics', days],
+    queryFn: () => getMetrics(days),
+    initialData: days === 7 ? initialMetrics : undefined,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
-    // Skip fetch on first mount if we have initialData for exactly 7 days
-    if (days === 7 && initialMetrics?.chartData?.length === 7 && data.length > 0) {
-      // already have data
-    } else {
-      fetchData();
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [days, initialMetrics]);
+  const data = metrics?.chartData || [];
+  const deliveryData = metrics?.deliveryChartData || [];
+  const loading = isLoading;
 
   // Format date for tooltip and axis
   const formatDate = (dateStr: string) => {
@@ -141,7 +122,7 @@ export default function RevenueChart({ initialMetrics }: { initialMetrics: any }
                 position="top" 
                 fill="#94a3b8" 
                 fontSize={12} 
-                formatter={(value: any) => value > 0 ? `${value}€` : ''} 
+                formatter={(value: any) => Number(value) > 0 ? `${value}€` : ''} 
               />
             </Bar>
           </BarChart>

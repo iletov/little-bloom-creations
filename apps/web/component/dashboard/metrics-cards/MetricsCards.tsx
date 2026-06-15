@@ -7,9 +7,10 @@ import {
   ShoppingCart,
   WatchIcon,
 } from 'lucide-react';
+import { DashboardMetrics } from '@/types';
 import React from 'react';
 
-async function MetricsCards({ metrics }: { metrics: any }) {
+async function MetricsCards({ metrics }: { metrics: DashboardMetrics }) {
   // console.log('metrics', metrics);
   const cards = [
     {

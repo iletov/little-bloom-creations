@@ -5,7 +5,7 @@ import { ColumnDef } from '@tanstack/react-table';
 // import { Order } from "@/types/order"
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, MoreHorizontal, Eye, Euro, Clock, CheckCircle2, Truck, XCircle, RefreshCcw, Building2, MapPin, Package, CreditCard, Banknote } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, Eye, Euro, Clock, CheckCircle2, Truck, XCircle, RefreshCcw, Building2, MapPin, Package, CreditCard, Banknote, LucideIcon } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +16,7 @@ import {
 import Link from 'next/link';
 import { Order } from '@/types';
 
-const statusConfig: Record<string, { className: string; icon: any }> = {
+const statusConfig: Record<string, { className: string; icon: LucideIcon }> = {
   pending: {
     className: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20 hover:bg-yellow-500/20',
     icon: Clock,
@@ -47,7 +47,7 @@ const statusConfig: Record<string, { className: string; icon: any }> = {
   },
 };
 
-const deliveryConfig: Record<string, { className: string; icon: any }> = {
+const deliveryConfig: Record<string, { className: string; icon: LucideIcon }> = {
   ekont: {
     className: 'bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20',
     icon: Package,
@@ -66,7 +66,7 @@ const deliveryConfig: Record<string, { className: string; icon: any }> = {
   },
 };
 
-const paymentConfig: Record<string, { className: string; icon: any }> = {
+const paymentConfig: Record<string, { className: string; icon: LucideIcon }> = {
   stripe: {
     className: 'bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20',
     icon: CreditCard,

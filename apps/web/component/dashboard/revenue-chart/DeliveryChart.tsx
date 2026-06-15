@@ -12,12 +12,13 @@ import {
   Cell,
   LabelList,
 } from 'recharts';
+import { DeliveryChartData } from '@/types';
 
 export default function DeliveryChart({
   data,
   loading,
 }: {
-  data: any[];
+  data: DeliveryChartData[];
   loading: boolean;
 }) {
   const CustomTooltip = ({ active, payload }: any) => {

@@ -11,8 +11,10 @@ import { urlFor } from '@/sanity/lib/image';
 import { PortableTextContainer } from '@/component/portabletext-container/PortableTextContainer';
 import { StockBadge, ActiveStatusBadge } from '@/component/dashboard/badges/ProductBadges';
 
+import { DashboardProduct, DashboardVariant } from '@/types';
+
 interface SingleProductContainerProps {
-  data: any;
+  data: DashboardProduct;
 }
 
 const SingleProductContainer = ({ data }: SingleProductContainerProps) => {
@@ -92,7 +94,7 @@ const SingleProductContainer = ({ data }: SingleProductContainerProps) => {
             <CardTitle className="text-[2rem] text-slate-100">Product Variants</CardTitle>
           </CardHeader>
           <CardContent>
-            {data.variants && data.variants.length > 0 ? (
+            {data.variants?.length ? (
               <div className="rounded-md border border-slate-700/50 overflow-hidden">
                 <Table>
                   <TableHeader className="bg-[#1a1b23]">
@@ -106,9 +108,9 @@ const SingleProductContainer = ({ data }: SingleProductContainerProps) => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {data.variants.map((variant: any) => {
+                    {data.variants.map((variant: DashboardVariant) => {
                       // Match the Postgres variant with the Sanity variant to get its image
-                      const sanityVariant = data.sanity?.variants?.find((v: any) => v.sku === variant.variantSku);
+                      const sanityVariant = data.sanity?.variants?.find((v: any) => v.sku === variant.variant_sku);
                       const variantImage = sanityVariant?.images?.[0]?.asset?.url
                         ? sanityVariant.images[0].asset.url
                         : sanityVariant?.images?.[0]?.asset?._ref 
@@ -117,7 +119,7 @@ const SingleProductContainer = ({ data }: SingleProductContainerProps) => {
 
                       return (
                       <TableRow 
-                        key={variant.variantSku} 
+                        key={variant.variant_sku} 
                         onClick={() => setSelectedVariant({ ...variant, image: variantImage })}
                         className="border-b-slate-700/50 hover:bg-[#30313b] transition-colors cursor-pointer"
                       >
@@ -125,15 +127,15 @@ const SingleProductContainer = ({ data }: SingleProductContainerProps) => {
                           <div className="w-12 h-12 relative rounded-md overflow-hidden bg-[#1a1b23] border border-slate-700">
                             <Image 
                               src={variantImage} 
-                              alt={variant.variantName || 'Variant Image'} 
+                              alt={variant.variant_name || 'Variant Image'} 
                               fill 
                               className="object-cover"
                               unoptimized
                             />
                           </div>
                         </TableCell>
-                        <TableCell className="font-mono text-slate-300 text-[1.4rem]">{variant.variantSku}</TableCell>
-                        <TableCell className="text-slate-100 text-[1.4rem] font-medium">{variant.variantName}</TableCell>
+                        <TableCell className="font-mono text-slate-300 text-[1.4rem]">{variant.variant_sku}</TableCell>
+                        <TableCell className="text-slate-100 text-[1.4rem] font-medium">{variant.variant_name}</TableCell>
                         <TableCell className="text-slate-300 text-[1.4rem]">{Number(variant.price).toFixed(2)} €</TableCell>
                         <TableCell>
                           <StockBadge stock={variant.currentStock} />
