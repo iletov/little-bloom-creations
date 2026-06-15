@@ -64,7 +64,7 @@ export default {
         'green-5': '#b6bb79',
         'green-9': '#516345',
         'green-dark': '#232d1c',
-        'blue-dark': '#192237',
+        'blue-dark': '#20212b',
 
         sidebar: {
           DEFAULT: 'hsl(var(--sidebar-background))',

@@ -10,7 +10,7 @@ import TableSkeleton from '@/component/dashboard/orders/TableSkeleton';
 export default async function DashboardPage() {
   const metrics = await getMetrics();
   return (
-    <div className="w-full h-svh py-8 px-10 space-y-8 ">
+    <div className="w-full min-h-svh pt-8 pb-24 px-10 space-y-8 ">
       <Suspense fallback={<MetricsSkeleton />}>
         <MetricsCards metrics={metrics} />
       </Suspense>
