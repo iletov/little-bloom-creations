@@ -29,11 +29,11 @@ const HeroBanner = ({ data }: HeroBannerProps) => {
   const bannerSize = (value: string) => {
     switch (value) {
       case 'large':
-        return 'h-[58rem]';
+        return 'min-h-[60vh] lg:min-h-[65vh]';
       case 'small':
-        return 'h-[48rem]';
+        return 'min-h-[40vh] lg:min-h-[45vh]';
       default:
-        return 'h-[58rem]';
+        return 'min-h-[60vh] lg:min-h-[65vh]';
     }
   };
 
@@ -41,10 +41,10 @@ const HeroBanner = ({ data }: HeroBannerProps) => {
     <section className="bg-pink-1 ">
       <div
         className={cn(
-          'relative w-full h-[58rem]',
+          'relative w-full flex flex-col',
           bannerSize(data?.size ?? ''),
         )}>
-        {/* <div className="absolute inset-0 z-10 bg-green-dark svg-image bg-opacity-60" /> */}
+        <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
         <Image
           src={urlFor(data?.backgroundImage).url()}
           alt={data?.heading?.title ?? 'background-image'}
@@ -70,7 +70,7 @@ const HeroBanner = ({ data }: HeroBannerProps) => {
               data={data?.description}
               className="text-end text-pink-1"
             />
-            <Button className="justify-self-end ">
+            <Button asChild className="justify-self-end relative z-20">
               <Link href={data?.button?.slug?.current ?? '/'}>
                 {data?.button?.text}
               </Link>

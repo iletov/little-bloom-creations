@@ -42,7 +42,7 @@ export declare class AdminRepository {
             email: string;
         };
     }[]>;
-    getOrderByNumber(orderNumber: string): Promise<{
+    getOrderByNumber(orderNumberOrId: string): Promise<{
         id: string;
         orderNumber: string;
         createdAt: Date;

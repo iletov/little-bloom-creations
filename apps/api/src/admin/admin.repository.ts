@@ -100,9 +100,10 @@ export class AdminRepository {
     });
   }
 
-  async getOrderByNumber(orderNumber: string) {
+  async getOrderByNumber(orderNumberOrId: string) {
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderNumberOrId);
     return db.query.orders.findFirst({
-      where: eq(orders.orderNumber, orderNumber),
+      where: isUUID ? eq(orders.id, orderNumberOrId) : eq(orders.orderNumber, orderNumberOrId),
       with: {
         shipping: true,
         items: {

@@ -35,7 +35,7 @@ export const OrderSummery = ({ isCartView = false }: OrderSummeryProps) => {
         {isCartView ? null : (
           <p className="flex justify-between text-[1.6rem]">
             <span className="">Цена за доставка:</span>
-            <span>{deliveryCost} лв.</span>
+            <span>{deliveryCost} €</span>
           </p>
         )}
         <p className="flex justify-between mb-2 md:mb-6">
@@ -44,7 +44,7 @@ export const OrderSummery = ({ isCartView = false }: OrderSummeryProps) => {
             {isCartView
               ? totalPrice.toFixed(2)
               : (totalPrice + deliveryCost).toFixed(2)}{' '}
-            лв.
+            €
           </span>
         </p>
 

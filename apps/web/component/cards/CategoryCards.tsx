@@ -16,13 +16,13 @@ const CategoryCards = ({ data }: CategoryCardsProps) => {
   return (
     <section className="bg-green-1/20">
       <div className="section_wrapper">
-        <div className="grid grid-cols-3 items-center ">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 items-center ">
           {data?.backgroundImages?.map((image: ImagesType, index: number) => (
             <Link
               href={image?.slug?.current ?? ''}
               key={index}
-              className="aspect-square relative mask-image">
-              <div className="absolute font-monsieurLa text-[3.8rem] py-[rem] top-1/2 -translate-y-[50%] left-1/2 -translate-x-1/2 w-full z-10 border-y-[1px] bg-pink-9 text-center">
+              className="aspect-square relative mask-image group block">
+              <div className="absolute font-monsieurLa text-[3.8rem] py-[rem] top-1/2 -translate-y-[50%] left-1/2 -translate-x-1/2 w-full z-10 border-y-[1px] bg-pink-9 text-center pointer-events-none transition-colors duration-300 group-hover:bg-green-dark group-hover:text-white">
                 {image?.title}
               </div>
               <Image
@@ -30,7 +30,7 @@ const CategoryCards = ({ data }: CategoryCardsProps) => {
                 alt={image?.alt ?? ''}
                 width={1024}
                 height={640}
-                className="w-full h-full object-cover "
+                className="w-full h-full object-cover"
               />
             </Link>
           ))}

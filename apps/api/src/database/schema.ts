@@ -21,6 +21,7 @@ export const orderStatusEnum = pgEnum('order_status_enum', [
   'pending',
   'confirmed',
   'shipped',
+  'delivered',
   'refunded',
   'cancelled',
 ]);

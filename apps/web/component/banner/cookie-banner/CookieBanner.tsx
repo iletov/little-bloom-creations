@@ -24,36 +24,36 @@ export default function CookieConsentBanner() {
   if (!showBanner) return null;
 
   return (
-    <section className="fixed bottom-0 right-0 grid gap-2 md:w-fit w-full min-w-[360px] rounded-xl bg-[#47324e]  py-4 px-5 z-50">
-      <h3 className="text-mango text-[1.5rem] font-play font-semibold md:text-[1.725rem] uppercase">
-        Този сайт използва "бисквитки".
+    <section className="fixed bottom-4 right-4 md:bottom-8 md:right-8 grid gap-2 md:w-fit w-[calc(100%-2rem)] max-w-[400px] rounded-[0.8rem] bg-white border border-green-1/20 shadow-xl py-5 px-6 z-50">
+      <h3 className="text-green-dark text-[1.25rem] font-semibold mb-1">
+        Управление на бисквитките
       </h3>
-      <p className="mb-4 font-montserrat">
+      <p className="mb-4 text-slate-600 text-sm leading-relaxed">
         Този сайт използва съществени "бисквитки", необходими за неговото
-        правилно функциониране.
+        правилно функциониране и за да ви предоставим най-доброто преживяване.
       </p>
-      <p className="font-comfortaa space-x-2 ">
-        <span>Научете повече на</span>
+      <p className="text-sm space-x-1 mb-2">
+        <span className="text-slate-500">Научете повече в нашата</span>
         <Link
           href="/privacy-policy"
           aria-label="Privacy Policy"
-          className="text-mango hover:text-mango/80 transition-all linear">
+          className="text-green-dark underline hover:text-green-5 transition-all">
           Политика за поверителност
         </Link>
       </p>
 
-      <div className="flex ">
+      <div className="flex gap-3 mt-2">
         <Button
-          variant={'default'}
           onClick={() => handleConsent('accepted')}
-          className="mr-2 px-4 py-2 bg-darkGold text-foreground hover:bg-darkGold/70">
+          className="flex-1 bg-green-5 hover:bg-green-dark text-white rounded-full">
           Приемам
         </Button>
-        {/* <Button
+        <Button
+          variant="outline"
           onClick={() => handleConsent('denied')}
-          className="px-4 py-2 bg-gray-700 text-foreground hover:bg-gray-700/70">
+          className="flex-1 rounded-full text-slate-600 border-slate-300 hover:bg-slate-50">
           Откажи
-        </Button> */}
+        </Button>
       </div>
     </section>
   );

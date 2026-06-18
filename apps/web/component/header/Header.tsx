@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   AnimatePresence,
   motion,
@@ -9,39 +9,172 @@ import {
 } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { CartIcon, CartIcon2, HomeIcon } from '../icons/icons';
 import Dropdown from './Dropdown';
 import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { useCart } from '@/hooks/useCart';
-import dynamic from 'next/dynamic';
 import CartButton from '../cart/cart-button/CartButton';
-import { useIsClient } from '@/hooks/useIsClient';
+import {
+  CalendarDays,
+  ChevronRight,
+  Clock3,
+  LogOut,
+  Mail,
+  Menu,
+  Phone,
+  ShieldCheck,
+  User,
+  X,
+} from 'lucide-react';
 
 interface HeaderProps {
   label: string;
   href: string;
+  adminOnly?: boolean;
   items?:
     | {
         label: string;
         href: string;
+        desc?: string;
       }[]
     | undefined;
 }
 
-const Header = () => {
+const getAvatarUrl = (metadata: Record<string, unknown>): string | null => {
+  const avatarUrl = metadata.avatar_url;
+  if (typeof avatarUrl === 'string' && avatarUrl.length > 0) {
+    return avatarUrl;
+  }
+
+  const picture = metadata.picture;
+  return typeof picture === 'string' && picture.length > 0 ? picture : null;
+};
+
+const getProfileName = (metadata: Record<string, unknown>): string => {
+  const fullName = metadata.full_name;
+  if (typeof fullName === 'string' && fullName.length > 0) {
+    return fullName;
+  }
+
+  const name = metadata.name;
+  return typeof name === 'string' && name.length > 0 ? name : 'Profile';
+};
+
+const getMetadataString = (
+  metadata: Record<string, unknown>,
+  keys: string[],
+): string | null => {
+  for (const key of keys) {
+    const value = metadata[key];
+    if (typeof value === 'string' && value.length > 0) {
+      return value;
+    }
+  }
+
+  return null;
+};
+
+const formatProfileDate = (value: string | null | undefined): string | null => {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat('bg-BG', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  }).format(date);
+};
+
+const navItems: HeaderProps[] = [
+  {
+    label: 'Categories',
+    href: 'categories',
+    items: [
+      {
+        label: 'diaries',
+        desc: 'Consectetur adipisicing elit.',
+        href: 'diaries',
+      },
+      {
+        label: 'cards',
+        desc: 'Lorem ipsum dolor sit.',
+        href: 'cards',
+      },
+      {
+        label: 'Other',
+        desc: 'Lorem sit amet consectetur.',
+        href: 'other',
+      },
+    ],
+  },
+  { label: 'Pricing', href: 'pricing' },
+  { label: 'About', href: 'about' },
+  { label: 'Contact', href: 'contact' },
+  { label: 'Blog', href: 'blog' },
+  { label: 'Dashboard', href: 'dashboard', adminOnly: true },
+];
+
+const mobileContainerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const mobileItemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 300, damping: 24 },
+  },
+};
+
+const Header = (): React.JSX.Element => {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
   const [isSticky, setIsSticky] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openAccordion, setOpenAccordion] = useState<number | null>(null);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
-  const { user, loading, signOut } = useAuth();
-  const { totalItems } = useCart();
-
+  const { user, signOut } = useAuth();
   const { scrollY } = useScroll();
-
-  // if (user !== null) {
-  //   console.log('USER', user);
-  // }
+  const avatarUrl = user ? getAvatarUrl(user.user_metadata) : null;
+  const profileName = user ? getProfileName(user.user_metadata) : '';
+  const birthDate = user
+    ? formatProfileDate(
+        getMetadataString(user.user_metadata, [
+          'birth_date',
+          'birthdate',
+          'date_of_birth',
+          'dob',
+        ]),
+      )
+    : null;
+  const provider =
+    user && typeof user.app_metadata.provider === 'string'
+      ? user.app_metadata.provider
+      : user?.identities?.[0]?.provider ?? 'email';
+  const profileRole =
+    user && typeof user.app_metadata.role === 'string'
+      ? user.app_metadata.role
+      : null;
+  const isAdmin = profileRole === 'admin';
+  const visibleNavItems = navItems.filter(
+    item => !item.adminOnly || isAdmin,
+  );
+  const createdAt = formatProfileDate(user?.created_at);
+  const lastSignInAt = formatProfileDate(user?.last_sign_in_at);
 
   useMotionValueEvent(scrollY, 'change', latest => {
     if (latest > 200) {
@@ -51,72 +184,85 @@ const Header = () => {
     }
   });
 
-  const navItems = [
-    {
-      label: 'Categories',
-      href: 'categories',
-      items: [
-        {
-          label: 'diaries',
-          desc: 'Consectetur adipisicing elit.',
-          href: 'diaries',
-        },
-        {
-          label: 'cards',
-          desc: 'Lorem ipsum dolor sit.',
-          href: 'cards',
-        },
-        {
-          label: 'Other',
-          desc: 'Lorem sit amet consectetur.',
-          href: 'other',
-        },
-      ],
-    },
-    { label: 'Pricing', href: 'pricing' },
-    { label: 'About', href: 'about' },
-    { label: 'Contact', href: 'contact' },
-    { label: 'Blog', href: 'blog' },
-  ];
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
 
-  const navigationContainer = navItems.map(
+  useEffect(() => {
+    if (!profileMenuOpen) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent): void => {
+      if (
+        event.target instanceof Node &&
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target)
+      ) {
+        setProfileMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        setProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [profileMenuOpen]);
+
+  const handleSignOut = async (): Promise<void> => {
+    setProfileMenuOpen(false);
+    await signOut();
+  };
+
+  const navigationContainer = visibleNavItems.map(
     (item: HeaderProps, index: number) => (
       <motion.li
         key={index + 'navmenu'}
-        className="px-6 py-2 relative"
+        className="relative cursor-pointer rounded-full px-5 py-4"
         onMouseEnter={() => {
           setHoveredItem(index);
           if (item.items) {
             setOpenDropdown(index);
+          } else {
+            setOpenDropdown(null);
           }
-        }}
-        onMouseLeave={() => {
-          setHoveredItem(null);
-          setOpenDropdown(null);
         }}>
         {hoveredItem === index && (
           <motion.div
-            className="absolute inset-0 w-full h-full bg-green-5 rounded-[0.8rem] -z-10"
+            className="absolute inset-0 w-full h-full bg-green-5 rounded-full z-0 pointer-events-none"
             layoutId="navbar-hover-bg"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
             transition={{
               type: 'spring',
-              stiffness: 400,
-              damping: 25,
-              opacity: { duration: 0.3 },
+              stiffness: 450,
+              damping: 30,
             }}
           />
         )}
-        <Link className="z-20" href={`/${item?.href}`}>
+        <Link className="z-10 relative" href={`/${item?.href}`}>
           <motion.p
             className={cn(
-              'transition duration-200',
-              hoveredItem === index && 'text-white',
-            )}
-            // whileHover={{ scale: 1.035 }}
-          >
+              'transition duration-200 font-medium',
+              hoveredItem === index
+                ? 'text-white'
+                : 'text-green-dark hover:opacity-80',
+            )}>
             {item?.label}
           </motion.p>
         </Link>
@@ -129,49 +275,17 @@ const Header = () => {
 
   return (
     <>
-      <motion.nav className="relative bg-pink-1 text-green-dark grid justify-items-center text-[1.8rem] pt-[4rem] pb-[4rem]">
-        {/* <div className="text-[2.4rem] md:text-[4.2rem]">
-          <Link href={'/'}>
-            <Image src={'/logo-ctr.svg'} alt="logo" width={200} height={50} />
-          </Link>
-        </div> */}
-
-        <motion.section
-          layout
-          animate={{ scale: isSticky ? 1.03 : 1 }}
-          transition={{
-            type: 'spring',
-            stiffness: 300,
-            damping: 30,
-            duration: 0.5,
-          }}
+      <nav className="relative flex justify-center bg-pink-1 px-4 pb-[4rem] pt-[2rem] text-[1.8rem] text-green-dark sm:pt-[4rem]">
+        {/* Main Wrapper that contains the Navbar Pill and the Avatar Circle */}
+        <div
           className={cn(
-            'cursor-pointer gap-2 flex bg-white rounded-[0.8rem] border-[1px] z-20 relative',
-            isSticky
-              ? 'fixed top-[1rem] shadow-xl'
-              : 'absolute top-[1rem] shadow-lg',
+            'left-0 right-0 z-30 mx-auto flex w-full max-w-[118rem] items-center justify-center px-4 transition-all duration-500',
+            isSticky ? 'fixed top-[1rem]' : 'absolute top-[2rem] sm:top-[4rem]',
           )}>
-          <div className="flex">
-            <Link
-              href={'/'}
-              className={cn(
-                'grid bg-green-1 hover:bg-green-5 rounded-l-[0.8rem] hover:text-white transition duration-200 ease-in-out place-items-center px-[10px] border-r-[1px]',
-              )}>
-              {HomeIcon}
-            </Link>
-
-            <ul className="flex  py-2  items-center justify-center min-w-max">
-              {navigationContainer}
-            </ul>
-          </div>
-
-          <CartButton />
-
-          {/*====== AUTH COMPONENT ===== */}
-          {/* TODO: move the logic to a separate component */}
-
-          <motion.div
-            animate={{ scale: isSticky ? 1.03 : 1 }}
+          {/* Main Navbar Pill */}
+          <motion.section
+            layout
+            animate={{ scale: isSticky ? 1.02 : 1 }}
             transition={{
               type: 'spring',
               stiffness: 300,
@@ -179,30 +293,394 @@ const Header = () => {
               duration: 0.5,
             }}
             className={cn(
-              ' cursor-pointer flex items-center justify-center z-20 bg-white rounded-full w-16 h-16 border-[2px] ',
-              isSticky
-                ? 'fixed top-[0.5rem] -right-[12%] shadow-xl'
-                : 'absolute top-[0.5rem] -right-[12%] shadow-lg',
+              'grid h-[62px] w-full grid-cols-[auto_1fr_auto] items-stretch rounded-[0.8rem] border-[1px] bg-white sm:h-[68px] lg:h-[70px]',
+              isSticky ? 'shadow-xl' : 'shadow-lg',
             )}>
-            {user ? (
-              <>
-                <button>
-                  <Image
-                    src={user?.user_metadata?.avatar_url}
-                    alt="avatar"
-                    width={30}
-                    height={30}
-                    className="rounded-full"
-                  />
+            {/* Left Side: Mobile Menu & Logo */}
+            <div className="flex min-w-[13rem] items-stretch lg:min-w-[22rem]">
+              {/* Mobile Hamburger Menu Button */}
+              <div className="lg:hidden flex">
+                <button
+                  onClick={() => setMobileMenuOpen(true)}
+                  className="grid place-items-center rounded-l-[0.8rem] border-r-[1px] px-[15px] text-green-dark transition duration-200 hover:bg-green-1 sm:px-[20px]"
+                  aria-label="Open menu">
+                  <Menu className="w-6 h-6" />
                 </button>
-              </>
-            ) : (
-              <Link href="/login">X</Link>
-            )}
+              </div>
+
+              <Link
+                href={'/'}
+                className={cn(
+                  'grid place-items-center border-r-[1px] bg-green-1 px-[18px] transition duration-200 ease-in-out hover:bg-green-5 sm:px-[26px] lg:min-w-[16rem]',
+                  'rounded-none lg:rounded-l-[0.8rem]',
+                )}>
+                <Image
+                  src="/logo-ctr.svg"
+                  alt="Little Bloom Creations"
+                  width={118}
+                  height={34}
+                  priority
+                  className="h-auto w-[9.6rem] object-contain sm:w-[11.8rem]"
+                />
+              </Link>
+            </div>
+
+            {/* Center: Desktop Navigation */}
+            <ul
+              className="hidden min-w-max items-center justify-center gap-2 px-2 py-2 lg:flex"
+              onMouseLeave={() => {
+                setHoveredItem(null);
+                setOpenDropdown(null);
+              }}>
+              {navigationContainer}
+            </ul>
+
+            {/* Right Side: Cart & Auth */}
+            <div className="relative flex min-w-[11rem] items-stretch justify-end lg:min-w-[22rem]">
+              <CartButton />
+              <div
+                ref={profileMenuRef}
+                className="relative flex h-full items-stretch">
+                {user ? (
+                  <button
+                    type="button"
+                    onClick={() => setProfileMenuOpen(current => !current)}
+                    className={cn(
+                      'grid h-full min-w-[62px] place-items-center overflow-hidden rounded-r-[0.8rem] border-l-[1px] px-[18px] text-green-dark transition duration-200 hover:bg-green-5 hover:text-white sm:min-w-[68px]',
+                      profileMenuOpen && 'bg-green-1',
+                    )}
+                    aria-label="Open profile menu"
+                    aria-expanded={profileMenuOpen}
+                    aria-haspopup="menu">
+                    {avatarUrl ? (
+                      <Image
+                        src={avatarUrl}
+                        alt="Profile picture"
+                        width={42}
+                        height={42}
+                        className="h-[42px] w-[42px] rounded-full border border-green-5/40 object-cover"
+                      />
+                    ) : (
+                      <User className="h-6 w-6" />
+                    )}
+                  </button>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="grid h-full min-w-[62px] place-items-center rounded-r-[0.8rem] border-l-[1px] px-[18px] text-green-dark transition duration-200 hover:bg-green-5 hover:text-white sm:min-w-[68px]"
+                    aria-label="Login">
+                    <User className="h-6 w-6" />
+                  </Link>
+                )}
+                <AnimatePresence>
+                  {user && profileMenuOpen ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 top-full z-50 w-[32rem] pt-6"
+                      role="menu">
+                      <div className="max-h-[calc(100dvh-10rem)] overflow-y-auto rounded-2xl border border-slate-200/60 bg-white/95 p-4 shadow-2xl backdrop-blur-xl">
+                        <div className="flex justify-center px-4 py-3">
+                          <div className="relative grid h-24 w-24 place-items-center overflow-hidden rounded-full border-2 border-green-5/40 bg-green-1 shadow-sm">
+                            {avatarUrl ? (
+                              <Image
+                                src={avatarUrl}
+                                alt="Profile picture"
+                                fill
+                                sizes="96px"
+                                className="object-cover"
+                              />
+                            ) : (
+                              <User className="h-10 w-10 text-green-dark" />
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="mx-auto my-3 h-px w-[92%] bg-slate-100" />
+
+                        <div className="space-y-1 px-2 pb-2">
+                          <div className="flex items-start gap-3 rounded-xl px-3 py-2.5">
+                            <User className="mt-0.5 h-5 w-5 flex-none text-green-9" />
+                            <div className="min-w-0">
+                              <p className="text-[1.1rem] font-medium uppercase text-slate-400">
+                                Име
+                              </p>
+                              <p className="truncate text-[1.4rem] font-semibold text-slate-800">
+                                {profileName}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start gap-3 rounded-xl px-3 py-2.5">
+                            <Mail className="mt-0.5 h-5 w-5 flex-none text-green-9" />
+                            <div className="min-w-0">
+                              <p className="text-[1.1rem] font-medium uppercase text-slate-400">
+                                Имейл
+                              </p>
+                              <p className="break-all text-[1.4rem] font-medium text-slate-700">
+                                {user.email}
+                              </p>
+                            </div>
+                          </div>
+
+                          {user.phone ? (
+                            <div className="flex items-start gap-3 rounded-xl px-3 py-2.5">
+                              <Phone className="mt-0.5 h-5 w-5 flex-none text-green-9" />
+                              <div>
+                                <p className="text-[1.1rem] font-medium uppercase text-slate-400">
+                                  Телефон
+                                </p>
+                                <p className="text-[1.4rem] font-medium text-slate-700">
+                                  {user.phone}
+                                </p>
+                              </div>
+                            </div>
+                          ) : null}
+
+                          {birthDate ? (
+                            <div className="flex items-start gap-3 rounded-xl px-3 py-2.5">
+                              <CalendarDays className="mt-0.5 h-5 w-5 flex-none text-green-9" />
+                              <div>
+                                <p className="text-[1.1rem] font-medium uppercase text-slate-400">
+                                  Дата на раждане
+                                </p>
+                                <p className="text-[1.4rem] font-medium text-slate-700">
+                                  {birthDate}
+                                </p>
+                              </div>
+                            </div>
+                          ) : null}
+
+                          <div className="flex items-start gap-3 rounded-xl px-3 py-2.5">
+                            {provider === 'google' ? (
+                              <Image
+                                src="/google-g.svg"
+                                alt=""
+                                width={20}
+                                height={20}
+                                className="mt-0.5 h-5 w-5 flex-none"
+                              />
+                            ) : (
+                              <Mail className="mt-0.5 h-5 w-5 flex-none text-green-9" />
+                            )}
+                            <div>
+                              <p className="text-[1.1rem] font-medium uppercase text-slate-400">
+                                Вход чрез
+                              </p>
+                              <p className="text-[1.4rem] font-medium capitalize text-slate-700">
+                                {provider}
+                              </p>
+                            </div>
+                          </div>
+
+                          {profileRole ? (
+                            <div className="flex items-start gap-3 rounded-xl px-3 py-2.5">
+                              <ShieldCheck className="mt-0.5 h-5 w-5 flex-none text-green-9" />
+                              <div>
+                                <p className="text-[1.1rem] font-medium uppercase text-slate-400">
+                                  Роля
+                                </p>
+                                <p className="text-[1.4rem] font-medium capitalize text-slate-700">
+                                  {profileRole}
+                                </p>
+                              </div>
+                            </div>
+                          ) : null}
+
+                          {createdAt ? (
+                            <div className="flex items-start gap-3 rounded-xl px-3 py-2.5">
+                              <CalendarDays className="mt-0.5 h-5 w-5 flex-none text-green-9" />
+                              <div>
+                                <p className="text-[1.1rem] font-medium uppercase text-slate-400">
+                                  Регистрация
+                                </p>
+                                <p className="text-[1.4rem] font-medium text-slate-700">
+                                  {createdAt}
+                                </p>
+                              </div>
+                            </div>
+                          ) : null}
+
+                          {lastSignInAt ? (
+                            <div className="flex items-start gap-3 rounded-xl px-3 py-2.5">
+                              <Clock3 className="mt-0.5 h-5 w-5 flex-none text-green-9" />
+                              <div>
+                                <p className="text-[1.1rem] font-medium uppercase text-slate-400">
+                                  Последно влизане
+                                </p>
+                                <p className="text-[1.4rem] font-medium text-slate-700">
+                                  {lastSignInAt}
+                                </p>
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+
+                        <div className="mx-auto my-3 h-px w-[92%] bg-slate-100" />
+
+                        <button
+                          type="button"
+                          onClick={handleSignOut}
+                          className="flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3.5 text-[1.4rem] font-semibold text-rose-600 transition-colors duration-200 hover:bg-rose-50"
+                          role="menuitem">
+                          <LogOut className="h-5 w-5" />
+                          Изход
+                        </button>
+                      </div>
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
+              </div>
+            </div>
+          </motion.section>
+        </div>
+      </nav>
+
+      {/* FULL SCREEN GLASSMORPHISM MOBILE MENU */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { delay: 0.2 } }}
+            className="fixed inset-0 z-[100] bg-white/70 backdrop-blur-2xl flex flex-col lg:hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 mt-4">
+              <span className="text-[2.6rem] font-bold text-green-dark font-montserrat tracking-tight">
+                Little Bloom
+              </span>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-14 h-14 bg-white/80 rounded-full flex items-center justify-center shadow-sm border border-green-1 text-green-dark hover:bg-green-5 hover:text-white transition-colors">
+                <X className="w-7 h-7" />
+              </button>
+            </div>
+
+            {/* Links */}
+            <motion.div
+              className="flex-1 overflow-y-auto px-8 py-6 flex flex-col gap-6"
+              variants={mobileContainerVariants}
+              initial="hidden"
+              animate="show"
+              exit="hidden">
+              {visibleNavItems.map((item, idx) => (
+                <motion.div
+                  key={idx}
+                  variants={mobileItemVariants}
+                  className="flex flex-col">
+                  <div className="flex items-center justify-between py-2 border-b border-green-200/50 group">
+                    <Link
+                      href={`/${item.href}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-[2.2rem] font-semibold text-green-dark group-hover:text-green-5 transition-colors flex-1 py-2">
+                      {item.label}
+                    </Link>
+                    {item.items && (
+                      <button
+                        onClick={e => {
+                          e.preventDefault();
+                          setOpenAccordion(openAccordion === idx ? null : idx);
+                        }}
+                        className="p-4 -mr-4 flex items-center justify-center cursor-pointer">
+                        <motion.div
+                          animate={{ rotate: openAccordion === idx ? 90 : 0 }}
+                          transition={{
+                            type: 'spring',
+                            stiffness: 300,
+                            damping: 20,
+                          }}>
+                          <ChevronRight className="w-8 h-8 text-green-5" />
+                        </motion.div>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Accordion Content */}
+                  <AnimatePresence>
+                    {item.items && openAccordion === idx && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{
+                          type: 'spring',
+                          stiffness: 300,
+                          damping: 24,
+                        }}
+                        className="overflow-hidden">
+                        <div className="flex flex-col gap-4 pl-6 py-6 bg-white/40 rounded-b-2xl mb-4 border-l-2 border-green-5">
+                          {item.items.map((sub, sIdx) => (
+                            <Link
+                              key={sIdx}
+                              href={`/${item.href}/${sub.href}`}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="text-[1.8rem] text-gray-700 hover:text-green-9 font-medium transition-colors">
+                              {sub.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Footer / Auth */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                delay: 0.3,
+                type: 'spring',
+                stiffness: 300,
+                damping: 24,
+              }}
+              className="p-6 sm:p-8 bg-white/60 border-t border-green-200/50 backdrop-blur-md shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
+              {user ? (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <Image
+                      src={
+                        user?.user_metadata?.avatar_url || '/default-avatar.png'
+                      }
+                      alt="avatar"
+                      width={56}
+                      height={56}
+                      className="rounded-full border-2 border-green-5 bg-white shadow-sm"
+                    />
+                    <div className="flex flex-col">
+                      <span className="text-[1.6rem] font-bold text-green-dark">
+                        Профил
+                      </span>
+                      <span className="text-[1.2rem] text-gray-500 truncate max-w-[150px]">
+                        {user.email}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      signOut();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="px-6 py-3 rounded-xl bg-rose-50 text-rose-600 font-semibold text-[1.4rem] hover:bg-rose-100 transition-colors">
+                    Изход
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center w-full py-4 px-2 rounded-2xl text-white font-bold text-[1.5rem] sm:text-[1.8rem] bg-gradient-to-r from-green-dark to-green-5 hover:from-green-9 hover:to-green-dark transition-all shadow-lg shadow-green-5/30 text-center">
+                  Вход / Регистрация
+                </Link>
+              )}
+            </motion.div>
           </motion.div>
-          {/* =========== */}
-        </motion.section>
-      </motion.nav>
+        )}
+      </AnimatePresence>
     </>
   );
 };

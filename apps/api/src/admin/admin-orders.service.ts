@@ -124,4 +124,16 @@ export class AdminOrdersService {
 
     return this.adminRepository.updateOrder(orderId, dbUpdates);
   }
+
+  async markAsDelivered(orderId: string) {
+    const orderData = await this.adminRepository.getOrderByNumber(orderId);
+    if (!orderData) {
+      throw new NotFoundException(`Order ${orderId} not found`);
+    }
+    if (orderData.status === 'cancelled') {
+      throw new Error('Cannot mark a cancelled order as delivered.');
+    }
+    await this.adminRepository.updateOrder(orderId, { status: 'delivered' });
+    return { success: true, status: 'delivered' };
+  }
 }

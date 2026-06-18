@@ -166,4 +166,8 @@ export declare class AdminController {
             stripePaymentIntentId: string | null;
         };
     }>;
+    markAsDelivered(id: string): Promise<{
+        success: boolean;
+        status: string;
+    }>;
 }

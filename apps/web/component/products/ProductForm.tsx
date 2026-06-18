@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import CustomCheckbox from '../checkbox-container/CustomCheckbox';
 import { toast } from 'sonner';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { CartIcon2 } from '../icons/icons';
 import { Slug } from '@/sanity.types';
 
@@ -55,6 +55,8 @@ const ProductForm = ({ product }: { product: Product }) => {
 
   const router = useRouter();
   const searchParams = useSearchParams();
+  const params = useParams();
+  const categorySlug = params?.category as string;
 
   //check if the product is already in the cart
   const productId = searchParams.get('productId');
@@ -74,6 +76,7 @@ const ProductForm = ({ product }: { product: Product }) => {
   const cartItems = {
     id: variants?.id ?? product.id,
     slug: product?.slug,
+    category: { slug: { current: categorySlug || 'all' } },
     sku: product.sku,
     name: product.name,
     price: product.price,

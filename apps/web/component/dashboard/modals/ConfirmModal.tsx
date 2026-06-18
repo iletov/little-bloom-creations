@@ -22,6 +22,8 @@ interface ConfirmModalProps {
   isLoading?: boolean;
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
   trigger: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function ConfirmModal({
@@ -33,9 +35,11 @@ export function ConfirmModal({
   isLoading = false,
   variant = 'destructive',
   trigger,
+  open,
+  onOpenChange,
 }: ConfirmModalProps) {
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogTrigger asChild>
         {trigger}
       </AlertDialogTrigger>

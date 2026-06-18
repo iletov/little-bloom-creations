@@ -1,15 +1,27 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createClient } from '@supabase/supabase-js';
+import {
+  createClient,
+  type SupabaseClient,
+  type User,
+} from '@supabase/supabase-js';
+
+interface AuthenticatedRequest {
+  headers: {
+    authorization?: string;
+  };
+  user?: User | { role: 'service_role' };
+}
 
 @Injectable()
 export class SupabaseAuthGuard implements CanActivate {
-  private supabase;
+  private readonly supabase: SupabaseClient;
 
   constructor(private readonly configService: ConfigService) {
     const supabaseUrl = this.configService.get<string>(
@@ -27,18 +39,22 @@ export class SupabaseAuthGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const authHeader = request.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw new UnauthorizedException('Missing or invalid Authorization header');
     }
 
-    const token = authHeader.split(' ')[1];
+    const token = authHeader.slice('Bearer '.length).trim();
+    if (!token) {
+      throw new UnauthorizedException('Missing bearer token');
+    }
 
     // Allow internal server-to-server calls using the service role key
-    const serviceRoleKey = this.configService.get<string>('SUPABASE_SERVICE_ROLE_KEY') 
-                        || this.configService.get<string>('NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY');
+    const serviceRoleKey = this.configService.get<string>(
+      'SUPABASE_SERVICE_ROLE_KEY',
+    );
     
     if (serviceRoleKey && token === serviceRoleKey) {
       // It's an internal admin call
@@ -53,7 +69,10 @@ export class SupabaseAuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid or expired token');
     }
 
-    // Attach user to request so controllers can access it
+    if (data.user.app_metadata.role !== 'admin') {
+      throw new ForbiddenException('Administrator access is required');
+    }
+
     request.user = data.user;
 
     return true;

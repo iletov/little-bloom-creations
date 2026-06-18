@@ -31,9 +31,11 @@ let SupabaseAuthGuard = class SupabaseAuthGuard {
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             throw new common_1.UnauthorizedException('Missing or invalid Authorization header');
         }
-        const token = authHeader.split(' ')[1];
-        const serviceRoleKey = this.configService.get('SUPABASE_SERVICE_ROLE_KEY')
-            || this.configService.get('NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY');
+        const token = authHeader.slice('Bearer '.length).trim();
+        if (!token) {
+            throw new common_1.UnauthorizedException('Missing bearer token');
+        }
+        const serviceRoleKey = this.configService.get('SUPABASE_SERVICE_ROLE_KEY');
         if (serviceRoleKey && token === serviceRoleKey) {
             request.user = { role: 'service_role' };
             return true;
@@ -41,6 +43,9 @@ let SupabaseAuthGuard = class SupabaseAuthGuard {
         const { data, error } = await this.supabase.auth.getUser(token);
         if (error || !data.user) {
             throw new common_1.UnauthorizedException('Invalid or expired token');
+        }
+        if (data.user.app_metadata.role !== 'admin') {
+            throw new common_1.ForbiddenException('Administrator access is required');
         }
         request.user = data.user;
         return true;

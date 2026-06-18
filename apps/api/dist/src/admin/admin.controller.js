@@ -49,6 +49,9 @@ let AdminController = class AdminController {
     async cancelOrder(id) {
         return this.adminCancellationService.cancelOrder(id);
     }
+    async markAsDelivered(id) {
+        return this.adminOrdersService.markAsDelivered(id);
+    }
 };
 exports.AdminController = AdminController;
 __decorate([
@@ -93,6 +96,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "cancelOrder", null);
+__decorate([
+    (0, common_1.Post)('orders/:id/deliver'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "markAsDelivered", null);
 exports.AdminController = AdminController = __decorate([
     (0, common_1.UseGuards)(supabase_auth_guard_1.SupabaseAuthGuard),
     (0, common_1.Controller)('admin'),

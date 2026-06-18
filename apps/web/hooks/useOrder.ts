@@ -76,7 +76,7 @@ export function useUpdateOrder(orderId: string) {
   });
 }
 
-import { generateWaybill, cancelOrder } from '@/supabase/dashboard/orderActions';
+import { generateWaybill, cancelOrder, markOrderAsDelivered } from '@/supabase/dashboard/orderActions';
 
 export function useGenerateWaybill(orderId: string) {
   const queryClient = useQueryClient();
@@ -114,6 +114,26 @@ export function useCancelOrder(orderId: string) {
     },
     onError: (err) => {
       toast.error(`Failed to cancel order: ${err.message}`);
+    }
+  });
+}
+
+export function useMarkAsDelivered(orderId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const result = await markOrderAsDelivered(orderId);
+      if (!result.success) throw new Error(result.error);
+      return result.data;
+    },
+    onSuccess: () => {
+      toast.success('Order marked as delivered');
+      queryClient.invalidateQueries({ queryKey: orderKeys.detail(orderId) });
+      queryClient.invalidateQueries({ queryKey: orderKeys.all });
+    },
+    onError: (err) => {
+      toast.error(`Failed to mark as delivered: ${err.message}`);
     }
   });
 }

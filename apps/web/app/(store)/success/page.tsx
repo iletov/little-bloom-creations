@@ -1,7 +1,7 @@
 // app/success/page.tsx
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useCart } from '@/hooks/useCart';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
@@ -22,7 +22,7 @@ function SuccessContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get('order_number');
 
-  const { dispatchPaymentIntentId } = useCart();
+  const { dispatchPaymentIntentId, clearCart } = useCart();
 
   const { data, error, isLoading } = useQuery({
     queryKey: ['webhook', orderNumber],
@@ -48,7 +48,17 @@ function SuccessContent() {
   const order = data?.order;
   const errorMessage = data?.error || data?.message || error?.message || '';
 
-  dispatchPaymentIntentId(null);
+  useEffect(() => {
+    dispatchPaymentIntentId(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (status === 'success') {
+      clearCart();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
 
   if (isLoading) {
     return (

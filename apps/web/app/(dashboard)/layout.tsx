@@ -9,6 +9,7 @@ import AppSidebar from '@/component/dashboard/sidebar/AppSidebar';
 import { Geist, Monsieur_La_Doulaise } from 'next/font/google';
 import QueryProvider from '../(store)/query-provider';
 import BackButton from '@/component/dashboard/back-button/BackButton';
+import { redirect } from 'next/navigation';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,6 +34,14 @@ export default async function DashboardLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
+  if (user.app_metadata.role !== 'admin') {
+    redirect('/');
+  }
 
   return (
     <html lang="en">

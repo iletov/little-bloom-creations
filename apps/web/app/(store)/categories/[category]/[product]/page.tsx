@@ -66,6 +66,7 @@ export default async function Product({ params }: Props) {
     ...supabaseData,
     name: sanityData?.name,
     supabase_name: supabaseData?.name,
+    category: sanityData?.category,
     variants: completeVariants,
   };
 

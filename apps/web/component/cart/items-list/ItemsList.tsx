@@ -27,11 +27,14 @@ type ItemsListProps = {
 };
 
 export const ItemsList = ({ group, checkout }: ItemsListProps) => {
+  const categorySlug = group.product?.category?.slug?.current 
+    || (typeof group.product?.category === 'string' ? group.product.category : 'all');
+
   return (
     <article className=" flex w-full border-b-[1px] rounded-md hover:bg-green-1/20 transition easy-in-out py-4 px-4 gap-8 font-montserrat">
       <Link
         href={{
-          pathname: `/product/${group.product.slug?.current}`,
+          pathname: `/categories/${categorySlug}/${group.product.slug?.current || group.product.slug}`,
           query: { productId: group?.personalisation?.productId },
         }}
         className="flex gap-10 cursor-pointer pr-4  flex-1">
@@ -103,7 +106,7 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
         </div>
         <Link
           href={{
-            pathname: `/product/${group.product.slug?.current}`,
+            pathname: `/categories/${categorySlug}/${group.product.slug?.current || group.product.slug}`,
           }}
           className="text-[1.4rem] border-2 px-4 py-2 rounded-lg hover:bg-white self-start">
           {' '}

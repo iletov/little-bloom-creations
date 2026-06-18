@@ -49,4 +49,9 @@ export class AdminController {
   async cancelOrder(@Param('id') id: string) {
     return this.adminCancellationService.cancelOrder(id);
   }
+
+  @Post('orders/:id/deliver')
+  async markAsDelivered(@Param('id') id: string) {
+    return this.adminOrdersService.markAsDelivered(id);
+  }
 }

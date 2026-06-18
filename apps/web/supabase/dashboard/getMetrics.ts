@@ -6,7 +6,7 @@ export async function getMetrics(days: number = 7) {
   const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
 
-  const token = session?.access_token || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+  const token = session?.access_token || process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!token) {
     console.error('Unauthorized access to getMetrics');
     return {

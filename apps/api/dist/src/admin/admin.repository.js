@@ -80,9 +80,10 @@ let AdminRepository = class AdminRepository {
             },
         });
     }
-    async getOrderByNumber(orderNumber) {
+    async getOrderByNumber(orderNumberOrId) {
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderNumberOrId);
         return database_provider_1.db.query.orders.findFirst({
-            where: (0, drizzle_orm_1.eq)(schema_1.orders.orderNumber, orderNumber),
+            where: isUUID ? (0, drizzle_orm_1.eq)(schema_1.orders.id, orderNumberOrId) : (0, drizzle_orm_1.eq)(schema_1.orders.orderNumber, orderNumberOrId),
             with: {
                 shipping: true,
                 items: {

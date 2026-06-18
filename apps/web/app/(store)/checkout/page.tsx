@@ -11,7 +11,7 @@ import { ItemsList } from '@/component/cart/items-list/ItemsList';
 import { convertToSubCurrency } from '@/lib/convertAmount';
 import { Separator } from '@/component/separator/Separator';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
-import { AlertBox } from '@/component/modals/AlertBox';
+import { toast } from 'sonner';
 import { calculateLabel } from '@/actions/ekont/calculateLabel';
 import { validateStreetSpeedy } from '@/actions/speedy/validateStreetSpeedy';
 import { useSenderInfo } from '@/hooks/useSenderInfo';
@@ -48,9 +48,6 @@ export default function CheckoutPage() {
 
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [isDissabled, setIsDissabled] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState({ title: '', message: '' });
-
   const { mutateAsync: calculateShipping } = useCalculateShipping();
   const { mutateAsync: initiateStripeOrder, isPending: isStripePending } = useInitiateStripeOrder();
 
@@ -122,11 +119,9 @@ export default function CheckoutPage() {
       }
     } catch (error : any) {
       console.error('Error creating checkout session', error);
-      setAlertMessage({
-        title: 'Възникна грешка',
-        message: error?.message || 'Изглежда имаме проблем с плащането, моля изберете друг метод.',
+      toast.error('Възникна грешка', {
+        description: error?.message || 'Изглежда имаме проблем с плащането, моля изберете друг метод.',
       });
-      setShowAlert(true);
     }
   };
 
@@ -174,11 +169,9 @@ export default function CheckoutPage() {
 
     } catch (error: any) {
       console.error('Shipping calculation error:', error);
-      setAlertMessage({
-        title: 'Грешка при изчисляване на доставката',
-        message: error?.message || 'Моля, уверете се, че сте попълнили коректно всички данни за доставка.',
+      toast.error('Грешка при изчисляване на доставката', {
+        description: error?.message || 'Моля, уверете се, че сте попълнили коректно всички данни за доставка.',
       });
-      setShowAlert(true);
       throw error;
     } finally {
       setDeliveryCostFlag(false);
@@ -274,13 +267,6 @@ export default function CheckoutPage() {
         <OrderSummery />
       </div>
 
-      {showAlert && (
-        <AlertBox
-          title={alertMessage.title}
-          description={alertMessage.message}
-          reset={() => setShowAlert(false)}
-        />
-      )}
     </section>
   );
 }

@@ -9,7 +9,7 @@ import { Pencil, Check, X, Loader2, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useUpdateOrder, useGenerateWaybill, useCancelOrder } from '@/hooks/useOrder';
+import { useUpdateOrder, useGenerateWaybill, useCancelOrder, useMarkAsDelivered } from '@/hooks/useOrder';
 import { cn } from '@/lib/utils';
 import { statusConfig, deliveryConfig, paymentConfig } from '../badge-configs';
 import { Package, Clock, CreditCard } from 'lucide-react';
@@ -28,6 +28,8 @@ const SingleOrderContainer = ({ data }: { data: Order }) => {
   const [isOpen, setIsOpen] = useState<string[]>([]);
   const [showWaybillModal, setShowWaybillModal] = useState(false);
   const [waybillError, setWaybillError] = useState<string | null>(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isDeliverModalOpen, setIsDeliverModalOpen] = useState(false);
   
   // Optimistic UI states
   const [optimisticShipmentNumber, setOptimisticShipmentNumber] = useState<string | null>(data.shipment_number || null);
@@ -38,6 +40,7 @@ const SingleOrderContainer = ({ data }: { data: Order }) => {
 
   const { mutate: generateWaybill, isPending: isGeneratingWaybill } = useGenerateWaybill(data.id);
   const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder(data.id);
+  const { mutate: markAsDelivered, isPending: isMarkingDelivered } = useMarkAsDelivered(data.id);
 
   // Use React Query for data fetching/caching
   // We pass initialData to hydrate the cache immediately
@@ -127,6 +130,8 @@ const SingleOrderContainer = ({ data }: { data: Order }) => {
           </Button>
           
           <ConfirmModal
+            open={isCancelModalOpen}
+            onOpenChange={setIsCancelModalOpen}
             title="Cancel Order"
             description="Are you sure you want to cancel this order? This action will set the order status to Cancelled and restock the items. This cannot be easily undone."
             confirmText="Yes, Cancel Order"
@@ -135,6 +140,7 @@ const SingleOrderContainer = ({ data }: { data: Order }) => {
             onConfirm={() => cancelOrder(undefined, {
               onSuccess: () => {
                 setOptimisticStatus('cancelled');
+                setIsCancelModalOpen(false);
                 router.refresh();
               }
             })}
@@ -145,6 +151,32 @@ const SingleOrderContainer = ({ data }: { data: Order }) => {
               >
                 {isCancelling ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Cancel Order
+              </Button>
+            }
+          />
+
+          <ConfirmModal
+            open={isDeliverModalOpen}
+            onOpenChange={setIsDeliverModalOpen}
+            title="Mark as Delivered"
+            description="Are you sure you want to mark this order as delivered? This confirms the order has been received by the customer."
+            confirmText="Yes, Mark as Delivered"
+            variant="default"
+            isLoading={isMarkingDelivered}
+            onConfirm={() => markAsDelivered(undefined, {
+              onSuccess: () => {
+                setOptimisticStatus('delivered');
+                router.refresh();
+              }
+            })}
+            trigger={
+              <Button
+                variant="default"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                disabled={isMarkingDelivered || optimisticStatus === 'delivered' || optimisticStatus === 'cancelled'}
+              >
+                {isMarkingDelivered ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Mark as Delivered
               </Button>
             }
           />

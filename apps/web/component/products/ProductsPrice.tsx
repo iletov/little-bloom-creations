@@ -29,7 +29,7 @@ export const ProductsPrice = ({
               price: price ?? 0,
               discount: price?.discount ?? 0,
             }).toFixed(2)}{' '}
-            лв.
+            €
           </p>
         </div>
       )}

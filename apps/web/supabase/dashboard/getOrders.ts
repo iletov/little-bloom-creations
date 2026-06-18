@@ -4,7 +4,7 @@ export async function getOrders() {
   const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
 
-  const token = session?.access_token || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+  const token = session?.access_token || process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!token) {
     console.error('Unauthorized access to getOrders');
     return { recentOrders: [], allOrders: [] };
@@ -42,7 +42,7 @@ export async function getSingleOrder(id: string) {
   const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
 
-  const token = session?.access_token || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+  const token = session?.access_token || process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!token) {
     console.error('Unauthorized access to getSingleOrder');
     return null;
@@ -84,7 +84,7 @@ export async function getOrdersForStaticParams() {
     const response = await fetch(`${apiUrl}/admin/orders`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY}`,
+        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
         'Content-Type': 'application/json',
       },
     });

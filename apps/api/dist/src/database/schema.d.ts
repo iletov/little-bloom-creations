@@ -1,5 +1,5 @@
 import { DeliveryMethodEnum, PaymentMethodEnum } from '@repo/shared-types';
-export declare const orderStatusEnum: import("drizzle-orm/pg-core").PgEnum<["pending", "confirmed", "shipped", "refunded", "cancelled"]>;
+export declare const orderStatusEnum: import("drizzle-orm/pg-core").PgEnum<["pending", "confirmed", "shipped", "delivered", "refunded", "cancelled"]>;
 export declare const paymentMethodEnum: import("drizzle-orm/pg-core").PgEnum<["bank", "cash", "stripe"]>;
 export declare const deliveryMethodEnum: import("drizzle-orm/pg-core").PgEnum<["ekont-office", "ekont-delivery", "speedy-delivery", "speedy-office"]>;
 export declare const products: import("drizzle-orm/pg-core").PgTableWithColumns<{
@@ -416,7 +416,7 @@ export declare const orders: import("drizzle-orm/pg-core").PgTableWithColumns<{
             isPrimaryKey: false;
             isAutoincrement: false;
             hasRuntimeDefault: false;
-            enumValues: ["pending", "confirmed", "shipped", "refunded", "cancelled"];
+            enumValues: ["pending", "confirmed", "shipped", "delivered", "refunded", "cancelled"];
             baseColumn: never;
             identity: undefined;
             generated: undefined;

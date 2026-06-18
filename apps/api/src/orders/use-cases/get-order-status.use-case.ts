@@ -16,9 +16,9 @@ export class GetOrderStatusUseCase {
     let mappedStatus = 'pending';
     let message = 'Processing your order. Please wait...';
 
-    if (order.status === 'confirmed' || order.status === 'shipped') {
+    if (order.status === 'confirmed' || order.status === 'shipped' || order.status === 'delivered') {
       mappedStatus = 'success';
-      message = 'Order created successfully!';
+      message = order.status === 'delivered' ? 'Order delivered successfully!' : 'Order created successfully!';
     } else if (order.status === 'cancelled') {
       mappedStatus = 'failed';
       message = 'Order creation failed or was cancelled.';

@@ -1,7 +1,7 @@
 'use client';
 import { cancelPaymentIntent } from '@/actions/cancelPaymentIntent';
 import { Loader } from '@/component/loader/Loader';
-import { AlertBox } from '@/component/modals/AlertBox';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
@@ -46,12 +46,10 @@ export const PaymentCash = ({
     totalWeight,
   } = useCart();
 
-  const [showAlert, setShowAlert] = useState(false);
   const [response, setResponse] = useState({
     success: false,
     order_number: '',
   });
-  const [alertMessage, setAlertMessage] = useState({ title: '', message: '' });
 
   const { mutateAsync: placeCashOrder, isPending: isCashPending } = usePlaceCashOrder();
 
@@ -80,11 +78,9 @@ export const PaymentCash = ({
       if (!senderData || !addressFormData || !deliveryMethod) {
         console.error('Missing required data SENDER, ADDRESS, EKONT METHOD');
 
-        setAlertMessage({
-          title: 'Възникна грешка',
-          message: 'Липсват потребителски данни',
+        toast.error('Възникна грешка', {
+          description: 'Липсват потребителски данни',
         });
-        setShowAlert(true);
 
         return 0;
       }
@@ -126,30 +122,22 @@ export const PaymentCash = ({
 
       setResponse({ success: true, order_number: data.orderNumber });
 
-      setAlertMessage({
-        title: 'Успешно направена поръчка!',
-        message: 'Вашата поръчка беше успешно направена!',
+      toast.success('Успешно направена поръчка!', {
+        description: 'Вашата поръчка беше успешно направена!',
       });
-      setShowAlert(true);
     } catch (error: any) {
       console.error('Error submiting cash order', error);
-      setAlertMessage({
-        title: 'Възникна грешка',
-        message: error?.message || 'Възникна неочаквана грешка при запазване на поръчката.',
+      toast.error('Възникна грешка', {
+        description: error?.message || 'Възникна неочаквана грешка при запазване на поръчката.',
       });
-      setShowAlert(true);
     }
-  };
-
-  const closeAlert = () => {
-    setShowAlert(false);
   };
 
   useEffect(() => {
-    if (response?.success && !showAlert) {
+    if (response?.success) {
       router.push(`/success?order_number=${response.order_number}`);
     }
-  }, [response, showAlert]);
+  }, [response, router]);
 
   return (
     <section>
@@ -167,13 +155,6 @@ export const PaymentCash = ({
           `Поръчай`
         )}
       </Button>
-      {showAlert && (
-        <AlertBox
-          title={alertMessage.title}
-          description={alertMessage.message}
-          reset={() => closeAlert()}
-        />
-      )}
     </section>
   );
 };

@@ -124,4 +124,8 @@ export declare class AdminOrdersService {
         shipmentNumber: string | null;
         stripePaymentIntentId: string | null;
     }>;
+    markAsDelivered(orderId: string): Promise<{
+        success: boolean;
+        status: string;
+    }>;
 }

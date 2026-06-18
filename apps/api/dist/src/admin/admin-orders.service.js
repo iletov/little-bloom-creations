@@ -114,6 +114,17 @@ let AdminOrdersService = class AdminOrdersService {
         }
         return this.adminRepository.updateOrder(orderId, dbUpdates);
     }
+    async markAsDelivered(orderId) {
+        const orderData = await this.adminRepository.getOrderByNumber(orderId);
+        if (!orderData) {
+            throw new common_1.NotFoundException(`Order ${orderId} not found`);
+        }
+        if (orderData.status === 'cancelled') {
+            throw new Error('Cannot mark a cancelled order as delivered.');
+        }
+        await this.adminRepository.updateOrder(orderId, { status: 'delivered' });
+        return { success: true, status: 'delivered' };
+    }
 };
 exports.AdminOrdersService = AdminOrdersService;
 exports.AdminOrdersService = AdminOrdersService = __decorate([
