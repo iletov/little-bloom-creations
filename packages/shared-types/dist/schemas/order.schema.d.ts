@@ -85,7 +85,7 @@ export declare const OrderItemSchema: z.ZodObject<{
 export declare const OrderSchema: z.ZodObject<{
     id: z.ZodOptional<z.ZodString>;
     order_number: z.ZodString;
-    status: z.ZodEnum<["pending", "confirmed", "shipped", "refunded", "cancelled"]>;
+    status: z.ZodEnum<["pending", "confirmed", "shipped", "delivered", "refunded", "cancelled"]>;
     total_amount: z.ZodNumber;
     subtotal: z.ZodNumber;
     delivery_cost: z.ZodNumber;
@@ -176,7 +176,7 @@ export declare const OrderSchema: z.ZodObject<{
         personalization?: Record<string, any> | undefined;
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
-    status: "pending" | "confirmed" | "shipped" | "refunded" | "cancelled";
+    status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
     subtotal: number;
     order_number: string;
     total_amount: number;
@@ -215,7 +215,7 @@ export declare const OrderSchema: z.ZodObject<{
     id?: string | undefined;
     shipment_number?: string | null | undefined;
 }, {
-    status: "pending" | "confirmed" | "shipped" | "refunded" | "cancelled";
+    status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
     subtotal: number;
     order_number: string;
     total_amount: number;

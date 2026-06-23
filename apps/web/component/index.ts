@@ -8,3 +8,4 @@ export { default as Newsletter } from './newsletter/Newsletter';
 export { default as MultiSection } from './multisection/MultiSection';
 export { default as ProductPreview } from './product-sections/ProductPreview';
 export { default as TabSection } from './tab-section/TabSection';
+export { default as BenefitsSection } from './benefits/BenefitsSection';

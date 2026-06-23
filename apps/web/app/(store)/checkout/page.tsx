@@ -1,6 +1,6 @@
 'use client';
 import { cn } from '@/lib/utils';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { CardPayment } from '@/component/checkout/card-payment/CardPayment';
 import { PaymentCash } from '@/component/checkout/payment-cash/PaymentCash';
 import { CreditCard, Euro } from 'lucide-react';
@@ -25,8 +25,13 @@ import { CartItem } from '@/app/store/features/cart/cartSlice';
 
 import { OrderDetailsContainer } from '@/component/cart/order-details-container/OrderDetailsContainer';
 import { OrderSummery } from '@/component/cart/order-summery/OrderSummery';
+import { useAuth } from '@/hooks/useAuth';
+
+const getErrorMessage = (error: unknown, fallback: string): string =>
+  error instanceof Error ? error.message : fallback;
 
 export default function CheckoutPage() {
+  const { user, loading: isAuthLoading } = useAuth();
   const { deliveryMethod, selectedCity, validationStreet } = useSenderDetails();
   const { senderData, senderDataSpeedy } = useSenderInfo();
   const {
@@ -48,27 +53,26 @@ export default function CheckoutPage() {
 
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [isDissabled, setIsDissabled] = useState(false);
+  const isStripeInitiationLocked = useRef(false);
   const { mutateAsync: calculateShipping } = useCalculateShipping();
   const { mutateAsync: initiateStripeOrder, isPending: isStripePending } = useInitiateStripeOrder();
+  const checkoutEmail = user?.email ?? guestFormData?.email;
+  const firstName = guestFormData?.firstName || user?.user_metadata?.firstName || user?.user_metadata?.first_name;
+  const lastName = guestFormData?.lastName || user?.user_metadata?.lastName || user?.user_metadata?.last_name;
 
-  const handleCardPayment = async () => {
-    setPaymentMethod('bank');
-    
-    let currentDeliveryCost = deliveryCost;
-    try {
-      currentDeliveryCost = await labelValidation('stripe');
-    } catch (error) {
-      return; // Stop execution if validation fails
+  const handleCardPayment = async (): Promise<void> => {
+    if (isStripeInitiationLocked.current || isStripePending) {
+      return;
     }
 
-    const orderMethods = {
-      deliveryMethod: deliveryMethod,
-      paymentMethod: 'bank',
-      deliveryCost: currentDeliveryCost,
-    };
+    isStripeInitiationLocked.current = true;
+    setPaymentMethod('bank');
 
     try {
+      const currentDeliveryCost = await labelValidation('stripe');
       const data = await initiateStripeOrder({
+          existingOrderNumber: metadata?.orderNumber || undefined,
+          existingPaymentIntentId: paymentIntentId || undefined,
           items: items.map((item: CartItem) => ({
             productId: item.product.id || item.product._id,
             variantId: item.product.variant_id || undefined,
@@ -94,7 +98,7 @@ export default function CheckoutPage() {
             firstName: guestFormData?.firstName,
             lastName: guestFormData?.lastName,
             phone: addressFormData?.phoneNumber,
-            email: guestFormData?.email,
+            email: checkoutEmail,
             officeId: addressFormData?.officeCode ? String(addressFormData.officeCode) : undefined,
           },
           deliveryMethod: deliveryMethod,
@@ -117,15 +121,20 @@ export default function CheckoutPage() {
         );
         // console.log('# Response : ', data);
       }
-    } catch (error : any) {
+    } catch (error: unknown) {
       console.error('Error creating checkout session', error);
       toast.error('Възникна грешка', {
-        description: error?.message || 'Изглежда имаме проблем с плащането, моля изберете друг метод.',
+        description: getErrorMessage(
+          error,
+          'Изглежда имаме проблем с плащането, моля изберете друг метод.',
+        ),
       });
+    } finally {
+      isStripeInitiationLocked.current = false;
     }
   };
 
-  const handleCashPayment = async () => {
+  const handleCashPayment = async (): Promise<void> => {
     setPaymentMethod('cash');
     try {
       await labelValidation('cash');
@@ -135,7 +144,9 @@ export default function CheckoutPage() {
     }
   };
 
-  const labelValidation = async (selectedPaymentMethod: string) => {
+  const labelValidation = async (
+    selectedPaymentMethod: string,
+  ): Promise<number> => {
     setDeliveryCostFlag(true);
 
     try {
@@ -158,7 +169,7 @@ export default function CheckoutPage() {
             firstName: guestFormData?.firstName,
             lastName: guestFormData?.lastName,
             phone: addressFormData?.phoneNumber,
-            email: guestFormData?.email,
+            email: checkoutEmail,
             officeId: addressFormData?.officeCode ? String(addressFormData.officeCode) : undefined,
           },
           parcels
@@ -167,10 +178,13 @@ export default function CheckoutPage() {
       setDeliveryCost(data.price || 0);
       return data.price || 0;
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Shipping calculation error:', error);
       toast.error('Грешка при изчисляване на доставката', {
-        description: error?.message || 'Моля, уверете се, че сте попълнили коректно всички данни за доставка.',
+        description: getErrorMessage(
+          error,
+          'Моля, уверете се, че сте попълнили коректно всички данни за доставка.',
+        ),
       });
       throw error;
     } finally {
@@ -178,7 +192,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const handlePaymentChange = (value: string) => {
+  const handlePaymentChange = (value: string): void => {
     if (value === 'cash') {
       handleCashPayment();
     } else if (value === 'bank') {
@@ -190,9 +204,10 @@ export default function CheckoutPage() {
   const isAddressDelivery = deliveryMethod?.includes('delivery');
 
   const isFormValid = Boolean(
-    guestFormData?.firstName &&
-    guestFormData?.lastName &&
-    guestFormData?.email &&
+    !isAuthLoading &&
+    firstName &&
+    lastName &&
+    checkoutEmail &&
     addressFormData?.phoneNumber &&
     addressFormData?.city &&
     deliveryMethod &&
@@ -244,7 +259,11 @@ export default function CheckoutPage() {
                   <RadioGroupItem value="bank" id="bank" className="sr-only" />
                   <Label
                     htmlFor="bank"
-                    className={cn(lableStyles, paymentMethod === 'bank' && "shadow-md border-green-5")}>
+                    className={cn(
+                      lableStyles,
+                      paymentMethod === 'bank' && "shadow-md border-green-5",
+                      isStripePending && "pointer-events-none opacity-50",
+                    )}>
                     <CreditCard size={24} />
                     <span>С карта - онлайн</span>
                   </Label>

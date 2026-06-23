@@ -22,18 +22,6 @@ import { Button } from '@/components/ui/button';
 import { validateStreetSpeedy } from '@/actions/speedy/validateStreetSpeedy';
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
 
-export interface City {
-  id: string;
-  postCode?: string;
-  name: string;
-  nameEn: string;
-  countryId: string;
-  country: {
-    code3: string;
-  };
-  // Add other properties as needed
-}
-
 export const CheckoutForm = () => {
   // console.log('RENDERED CHECKOUT FORM');
   const { user } = useAuth();
@@ -57,7 +45,7 @@ export const CheckoutForm = () => {
     defaultValues: {
       firstName: guestFormData?.firstName || '',
       lastName: guestFormData?.lastName || '',
-      email: guestFormData?.email || '',
+      email: guestFormData?.email ?? user?.email ?? '',
     },
   });
 

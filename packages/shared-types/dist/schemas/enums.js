@@ -14,6 +14,6 @@ var PaymentMethodEnum;
     PaymentMethodEnum["CASH"] = "cash";
     PaymentMethodEnum["STRIPE"] = "stripe";
 })(PaymentMethodEnum || (exports.PaymentMethodEnum = PaymentMethodEnum = {}));
-exports.OrderStatusSchema = zod_1.z.enum(['pending', 'confirmed', 'shipped', 'refunded', 'cancelled']);
+exports.OrderStatusSchema = zod_1.z.enum(['pending', 'confirmed', 'shipped', 'delivered', 'refunded', 'cancelled']);
 exports.PaymentMethodSchema = zod_1.z.nativeEnum(PaymentMethodEnum);
 exports.DeliveryMethodSchema = zod_1.z.nativeEnum(DeliveryMethodEnum);

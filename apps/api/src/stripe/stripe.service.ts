@@ -25,7 +25,7 @@ export class StripeService {
     amount: number,
     metadata: Record<string, string>,
     email?: string,
-  ) {
+  ): Promise<Stripe.PaymentIntent> {
     return this.stripe.paymentIntents.create({
       amount: Math.round(amount * 100),
       currency: 'eur',
@@ -34,6 +34,12 @@ export class StripeService {
       metadata,
       receipt_email: email,
     });
+  }
+
+  async retrievePaymentIntent(
+    paymentIntentId: string,
+  ): Promise<Stripe.PaymentIntent> {
+    return this.stripe.paymentIntents.retrieve(paymentIntentId);
   }
 
   // Критично за сигурността на Webhook-a
@@ -45,18 +51,26 @@ export class StripeService {
     );
   }
 
-  async refundPayment(paymentIntentId: string, reason: string) {
+  async refundPayment(
+    paymentIntentId: string,
+    reason: string,
+  ): Promise<Stripe.Response<Stripe.Refund>> {
     return this.stripe.refunds.create({
       payment_intent: paymentIntentId,
       metadata: { reason },
     });
   }
 
-  async capturePayment(paymentIntentId: string) {
+  async capturePayment(
+    paymentIntentId: string,
+  ): Promise<Stripe.Response<Stripe.PaymentIntent>> {
     return this.stripe.paymentIntents.capture(paymentIntentId);
   }
 
-  async cancelPayment(paymentIntentId: string, reason?: string) {
+  async cancelPayment(
+    paymentIntentId: string,
+    reason?: string,
+  ): Promise<Stripe.Response<Stripe.PaymentIntent>> {
     return this.stripe.paymentIntents.cancel(paymentIntentId);
   }
 }

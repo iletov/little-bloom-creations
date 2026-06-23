@@ -2,14 +2,16 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { ErrorMessage } from '../checkout-forms/ErrorMessage';
 import { Input } from '@/components/ui/input';
-import { City } from '../checkout-forms/CheckoutForm';
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/component/loader/Loader';
 import { useSenderDetails } from '@/hooks/useSenderDetails';
 import { useCart } from '@/hooks/useCart';
 import { AddressFormData } from '@/app/store/features/stripe/stripeSlice';
 import { fullAddress } from '@/lib/form-validation/validations';
-import { useCities } from '@/hooks/api/shipping/shipping-list.hook';
+import {
+  CityDto,
+  useCities,
+} from '@/hooks/api/shipping/shipping-list.hook';
 import { DeliveryMethodEnum } from '@repo/shared-types';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
@@ -52,14 +54,14 @@ export const CityDropdown = () => {
     );
   }, [currentCitiesList, searchForCity]);
 
-  const handleSelectCities = async (city: City) => {
+  const handleSelectCities = (city: CityDto): void => {
     setSearchForCity(city.name + ' (' + city.postCode + ')');
     setSelectedCity(city);
     updateAddresData({ city: city.name } as AddressFormData);
     setShowDropdown(false);
   };
 
-  const handleClear = () => {
+  const handleClear = (): void => {
     setSearchForCity('');
     setSelectedOffice('');
     setSelectedCity('');

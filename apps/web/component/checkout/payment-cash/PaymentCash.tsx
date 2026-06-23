@@ -16,6 +16,9 @@ import { createReceiptFromItems } from '@/lib/utils/createReceiptFromItems';
 import { createPackingListFromItems } from '@/lib/utils/createPackingListFromItems';
 import { usePlaceCashOrder } from '@/hooks/api/orders/orders-actions.hook';
 
+const getErrorMessage = (error: unknown, fallback: string): string =>
+  error instanceof Error ? error.message : fallback;
+
 export const PaymentCash = ({
   isDissabled,
   paymentMethod,
@@ -64,7 +67,7 @@ export const PaymentCash = ({
   const isEkont = deliveryMethod.startsWith('ekont');
   const isSpeedy = deliveryMethod.startsWith('speedy');
 
-  const handleOrderSubmit = async () => {
+  const handleOrderSubmit = async (): Promise<void | 0> => {
     try {
       if (paymentIntentId) {
         const cancelPaymentInted = await cancelPaymentIntent({
@@ -111,7 +114,7 @@ export const PaymentCash = ({
             firstName: guestFormData?.firstName,
             lastName: guestFormData?.lastName,
             phone: addressFormData?.phoneNumber,
-            email: guestFormData?.email,
+            email: user?.email ?? guestFormData?.email,
             officeId: addressFormData?.officeCode ? String(addressFormData.officeCode) : undefined,
           },
           deliveryMethod: deliveryMethod,
@@ -125,10 +128,13 @@ export const PaymentCash = ({
       toast.success('Успешно направена поръчка!', {
         description: 'Вашата поръчка беше успешно направена!',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submiting cash order', error);
       toast.error('Възникна грешка', {
-        description: error?.message || 'Възникна неочаквана грешка при запазване на поръчката.',
+        description: getErrorMessage(
+          error,
+          'Възникна неочаквана грешка при запазване на поръчката.',
+        ),
       });
     }
   };

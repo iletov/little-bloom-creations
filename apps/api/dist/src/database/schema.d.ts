@@ -409,7 +409,7 @@ export declare const orders: import("drizzle-orm/pg-core").PgTableWithColumns<{
             tableName: "orders";
             dataType: "string";
             columnType: "PgEnumColumn";
-            data: "pending" | "confirmed" | "shipped" | "refunded" | "cancelled";
+            data: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
             driverParam: string;
             notNull: true;
             hasDefault: false;
@@ -421,7 +421,7 @@ export declare const orders: import("drizzle-orm/pg-core").PgTableWithColumns<{
             identity: undefined;
             generated: undefined;
         }, {}, {
-            $type: "pending" | "confirmed" | "shipped" | "refunded" | "cancelled";
+            $type: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
         }>;
         totalAmount: import("drizzle-orm/pg-core").PgColumn<{
             name: "total_amount";

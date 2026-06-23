@@ -391,3 +391,24 @@
 - [ ] Източник и модерация на отзивите.
 - [ ] Email provider и consent модел за newsletter.
 
+## 11. Статус на компонентите
+
+### Navbar
+
+- [x] Основните заглавия са преведени на български.
+- [x] „Продукти“ използва dropdown с български категории и описания.
+- [x] „Как се поръчва“ е подготвено като anchor към бъдещата homepage секция.
+- [x] Dashboard се показва само за администратори.
+- [x] Dashboard има отделен shield, divider и olive визуален стил.
+- [x] Desktop и mobile менюто използват един и същ navigation model.
+- [ ] Навигацията да се премести в бъдещия `siteSettings` Sanity документ.
+- [ ] Да се добави active-route състояние след реализиране на всички страници.
+
+### Trust strip / Предимства
+
+- [x] Добавен е `benefits` тип към установената `sectionType` Sanity схема.
+- [x] Секцията поддържа между 2 и 4 предимства.
+- [x] Иконите са ограничени до контролиран Lucide набор.
+- [x] Добавен е responsive Server Component `BenefitsSection`.
+- [x] Компонентът е регистриран в общия `sectionComponents` renderer registry.
+- [ ] Съдържанието да се попълни в Sanity.

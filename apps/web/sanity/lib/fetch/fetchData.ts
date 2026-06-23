@@ -86,13 +86,27 @@ export const getPageData = unstable_cache(
         sections[] {
           ...,
           backgroundImages[]{
-          asset-> {
-            _ref,
-            url
+            asset-> {
+              _ref,
+              url
+            },
+            hotspot,
+            ...
           },
-          hotspot,
-          ...
-        },
+          categories[]-> {
+            _id,
+            name,
+            slug,
+            image {
+              asset-> {
+                _ref,
+                url
+              },
+              hotspot,
+              ...
+            },
+            skuPrefix
+          }
         }
       }
     `);

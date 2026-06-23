@@ -8,7 +8,7 @@ export declare class AdminOrdersService {
         allOrders: {
             order_number: string;
             created_at: Date;
-            status: "pending" | "confirmed" | "shipped" | "refunded" | "cancelled";
+            status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
             delivery_method: string;
             payment_method: import("@repo/shared-types").PaymentMethodEnum;
             delivery_cost: number;
@@ -35,7 +35,7 @@ export declare class AdminOrdersService {
         recentOrders: {
             order_number: string;
             created_at: Date;
-            status: "pending" | "confirmed" | "shipped" | "refunded" | "cancelled";
+            status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
             delivery_method: string;
             payment_method: import("@repo/shared-types").PaymentMethodEnum;
             delivery_cost: number;
@@ -63,7 +63,7 @@ export declare class AdminOrdersService {
     getSingleOrder(orderNumber: string): Promise<{
         order_number: string;
         created_at: Date;
-        status: "pending" | "confirmed" | "shipped" | "refunded" | "cancelled";
+        status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
         delivery_method: string;
         payment_method: import("@repo/shared-types").PaymentMethodEnum;
         delivery_cost: number;
@@ -115,7 +115,7 @@ export declare class AdminOrdersService {
         id: string;
         orderNumber: string;
         createdAt: Date;
-        status: "pending" | "confirmed" | "shipped" | "refunded" | "cancelled";
+        status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
         totalAmount: string;
         subtotal: string;
         deliveryCost: string;

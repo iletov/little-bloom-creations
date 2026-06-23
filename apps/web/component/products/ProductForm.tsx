@@ -17,32 +17,35 @@ import { toast } from 'sonner';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { CartIcon2 } from '../icons/icons';
 import { Slug } from '@/sanity.types';
+import { descriptionType, ImagesType } from '@/types';
 
 export interface Variant {
   id: string;
-  parent_sku: string;
-  product_id: string;
-  variant_sku: string;
-  variant_name: string;
+  parent_sku?: string;
+  product_id?: string;
+  variant_sku?: string;
+  variant_name?: string;
   variant_type?: string;
-  current_stock: number;
-  price_adjustment: number;
-  is_active: boolean;
-  variantImages?: any;
-  color: string;
+  current_stock?: number;
+  price_adjustment?: number;
+  price?: number;
+  is_active?: boolean;
+  images?: ImagesType[];
+  color?: string;
   weight?: number;
   width?: number;
   height?: number;
   depth?: number;
 }
 
-interface Product {
+export interface Product {
   id: string;
   slug: Slug;
   sku: string;
   name: string;
   price: number;
-  images: any[];
+  description?: descriptionType | string;
+  images: ImagesType[];
   variants?: Variant[];
   weight?: number;
   width?: number;

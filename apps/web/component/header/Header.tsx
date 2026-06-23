@@ -91,30 +91,30 @@ const formatProfileDate = (value: string | null | undefined): string | null => {
 
 const navItems: HeaderProps[] = [
   {
-    label: 'Categories',
+    label: 'Продукти',
     href: 'categories',
     items: [
       {
-        label: 'diaries',
-        desc: 'Consectetur adipisicing elit.',
+        label: 'Дневници',
+        desc: 'Персонализирани дневници и тефтери за идеи и спомени.',
         href: 'diaries',
       },
       {
-        label: 'cards',
-        desc: 'Lorem ipsum dolor sit.',
+        label: 'Картички',
+        desc: 'Ръчно изработени картички с лично послание.',
         href: 'cards',
       },
       {
-        label: 'Other',
-        desc: 'Lorem sit amet consectetur.',
+        label: 'Други подаръци',
+        desc: 'Още персонализирани предложения за специални поводи.',
         href: 'other',
       },
     ],
   },
-  { label: 'Pricing', href: 'pricing' },
-  { label: 'About', href: 'about' },
-  { label: 'Contact', href: 'contact' },
-  { label: 'Blog', href: 'blog' },
+  { label: 'Как се поръчва', href: '#how-to-order' },
+  { label: 'За нас', href: 'about' },
+  { label: 'Контакти', href: 'contact' },
+  { label: 'Блог', href: 'blog' },
   { label: 'Dashboard', href: 'dashboard', adminOnly: true },
 ];
 
@@ -235,7 +235,11 @@ const Header = (): React.JSX.Element => {
     (item: HeaderProps, index: number) => (
       <motion.li
         key={index + 'navmenu'}
-        className="relative cursor-pointer rounded-full px-5 py-4"
+        className={cn(
+          'relative cursor-pointer rounded-full px-4 py-4',
+          item.adminOnly &&
+            'ml-3 before:absolute before:-left-2 before:top-1/2 before:h-8 before:w-px before:-translate-y-1/2 before:bg-slate-200',
+        )}
         onMouseEnter={() => {
           setHoveredItem(index);
           if (item.items) {
@@ -244,7 +248,7 @@ const Header = (): React.JSX.Element => {
             setOpenDropdown(null);
           }
         }}>
-        {hoveredItem === index && (
+        {hoveredItem === index && !item.adminOnly && (
           <motion.div
             className="absolute inset-0 w-full h-full bg-green-5 rounded-full z-0 pointer-events-none"
             layoutId="navbar-hover-bg"
@@ -255,15 +259,26 @@ const Header = (): React.JSX.Element => {
             }}
           />
         )}
-        <Link className="z-10 relative" href={`/${item?.href}`}>
+        <Link
+          className={cn(
+            'relative z-10 flex items-center gap-2',
+            item.adminOnly &&
+              'text-green-5 transition-colors duration-200 hover:text-green-9',
+          )}
+          href={`/${item.href}`}>
+          {item.adminOnly ? (
+            <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+          ) : null}
           <motion.p
             className={cn(
               'transition duration-200 font-medium',
-              hoveredItem === index
+              item.adminOnly
+                ? 'text-inherit'
+                : hoveredItem === index
                 ? 'text-white'
                 : 'text-green-dark hover:opacity-80',
             )}>
-            {item?.label}
+            {item.label}
           </motion.p>
         </Link>
 
@@ -574,7 +589,13 @@ const Header = (): React.JSX.Element => {
                     <Link
                       href={`/${item.href}`}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="text-[2.2rem] font-semibold text-green-dark group-hover:text-green-5 transition-colors flex-1 py-2">
+                      className={cn(
+                        'flex flex-1 items-center gap-3 py-2 text-[2.2rem] font-semibold text-green-dark transition-colors group-hover:text-green-5',
+                        item.adminOnly && 'text-green-5 group-hover:text-green-9',
+                      )}>
+                      {item.adminOnly ? (
+                        <ShieldCheck className="h-7 w-7" aria-hidden="true" />
+                      ) : null}
                       {item.label}
                     </Link>
                     {item.items && (

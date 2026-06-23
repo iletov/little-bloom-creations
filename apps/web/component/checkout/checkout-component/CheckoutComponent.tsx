@@ -16,6 +16,7 @@ import { useSenderInfo } from '@/hooks/useSenderInfo';
 import { useAuth } from '@/hooks/useAuth';
 import { createParcelsFromItems } from '@/lib/utils/createParcelsFromItems';
 import { createReceiptFromItems } from '@/lib/utils/createReceiptFromItems';
+import { getSiteOrigin } from '@/lib/get-site-origin';
 
 interface Props {
   totalPrice: number;
@@ -37,7 +38,6 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
     metadata,
     paymentIntentId,
     guestFormData,
-    dispatchPaymentIntentId,
     addressFormData,
     deliveryCost,
     deliveryCostFlag,
@@ -68,10 +68,8 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
       return;
     }
 
-    // clear the payment intent id
-    dispatchPaymentIntentId(null);
-
     if (!senderData || !addressFormData || !deliveryMethod) {
+      setLoading(false);
       return 0;
     }
 
@@ -91,8 +89,10 @@ export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
       elements,
       clientSecret: clientSecret ?? '',
       confirmParams: {
-        // return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?payment_intent=${clientSecret}&order_number=${metadata.orderNumber}`,
-        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?order_number=${metadata.orderNumber}`,
+        return_url: new URL(
+          `/success?order_number=${encodeURIComponent(metadata.orderNumber)}`,
+          getSiteOrigin(),
+        ).toString(),
       },
     });
 

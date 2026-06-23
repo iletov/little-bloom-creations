@@ -42,6 +42,9 @@ let StripeService = class StripeService {
             receipt_email: email,
         });
     }
+    async retrievePaymentIntent(paymentIntentId) {
+        return this.stripe.paymentIntents.retrieve(paymentIntentId);
+    }
     constructEvent(payload, signature) {
         return this.stripe.webhooks.constructEvent(payload, signature, this.webhookSecret);
     }

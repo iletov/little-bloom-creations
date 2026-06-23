@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabaseServer';
+import { Order } from '@/types';
 
 export async function getOrders() {
   const supabase = await createClient();
@@ -78,7 +79,9 @@ export async function getSingleOrder(id: string) {
 
 // For use in generateStaticParams (build time)
 // For use in generateStaticParams (build time)
-export async function getOrdersForStaticParams() {
+export async function getOrdersForStaticParams(): Promise<
+  Array<Pick<Order, 'order_number'>>
+> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
   try {
     const response = await fetch(`${apiUrl}/admin/orders`, {
@@ -91,8 +94,23 @@ export async function getOrdersForStaticParams() {
     
     if (!response.ok) return [];
     
-    const data = await response.json();
-    return data.allOrders || [];
+    const data: unknown = await response.json();
+    if (
+      typeof data !== 'object' ||
+      data === null ||
+      !('allOrders' in data) ||
+      !Array.isArray(data.allOrders)
+    ) {
+      return [];
+    }
+
+    return data.allOrders.filter(
+      (order): order is Pick<Order, 'order_number'> =>
+        typeof order === 'object' &&
+        order !== null &&
+        'order_number' in order &&
+        typeof order.order_number === 'string',
+    );
   } catch (error) {
     return [];
   }

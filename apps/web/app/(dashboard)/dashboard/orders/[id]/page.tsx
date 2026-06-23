@@ -2,20 +2,18 @@ import BackButton from '@/component/dashboard/back-button/BackButton';
 import SingleOrderContainer from '@/component/dashboard/single-order/SingleOrderContainer';
 import { Button } from '@/components/ui/button';
 import {
-  getOrders,
   getSingleOrder,
   getOrdersForStaticParams,
 } from '@/supabase/dashboard/getOrders';
-import { ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
 import React from 'react';
+import { Order } from '@/types';
 
 // Revalidate this page every 60 seconds
 export const revalidate = 60;
 
-export async function generateStaticParams() {
+export async function generateStaticParams(): Promise<Array<{ id: string }>> {
   const orders = await getOrdersForStaticParams();
-  return orders.map(order => ({
+  return orders.map((order: Pick<Order, 'order_number'>) => ({
     id: order.order_number,
   }));
 }

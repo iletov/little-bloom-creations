@@ -1,3 +1,5 @@
+// TODO: MIGRATED TO OFFICE_DROPDOWN - DEPRECATED / READY TO BE DELETED.
+/*
 'use client';
 import { Button } from '@/components/ui/button';
 import {
@@ -36,16 +38,11 @@ interface CustomDropdownProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
-  // selectedCityData: City | undefined;
-  // onOfficeSelect?: (office: Office) => void;
 }
 export const OfficeDropdownSpeedy = ({
-  // options,
   placeholder = 'Select option',
   className,
   disabled = false,
-  // selectedCityData,
-  // onOfficeSelect,
 }: CustomDropdownProps) => {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,8 +50,6 @@ export const OfficeDropdownSpeedy = ({
   const { selectedOffice, setSelectedOffice, deliveryMethod, selectedCity } =
     useSenderDetails();
   const { addressFormData, updateAddresData, setDeliveryCost } = useCart();
-
-  // console.log('# --selectedCity SPEEDY-->', selectedCity);
 
   const {
     speedyOffices,
@@ -74,7 +69,6 @@ export const OfficeDropdownSpeedy = ({
   const handleSelectOffice = async (currentOffice: OfficeSpeedy) => {
     setSelectedOffice(currentOffice);
     updateAddresData({ officeCode: currentOffice?.id } as AddressFormData);
-    // setDeliveryCostFlag(true);
     setDeliveryCost(0);
     setOpen(false);
   };
@@ -84,8 +78,6 @@ export const OfficeDropdownSpeedy = ({
         office.name.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : speedyOffices;
-
-  // console.log('# --addressFormData-->', addressFormData);
 
   return (
     <section className=" w-full relative space-y-2">
@@ -156,7 +148,6 @@ export const OfficeDropdownSpeedy = ({
                             <p>({office.id})</p>
                           </div>
                           <div className="flex gap-1 [&>p]:text-[1.2rem]">
-                            {/* <p>{office.address.postCode},</p> */}
                             <p>{office.address.fullAddressString}</p>
                           </div>
                           <div className="flex gap-1 [&>p]:text-[1.2rem]">
@@ -182,3 +173,6 @@ export const OfficeDropdownSpeedy = ({
     </section>
   );
 };
+*/
+
+export {};

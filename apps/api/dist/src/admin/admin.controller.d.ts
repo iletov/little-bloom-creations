@@ -28,7 +28,7 @@ export declare class AdminController {
         allOrders: {
             order_number: string;
             created_at: Date;
-            status: "pending" | "confirmed" | "shipped" | "refunded" | "cancelled";
+            status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
             delivery_method: string;
             payment_method: import("@repo/shared-types").PaymentMethodEnum;
             delivery_cost: number;
@@ -55,7 +55,7 @@ export declare class AdminController {
         recentOrders: {
             order_number: string;
             created_at: Date;
-            status: "pending" | "confirmed" | "shipped" | "refunded" | "cancelled";
+            status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
             delivery_method: string;
             payment_method: import("@repo/shared-types").PaymentMethodEnum;
             delivery_cost: number;
@@ -83,7 +83,7 @@ export declare class AdminController {
     getSingleOrder(orderNumber: string): Promise<{
         order_number: string;
         created_at: Date;
-        status: "pending" | "confirmed" | "shipped" | "refunded" | "cancelled";
+        status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
         delivery_method: string;
         payment_method: import("@repo/shared-types").PaymentMethodEnum;
         delivery_cost: number;
@@ -135,7 +135,7 @@ export declare class AdminController {
         id: string;
         orderNumber: string;
         createdAt: Date;
-        status: "pending" | "confirmed" | "shipped" | "refunded" | "cancelled";
+        status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
         totalAmount: string;
         subtotal: string;
         deliveryCost: string;
@@ -156,7 +156,7 @@ export declare class AdminController {
             id: string;
             orderNumber: string;
             createdAt: Date;
-            status: "pending" | "confirmed" | "shipped" | "refunded" | "cancelled";
+            status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
             totalAmount: string;
             subtotal: string;
             deliveryCost: string;

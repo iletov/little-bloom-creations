@@ -10,6 +10,7 @@ import {
   MultiSection,
   ProductPreview,
   TabSection,
+  BenefitsSection,
 } from '..';
 import { descriptionType, ImagesType, ListItems, Title } from '@/types';
 
@@ -19,14 +20,24 @@ interface Section {
   sectionType: string;
   title: string;
   heading: Title;
+  eyebrow?: string;
   size?: string;
   position: string;
   description: descriptionType | string;
-  pharase?: string;
+  phrase?: string;
   backgroundImage: ImagesType;
   mobileImage: ImagesType;
   backgroundImages?: ImagesType[];
   listItems: Array<ListItems>;
+  benefitItems?: Array<{
+    _key: string;
+    icon: 'handmade' | 'personalization' | 'securePayment' | 'delivery';
+    title: string;
+    description: string;
+  }>;
+  benefitEyebrow?: string;
+  benefitHeading?: string;
+  benefitDescription?: string;
   [key: string]: any;
 }
 
@@ -48,6 +59,7 @@ const SectionRenderer = ({ sections }: SectionRendererProps) => {
     multisection: MultiSection,
     productPreview: ProductPreview,
     tabSection: TabSection,
+    benefits: BenefitsSection,
   };
 
   return (
@@ -62,7 +74,8 @@ const SectionRenderer = ({ sections }: SectionRendererProps) => {
           return (
             <div
               key={_key}
-              className="py-16 text-[1.6rem] text-center text-red-500">
+              className="py-16 text-[1.6rem] text-center text-red-500"
+            >
               Section type "{sectionType}" not implemented
             </div>
           );

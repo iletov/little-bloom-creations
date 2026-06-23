@@ -1,20 +1,25 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { Suspense } from 'react';
 import { PortableTextContainer } from '../portabletext-container/PortableTextContainer';
 import Image from 'next/image';
 import { urlFor } from '@/sanity/lib/image';
-import ProductForm, { Variant } from './ProductForm';
+import ProductForm, { Product, Variant } from './ProductForm';
 import { useCart } from '@/hooks/useCart';
 import { ProductsPrice } from './ProductsPrice';
 import ProductVariants from './ProductVariants';
 
-const ProductContainer = ({ data }: any) => {
+interface ProductContainerProps {
+  data: Product;
+}
+
+const ProductContainer = ({ data }: ProductContainerProps) => {
   const { variants } = useCart();
 
-  const selectedProduct = () => {
+  const selectedProduct = (): Variant | null => {
     if (variants && data?.variants) {
-      return data?.variants?.find(
-        (variant: Variant) => variant.id === variants.id,
+      return (
+        data.variants.find((variant: Variant) => variant.id === variants.id) ??
+        null
       );
     }
     return null;
@@ -28,10 +33,13 @@ const ProductContainer = ({ data }: any) => {
 
   const finalPrice = product ? product.price : data?.price;
 
-  const defaultVariant = { id: data?.id };
+  const defaultVariant: Variant = {
+    id: data.id,
+    product_id: data.id,
+    color: 'default',
+  };
 
-  const variantsArray = data?.variants.map((variant: Variant) => variant) || [];
-  variantsArray.unshift(defaultVariant);
+  const variantsArray: Variant[] = [defaultVariant, ...(data.variants ?? [])];
 
   return (
     <>
@@ -70,14 +78,16 @@ const ProductContainer = ({ data }: any) => {
             <div className="flex-1">
               <p>Select a variant</p>
               <div className="flex gap-4">
-                {variantsArray.map((variant: Variant, index: number) => (
+                {variantsArray.map((variant: Variant) => (
                   <ProductVariants variant={variant} key={variant?.id} />
                 ))}
               </div>
             </div>
           </div>
 
-          <ProductForm product={data} />
+          <Suspense fallback={<div>Loading form...</div>}>
+            <ProductForm product={data} />
+          </Suspense>
           {/* <AddToCartButton product={data} /> */}
         </div>
       </section>

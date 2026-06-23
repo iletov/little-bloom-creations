@@ -12,7 +12,7 @@ export declare class AdminCancellationService {
             id: string;
             orderNumber: string;
             createdAt: Date;
-            status: "pending" | "confirmed" | "shipped" | "refunded" | "cancelled";
+            status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
             totalAmount: string;
             subtotal: string;
             deliveryCost: string;

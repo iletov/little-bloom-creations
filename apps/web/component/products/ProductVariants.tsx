@@ -22,7 +22,7 @@ const ProductVariants = ({ variant }: { variant: Variant }) => {
   };
 
   const getVariantColor = (value: Variant) => {
-    if (value.id !== value.product_id) {
+    if (value.id !== value.product_id && variant.color) {
       return COLOR_MAP[variant.color] || COLOR_MAP.default;
     }
     return COLOR_MAP.default;

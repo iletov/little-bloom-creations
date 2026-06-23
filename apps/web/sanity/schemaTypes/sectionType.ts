@@ -24,6 +24,7 @@ export const sectionType = defineType({
           { title: 'Multisection', value: 'multisection' },
           { title: 'Product Preview', value: 'productPreview' },
           { title: 'Tab Section', value: 'tabSection' },
+          { title: 'Trust strip / Предимства', value: 'benefits' },
         ],
       },
       validation: rule => rule.required(),
@@ -94,13 +95,41 @@ export const sectionType = defineType({
           name: 'title',
           title: 'Full Title',
           type: 'string',
+          description:
+            'Enter the complete heading, including the text that will be highlighted.',
           validation: Rule => Rule.required(),
         },
         {
           name: 'highlightedWord',
-          title: 'Word to Highlight',
+          title: 'Text to Highlight',
           type: 'string',
-          description: 'Enter the exact word from the title to highlight',
+          description:
+            'Enter the exact text from Full Title that should use the accent color.',
+          validation: Rule =>
+            Rule.custom((value, context) => {
+              if (value === undefined) {
+                return true;
+              }
+
+              if (typeof value !== 'string') {
+                return 'The highlighted text must be a string.';
+              }
+
+              const parent = context.parent;
+
+              if (
+                typeof parent !== 'object' ||
+                parent === null ||
+                !('title' in parent) ||
+                typeof parent.title !== 'string'
+              ) {
+                return 'Full Title is required before highlighted text can be set.';
+              }
+
+              return parent.title.includes(value)
+                ? true
+                : 'The highlighted text must appear exactly in Full Title.';
+            }),
         },
         {
           name: 'highlightedColor',
@@ -131,6 +160,15 @@ export const sectionType = defineType({
           };
         },
       },
+    }),
+
+    defineField({
+      name: 'eyebrow',
+      title: 'Eyebrow',
+      type: 'string',
+      description: 'Short label displayed above the heading.',
+      hidden: ({ parent }) => parent?.sectionType !== 'headingDescription',
+      validation: rule => rule.max(80),
     }),
 
     // Description
@@ -240,6 +278,23 @@ export const sectionType = defineType({
           .warning('Consider using fewer images for better performance'),
     }),
 
+    defineField({
+      name: 'categories',
+      title: 'Categories (References)',
+      description: 'Select categories from the catalog to display in this section. If configured, these categories will be used instead of manual Background Images.',
+      type: 'array',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'category' }],
+        },
+      ],
+      hidden: ({ parent }) =>
+        parent?.sectionType !== 'categoryCard' || !parent?.sectionType,
+      validation: rule =>
+        rule.max(6).warning('We recommend showing at most 6 categories for optimal layout'),
+    }),
+
     //---- List fields ----
 
     // List Items
@@ -275,6 +330,83 @@ export const sectionType = defineType({
         !['testimonials', 'multisection', 'tabSection'].includes(
           parent?.sectionType,
         ),
+    }),
+
+    defineField({
+      name: 'benefitItems',
+      title: 'Предимства',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          name: 'benefitItem',
+          title: 'Предимство',
+          fields: [
+            defineField({
+              name: 'icon',
+              title: 'Икона',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Ръчна изработка', value: 'handmade' },
+                  { title: 'Персонализация', value: 'personalization' },
+                  { title: 'Сигурно плащане', value: 'securePayment' },
+                  { title: 'Доставка', value: 'delivery' },
+                ],
+                layout: 'dropdown',
+              },
+              validation: rule => rule.required(),
+            }),
+            defineField({
+              name: 'title',
+              title: 'Заглавие',
+              type: 'string',
+              validation: rule => rule.required().max(60),
+            }),
+            defineField({
+              name: 'description',
+              title: 'Описание',
+              type: 'text',
+              rows: 2,
+              validation: rule => rule.required().max(160),
+            }),
+          ],
+          preview: {
+            select: {
+              title: 'title',
+              subtitle: 'description',
+            },
+          },
+        },
+      ],
+      hidden: ({ parent }) => parent?.sectionType !== 'benefits',
+      validation: rule =>
+        rule.min(2).max(4).error('Добавете между 2 и 4 предимства.'),
+    }),
+
+    defineField({
+      name: 'benefitEyebrow',
+      title: 'Benefits Eyebrow',
+      type: 'string',
+      hidden: ({ parent }) => parent?.sectionType !== 'benefits',
+      validation: rule => rule.max(80),
+    }),
+
+    defineField({
+      name: 'benefitHeading',
+      title: 'Benefits Heading',
+      type: 'string',
+      hidden: ({ parent }) => parent?.sectionType !== 'benefits',
+      validation: rule => rule.max(120),
+    }),
+
+    defineField({
+      name: 'benefitDescription',
+      title: 'Benefits Description',
+      type: 'text',
+      rows: 3,
+      hidden: ({ parent }) => parent?.sectionType !== 'benefits',
+      validation: rule => rule.max(240),
     }),
 
     // CTA Button

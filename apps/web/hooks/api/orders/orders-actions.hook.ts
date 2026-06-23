@@ -42,11 +42,24 @@ export interface PlaceOrderPayload {
   totalWeight: number;
 }
 
+export interface InitiateStripeOrderPayload extends PlaceOrderPayload {
+  existingOrderNumber?: string;
+  existingPaymentIntentId?: string;
+}
+
+export interface InitiateStripeOrderResponse {
+  orderNumber: string;
+  clientSecret: string;
+  paymentIntentId: string;
+}
+
 export const useInitiateStripeOrder = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: PlaceOrderPayload) => {
+    mutationFn: async (
+      payload: InitiateStripeOrderPayload,
+    ): Promise<InitiateStripeOrderResponse> => {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/stripe/initiate`, {
         method: 'POST',
         headers: {
@@ -55,7 +68,10 @@ export const useInitiateStripeOrder = () => {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const data: InitiateStripeOrderResponse & {
+        message?: string;
+        error?: string;
+      } = await response.json();
 
       if (!response.ok) {
         throw new Error(data?.message || data?.error || 'Failed to initiate Stripe order');
