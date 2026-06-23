@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import { PortableTextContainer } from '../portabletext-container/PortableTextContainer';
+import { urlFor } from '@/sanity/lib/image';
 
 type DropDownProps = {
   data: {
@@ -13,7 +14,8 @@ type DropDownProps = {
     items?: {
       label: string;
       href: string;
-      desc?: string;
+      desc?: any;
+      image?: any;
     }[];
   };
   openDropdown: number | null;
@@ -40,10 +42,12 @@ const Dropdown = ({ data, openDropdown, index }: DropDownProps) => {
                     className="group px-4 py-3 flex items-start gap-4 justify-baseline hover:bg-slate-50/80 transition-all duration-300 rounded-xl cursor-pointer">
                     <div className="relative min-w-[4.5rem] h-auto aspect-square rounded-xl overflow-hidden border border-slate-100 bg-slate-50/50 shadow-sm flex items-center justify-center group-hover:scale-105 group-hover:shadow-md transition-all duration-300">
                       <Image
-                        src="/placeholder.svg"
-                        alt=""
+                        src={subItem?.image ? urlFor(subItem.image).width(200).height(200).fit('crop').url() : "/placeholder.svg"}
+                        alt={subItem?.label || "Category Image"}
                         fill={true}
-                        className="object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-300 p-2"
+                        sizes="200px"
+                        quality={100}
+                        className={cn("object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-300", !subItem?.image && "p-2")}
                       />
                     </div>
                     <div className="space-y-1">

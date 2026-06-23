@@ -1,9 +1,10 @@
 'use client';
-import React, { Suspense } from 'react';
+import React, { Suspense, useState } from 'react';
 import { PortableTextContainer } from '../portabletext-container/PortableTextContainer';
 import Image from 'next/image';
 import { urlFor } from '@/sanity/lib/image';
-import ProductForm, { Product, Variant } from './ProductForm';
+import { Product, Variant } from './types';
+import ProductFormFactory from './ProductFormFactory';
 import { useCart } from '@/hooks/useCart';
 import { ProductsPrice } from './ProductsPrice';
 import ProductVariants from './ProductVariants';
@@ -14,12 +15,29 @@ interface ProductContainerProps {
 
 const ProductContainer = ({ data }: ProductContainerProps) => {
   const { variants } = useCart();
+  const [addonPrice, setAddonPrice] = useState(0);
+
+  // console.log('ProductContainer DATA:', JSON.stringify(data, null, 2));
+
+  const defaultVariant: Variant = {
+    id: data.id || data.sku || 'default-id',
+    sku: data.sku,
+    product_id: data.id || data.sku,
+    color: data.color || 'default',
+    price: data.price,
+    variant_name: data.name,
+  };
+
+  const variantsArray: Variant[] = [defaultVariant, ...(data.variants ?? [])];
 
   const selectedProduct = (): Variant | null => {
-    if (variants && data?.variants) {
+    if (variants && variantsArray.length > 0) {
+      const selectedId = variants.id || variants.sku || variants.variant_sku;
       return (
-        data.variants.find((variant: Variant) => variant.id === variants.id) ??
-        null
+        variantsArray.find((v: Variant) => {
+          const vId = v.id || v.sku || v.variant_sku;
+          return vId === selectedId;
+        }) ?? null
       );
     }
     return null;
@@ -28,18 +46,8 @@ const ProductContainer = ({ data }: ProductContainerProps) => {
   const product = selectedProduct();
 
   const displayName = product?.variant_name || data?.name;
-
   const displayImages = product?.images?.length ? product.images : data?.images;
-
-  const finalPrice = product ? product.price : data?.price;
-
-  const defaultVariant: Variant = {
-    id: data.id,
-    product_id: data.id,
-    color: 'default',
-  };
-
-  const variantsArray: Variant[] = [defaultVariant, ...(data.variants ?? [])];
+  const finalPrice = product?.price ?? data?.price;
 
   return (
     <>
@@ -71,22 +79,29 @@ const ProductContainer = ({ data }: ProductContainerProps) => {
           </header>
 
           <div className="flex w-full">
-            <ProductsPrice
-              price={finalPrice}
-              className="flex-1 [&>p]:text-[3.2rem] font-semibold text-green-dark"
-            />
+            <div className="flex-1 flex items-center">
+              <ProductsPrice
+                price={finalPrice}
+                className="[&>p]:text-[3.2rem] font-semibold text-green-dark"
+              />
+              {addonPrice > 0 && (
+                <span className="text-[2rem] text-gray-500 font-medium ml-3">(+ {addonPrice} €)</span>
+              )}
+            </div>
             <div className="flex-1">
               <p>Select a variant</p>
               <div className="flex gap-4">
-                {variantsArray.map((variant: Variant) => (
-                  <ProductVariants variant={variant} key={variant?.id} />
+                {variantsArray.map((variant: Variant, index: number) => (
+                  <ProductVariants variant={variant} key={variant?.id || variant?.sku || index} />
                 ))}
               </div>
             </div>
           </div>
 
           <Suspense fallback={<div>Loading form...</div>}>
-            <ProductForm product={data} />
+            <div className="flex flex-col gap-10">
+              <ProductFormFactory product={data} onAddonPriceChange={setAddonPrice} />
+            </div>
           </Suspense>
           {/* <AddToCartButton product={data} /> */}
         </div>

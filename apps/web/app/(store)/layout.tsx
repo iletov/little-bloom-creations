@@ -12,6 +12,7 @@ import { SanityLive } from '@/sanity/lib/live';
 import StoreProvider from '../store/StoreProvider';
 import { Toaster } from '@/components/ui/sonner';
 import Header from '@/component/header/Header';
+import { getAllCategories } from '@/sanity/lib/fetch/fetchData';
 import QueryProvider from './query-provider';
 import LayoutWrapper from './query-wrapper';
 import CookieConsentBanner from '@/component/banner/cookie-banner/CookieBanner';
@@ -75,6 +76,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const categories = await getAllCategories();
+
   return (
     <html lang="en">
       <body
@@ -82,7 +85,7 @@ export default async function RootLayout({
         <LayoutWrapper>
           <StoreProvider>
             <main className="flex flex-col">
-              <Header />
+              <Header categories={categories} />
               <div className="">
                 {children}
                 <CookieConsentBanner />

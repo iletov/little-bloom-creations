@@ -17,75 +17,16 @@ import {
   ChevronLeft,
   ShoppingBag,
   ArrowRight,
-  BadgeCheck,
-  XCircle,
 } from 'lucide-react';
+import { getOrderStatusConfig } from '@/config/order-status';
 
 export const revalidate = 60;
 
-type StatusKey = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
-
-const STATUS_CONFIG: Record<StatusKey, {
-  icon: React.ElementType;
-  label: string;
-  description: string;
-  color: string;
-  bg: string;
-  border: string;
-  step: number;
-}> = {
-  pending: {
-    icon: Clock,
-    label: 'Очаква потвърждение',
-    description: 'Поръчката ви е получена и се обработва.',
-    color: 'text-amber-600',
-    bg: 'bg-amber-50',
-    border: 'border-amber-200',
-    step: 1,
-  },
-  confirmed: {
-    icon: BadgeCheck,
-    label: 'Потвърдена',
-    description: 'Поръчката ви е потвърдена и се подготвя за изпращане.',
-    color: 'text-blue-600',
-    bg: 'bg-blue-50',
-    border: 'border-blue-200',
-    step: 2,
-  },
-  shipped: {
-    icon: Truck,
-    label: 'Изпратена',
-    description: 'Поръчката ви е предадена на куриера.',
-    color: 'text-green-9',
-    bg: 'bg-green-1/60',
-    border: 'border-green-5',
-    step: 3,
-  },
-  delivered: {
-    icon: CheckCircle2,
-    label: 'Доставена',
-    description: 'Поръчката е доставена успешно. Благодарим ви!',
-    color: 'text-emerald-700',
-    bg: 'bg-emerald-50',
-    border: 'border-emerald-200',
-    step: 4,
-  },
-  cancelled: {
-    icon: XCircle,
-    label: 'Отказана',
-    description: 'Поръчката е отказана.',
-    color: 'text-red-600',
-    bg: 'bg-red-50',
-    border: 'border-red-200',
-    step: 0,
-  },
-};
-
 const TRACKING_STEPS = [
   { key: 'pending', label: 'Получена', icon: ShoppingBag },
-  { key: 'confirmed', label: 'Потвърдена', icon: BadgeCheck },
-  { key: 'shipped', label: 'Изпратена', icon: Truck },
-  { key: 'delivered', label: 'Доставена', icon: CheckCircle2 },
+  { key: 'confirmed', label: 'Потвърдена', icon: getOrderStatusConfig('confirmed').icon },
+  { key: 'shipped', label: 'Изпратена', icon: getOrderStatusConfig('shipped').icon },
+  { key: 'delivered', label: 'Доставена', icon: getOrderStatusConfig('delivered').icon },
 ];
 
 function formatPrice(value: number) {
@@ -102,15 +43,15 @@ export default async function CustomerOrderPage({
 
   if (!order) notFound();
 
-  const statusKey = (order.status?.toLowerCase() ?? 'pending') as StatusKey;
-  const statusConfig = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG.pending;
+  const statusKey = order.status?.toLowerCase() ?? 'pending';
+  const statusConfig = getOrderStatusConfig(statusKey);
   const StatusIcon = statusConfig.icon;
-  const currentStep = statusConfig.step;
+  const currentStep = statusConfig.step ?? 1;
   const isCancelled = statusKey === 'cancelled';
 
-  const totalAmount = Number(order.total_amount ?? 0);
+  const grandTotal = Number(order.total_amount ?? 0);
   const deliveryCost = Number(order.delivery_cost ?? 0);
-  const grandTotal = totalAmount + deliveryCost;
+  const totalAmount = grandTotal - deliveryCost;
 
   const sanityProducts = await getAllProductsSanity();
 
@@ -147,9 +88,9 @@ export default async function CustomerOrderPage({
             <div
               className={cn(
                 "inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[1.4rem] font-semibold border",
-                statusConfig.bg,
-                statusConfig.border,
-                statusConfig.color
+                statusConfig.storefront.bg,
+                statusConfig.storefront.border,
+                statusConfig.storefront.color
               )}
             >
               <StatusIcon className="w-5 h-5" />
@@ -215,13 +156,13 @@ export default async function CustomerOrderPage({
             <div
               className={cn(
                 "mt-6 p-4 rounded-xl text-[1.3rem] flex items-start gap-3 border",
-                statusConfig.bg,
-                statusConfig.border
+                statusConfig.storefront.bg,
+                statusConfig.storefront.border
               )}
             >
-              <StatusIcon className={cn("w-5 h-5 mt-0.5 flex-shrink-0", statusConfig.color)} />
+              <StatusIcon className={cn("w-5 h-5 mt-0.5 flex-shrink-0", statusConfig.storefront.color)} />
               <div>
-                <p className={cn("font-semibold", statusConfig.color)}>{statusConfig.label}</p>
+                <p className={cn("font-semibold", statusConfig.storefront.color)}>{statusConfig.label}</p>
                 <p className="text-gray-600 mt-0.5">{statusConfig.description}</p>
                 {order.shipment_number && (
                   <p className="mt-1.5 font-mono font-medium text-gray-700">
@@ -394,7 +335,11 @@ export default async function CustomerOrderPage({
                       <div className="h-px bg-gray-50" />
                       <div>
                         <p className="text-[1.1rem] uppercase tracking-wider text-gray-400 mb-1">Офис</p>
-                        <p className="text-gray-800">{order.order_shipping.office_code}</p>
+                        <p className="text-gray-800">
+                          {order.order_shipping.additional_info
+                            ? `${order.order_shipping.additional_info} (${order.order_shipping.office_code})`
+                            : order.order_shipping.office_code}
+                        </p>
                       </div>
                     </>
                   )}

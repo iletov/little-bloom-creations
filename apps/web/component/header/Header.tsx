@@ -21,6 +21,7 @@ import {
   Menu,
   Phone,
   ShieldCheck,
+  ShoppingBag,
   User,
   X,
 } from 'lucide-react';
@@ -36,6 +37,7 @@ interface HeaderProps {
         desc?: string;
       }[]
     | undefined;
+  categories?: any[];
 }
 
 const getAvatarUrl = (metadata: Record<string, unknown>): string | null => {
@@ -89,27 +91,16 @@ const formatProfileDate = (value: string | null | undefined): string | null => {
   }).format(date);
 };
 
-const navItems: HeaderProps[] = [
+const getNavItems = (categories?: any[]): HeaderProps[] => [
   {
     label: 'Продукти',
     href: 'categories',
-    items: [
-      {
-        label: 'Дневници',
-        desc: 'Персонализирани дневници и тефтери за идеи и спомени.',
-        href: 'diaries',
-      },
-      {
-        label: 'Картички',
-        desc: 'Ръчно изработени картички с лично послание.',
-        href: 'cards',
-      },
-      {
-        label: 'Други подаръци',
-        desc: 'Още персонализирани предложения за специални поводи.',
-        href: 'other',
-      },
-    ],
+    items: categories && categories.length > 0 ? categories.map((cat: any) => ({
+      label: cat.name,
+      desc: cat.description,
+      href: cat.slug?.current || '',
+      image: cat.image,
+    })) : [],
   },
   { label: 'Как се поръчва', href: '#how-to-order' },
   { label: 'За нас', href: 'about' },
@@ -138,7 +129,7 @@ const mobileItemVariants = {
   },
 };
 
-const Header = (): React.JSX.Element => {
+const Header = ({ categories }: { categories?: any[] }): React.JSX.Element => {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
   const [isSticky, setIsSticky] = useState(false);
@@ -169,7 +160,8 @@ const Header = (): React.JSX.Element => {
     user && typeof user.app_metadata.role === 'string'
       ? user.app_metadata.role
       : null;
-  const isAdmin = profileRole === 'admin';
+  const isAdmin = profileRole === 'admin' || profileRole === 'superadmin';
+  const navItems = getNavItems(categories);
   const visibleNavItems = navItems.filter(
     item => !item.adminOnly || isAdmin,
   );
@@ -532,6 +524,17 @@ const Header = (): React.JSX.Element => {
                             </div>
                           ) : null}
                         </div>
+
+                        <div className="mx-auto my-3 h-px w-[92%] bg-slate-100" />
+
+                        <Link
+                          href="/orders"
+                          onClick={() => setProfileMenuOpen(false)}
+                          className="flex w-full items-center justify-start gap-3 rounded-xl px-5 py-3.5 text-[1.4rem] font-semibold text-slate-700 transition-colors duration-200 hover:bg-slate-50 hover:text-green-dark"
+                          role="menuitem">
+                          <ShoppingBag className="h-5 w-5 text-green-9" />
+                          Моите поръчки
+                        </Link>
 
                         <div className="mx-auto my-3 h-px w-[92%] bg-slate-100" />
 

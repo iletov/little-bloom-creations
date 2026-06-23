@@ -83,3 +83,39 @@ export type fullAddressType = z.infer<typeof fullAddress>;
 export type ContactFormDataType = z.infer<typeof contactSchema>;
 
 export type PersonlisedFormDataType = z.infer<typeof personlisedFormSchema>;
+
+export const blanketFormSchema = z
+  .object({
+    personalizationType: z.enum(['none', 'name-only', 'name-and-embroidery']),
+    name: z.string().optional(),
+    embroideryImage: z.any().optional(), // Can store the image object or identifier
+  })
+  .superRefine((data, ctx) => {
+    if (data.personalizationType !== 'none') {
+      if (!data.name || data.name.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Моля, въведете име',
+          path: ['name'],
+        });
+      } else if (!/^[\u0400-\u04FF\s-]+$/.test(data.name)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Използвайте само български букви',
+          path: ['name'],
+        });
+      }
+    }
+    if (
+      data.personalizationType === 'name-and-embroidery' &&
+      !data.embroideryImage
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Моля, изберете бродерия',
+        path: ['embroideryImage'],
+      });
+    }
+  });
+
+export type BlanketFormDataType = z.infer<typeof blanketFormSchema>;

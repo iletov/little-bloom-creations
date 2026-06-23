@@ -1,40 +1,25 @@
 'use client';
 import React from 'react';
-import { Variant } from './ProductForm';
+import { Variant } from './types';
 import { useCart } from '@/hooks/useCart';
 import { cn } from '@/lib/utils';
 
-type colorTagProps = {
-  [key: string]: string;
-};
+import { getColorClass } from './ColorBadge';
 
 const ProductVariants = ({ variant }: { variant: Variant }) => {
   const { variants, updateVariants } = useCart();
-
-  // console.log('# Product Variant:', variants);
-
-  const COLOR_MAP: colorTagProps = {
-    blue: 'bg-blue-500  ring-blue-500 shadow-blue-500/50',
-    red: 'bg-red-500  ring-red-500 shadow-red-500/50',
-    green: 'bg-green-500  ring-green-500 shadow-green-500/50',
-    yellow: 'bg-yellow-500  ring-yellow-500 shadow-yellow-500/50',
-    default: 'bg-[#dadad3]  ring-[#dadad3] shadow-[#dadad3]/50',
-  };
-
-  const getVariantColor = (value: Variant) => {
-    if (value.id !== value.product_id && variant.color) {
-      return COLOR_MAP[variant.color] || COLOR_MAP.default;
-    }
-    return COLOR_MAP.default;
-  };
 
   const handleChangeVariants = (value: Variant) => {
     updateVariants(value);
   };
 
-  const colorClass = getVariantColor(variant);
+  const colorClass = getColorClass(variant.color);
+  const variantIdentifier = variant.id || variant.sku || variant.variant_sku;
+  const selectedVariantIdentifier = variants?.id || variants?.sku || variants?.variant_sku;
 
-  const isSelected = variants?.id === variant.id;
+  const isSelected = selectedVariantIdentifier === variantIdentifier;
+
+  // console.log('ProductVariant render:', { variantId: variantIdentifier, colorClass, isSelected, reduxVariants: variants });
 
   return (
     <article>

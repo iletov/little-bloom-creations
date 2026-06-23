@@ -16,36 +16,7 @@ import {
 import Link from 'next/link';
 import { Order } from '@/types';
 
-const statusConfig: Record<string, { className: string; icon: LucideIcon }> = {
-  pending: {
-    className: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20 hover:bg-yellow-500/20',
-    icon: Clock,
-  },
-  confirmed: {
-    className: 'bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20',
-    icon: CheckCircle2,
-  },
-  processing: {
-    className: 'bg-blue-500/10 text-blue-500 border-blue-500/20 hover:bg-blue-500/20',
-    icon: RefreshCcw,
-  },
-  shipped: {
-    className: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20 hover:bg-indigo-500/20',
-    icon: Truck,
-  },
-  delivered: {
-    className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20',
-    icon: CheckCircle2,
-  },
-  cancelled: {
-    className: 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20',
-    icon: XCircle,
-  },
-  refunded: {
-    className: 'bg-orange-500/10 text-orange-500 border-orange-500/20 hover:bg-orange-500/20',
-    icon: RefreshCcw,
-  },
-};
+import { getOrderStatusConfig } from '@/config/order-status';
 
 const deliveryConfig: Record<string, { className: string; icon: LucideIcon }> = {
   ekont: {
@@ -204,13 +175,13 @@ export const columns: ColumnDef<Order>[] = [
     header: () => <div className="text-[1.6rem] font-[600] text-muted-foreground">Status</div>,
     cell: ({ row }) => {
       const status = row.getValue('status') as string;
-      const config = statusConfig[status] || { className: 'bg-gray-500/10 text-gray-400 border-gray-500/20 hover:bg-gray-500/20', icon: Clock };
-      const Icon = config.icon;
+      const orderStatusConfig = getOrderStatusConfig(status);
+      const Icon = orderStatusConfig.icon;
 
       return (
-        <Badge variant="outline" className={`rounded-full px-3 py-1 flex items-center w-fit gap-1.5 border ${config.className}`}>
+        <Badge variant="outline" className={`rounded-full px-3 py-1 flex items-center w-fit gap-1.5 border ${orderStatusConfig.dashboard.className}`}>
           <Icon className="w-3.5 h-3.5" />
-          <span className="capitalize">{status}</span>
+          <span className="capitalize">{orderStatusConfig.label}</span>
         </Badge>
       );
     },

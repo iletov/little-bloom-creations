@@ -17,6 +17,7 @@ export interface AddressFormData {
   postalCode?: string;
   phoneNumber: string;
   officeCode?: string;
+  officeName?: string;
   streetNo?: string;
   blockNo?: string;
   entranceNo?: string;
@@ -57,6 +58,7 @@ const initialState: PaymentState = {
     postalCode: '',
     phoneNumber: '',
     officeCode: '',
+    officeName: '',
   },
   deliveryCostFlag: false,
   deliveryCost: 0,

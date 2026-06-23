@@ -16,44 +16,9 @@ import CustomCheckbox from '../checkbox-container/CustomCheckbox';
 import { toast } from 'sonner';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { CartIcon2 } from '../icons/icons';
-import { Slug } from '@/sanity.types';
-import { descriptionType, ImagesType } from '@/types';
+import { Product } from './types';
 
-export interface Variant {
-  id: string;
-  parent_sku?: string;
-  product_id?: string;
-  variant_sku?: string;
-  variant_name?: string;
-  variant_type?: string;
-  current_stock?: number;
-  price_adjustment?: number;
-  price?: number;
-  is_active?: boolean;
-  images?: ImagesType[];
-  color?: string;
-  weight?: number;
-  width?: number;
-  height?: number;
-  depth?: number;
-}
-
-export interface Product {
-  id: string;
-  slug: Slug;
-  sku: string;
-  name: string;
-  price: number;
-  description?: descriptionType | string;
-  images: ImagesType[];
-  variants?: Variant[];
-  weight?: number;
-  width?: number;
-  height?: number;
-  depth?: number;
-}
-
-const ProductForm = ({ product }: { product: Product }) => {
+const DiaryForm = ({ product }: { product: Product }) => {
   const { addItem, updateItem, variants, items } = useCart();
 
   const router = useRouter();
@@ -70,14 +35,16 @@ const ProductForm = ({ product }: { product: Product }) => {
 
   //add product to cart and check if it is a variant of the product
 
-  const images = variants?.images ?? product?.images ?? null;
-  const isInStock = variants ? variants?.current_stock > 0 : true;
+  const currentVariant =
+    variants && (variants.product_id === product.id || variants.product_id === product.sku)
+      ? variants
+      : null;
 
-  // const variantImages = variants ?
-  //   ? variants?.
+  const images = currentVariant?.images ?? product?.images ?? null;
+  const isInStock = currentVariant ? currentVariant?.current_stock > 0 : true;
 
   const cartItems = {
-    id: variants?.id ?? product.id,
+    id: currentVariant?.id ?? product.id,
     slug: product?.slug,
     category: { slug: { current: categorySlug || 'all' } },
     sku: product.sku,
@@ -85,13 +52,14 @@ const ProductForm = ({ product }: { product: Product }) => {
     price: product.price,
     quantity: 1,
     images,
-    variant_sku: variants?.variant_sku ?? null,
-    variant_name: variants?.variant_name ?? null,
-    variant_price: variants?.price ?? null,
-    weight: variants?.variant_sku ? variants?.weight : (product.weight ?? null),
-    width: variants?.variant_sku ? variants?.width : (product.width ?? null),
-    height: variants?.variant_sku ? variants?.height : (product.height ?? null),
-    depth: variants?.variant_sku ? variants?.depth : (product.depth ?? null),
+    color: currentVariant?.color ?? product.color ?? null,
+    variant_sku: currentVariant?.variant_sku ?? null,
+    variant_name: currentVariant?.variant_name ?? null,
+    variant_price: currentVariant?.price ?? null,
+    weight: currentVariant?.variant_sku ? currentVariant?.weight : (product.weight ?? null),
+    width: currentVariant?.variant_sku ? currentVariant?.width : (product.width ?? null),
+    height: currentVariant?.variant_sku ? currentVariant?.height : (product.height ?? null),
+    depth: currentVariant?.variant_sku ? currentVariant?.depth : (product.depth ?? null),
   };
 
   // console.log('Product Form ->', cartItems);
@@ -295,4 +263,4 @@ const ProductForm = ({ product }: { product: Product }) => {
   );
 };
 
-export default ProductForm;
+export default DiaryForm;

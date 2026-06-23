@@ -56,6 +56,67 @@ export const productType = defineType({
       },
     }),
 
+    defineField({
+      name: 'color',
+      title: 'Main Product Color',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Blue', value: 'blue' },
+          { title: 'Red', value: 'red' },
+          { title: 'Green', value: 'green' },
+          { title: 'Yellow', value: 'yellow' },
+          { title: 'Beige', value: 'beige' },
+          { title: 'Grey', value: 'grey' },
+          { title: 'Pink', value: 'pink' },
+          { title: 'White', value: 'white' },
+        ],
+      },
+      description: 'The color of the base product (if applicable)',
+    }),
+
+    // Personalization Options
+    defineField({
+      name: 'personalizationOptions',
+      title: 'Personalization Options',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'nameAddonPrice',
+          title: 'Price Add-on for Name (С име)',
+          type: 'number',
+          initialValue: 0,
+        }),
+        defineField({
+          name: 'embroideryAddonPrice',
+          title: 'Price Add-on for Name & Embroidery (С име и бродерия)',
+          type: 'number',
+          initialValue: 0,
+        }),
+        defineField({
+          name: 'embroideryImages',
+          title: 'Embroidery Images',
+          type: 'array',
+          of: [
+            {
+              type: 'image',
+              options: { hotspot: true },
+              fields: [
+                {
+                  name: 'alt',
+                  title: 'Name/ID of embroidery',
+                  type: 'string',
+                },
+              ],
+            },
+          ],
+          options: {
+            layout: 'grid',
+          },
+        }),
+      ],
+    }),
+
     //IF VARIANTS
     defineField({
       name: 'hasVariants',

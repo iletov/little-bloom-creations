@@ -30,6 +30,7 @@ export interface RecipientPayload {
   phone?: string;
   email?: string;
   officeId?: string | number;
+  officeName?: string;
 }
 
 export interface PlaceOrderPayload {

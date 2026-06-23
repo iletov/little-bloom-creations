@@ -116,6 +116,7 @@ export const PaymentCash = ({
             phone: addressFormData?.phoneNumber,
             email: user?.email ?? guestFormData?.email,
             officeId: addressFormData?.officeCode ? String(addressFormData.officeCode) : undefined,
+            officeName: addressFormData?.officeName,
           },
           deliveryMethod: deliveryMethod,
           totalAmount: Number((totalPrice || 0) + (deliveryCost || 0)),

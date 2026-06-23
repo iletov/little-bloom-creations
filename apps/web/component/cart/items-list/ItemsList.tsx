@@ -10,6 +10,7 @@ import Link from 'next/link';
 import ClearCartButton from '../clear-cart-button/ClearCartButton';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
+import { ColorBadge } from '@/component/products/ColorBadge';
 
 type ItemsListProps = {
   group: {
@@ -18,9 +19,12 @@ type ItemsListProps = {
     // cartId: string;
     personalisation?: {
       productId: string;
-      addMainText: string;
-      textColor: string;
-      name: string;
+      addMainText?: string;
+      textColor?: string;
+      name?: string;
+      addonPrice?: number;
+      personalizationType?: string;
+      embroideryImage?: { alt?: string; [key: string]: any };
     };
   };
   checkout?: boolean;
@@ -63,36 +67,73 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
           </p>
 
           <div className="text-[1.4rem] w-full text-start grid gap-1">
-            <p className="grid grid-cols-2 gap-8">
-              Текст:{' '}
-              <span
-                className={cn(
-                  'capitalize justify-self-start',
-                  group?.personalisation?.addMainText === 'italic' && 'italic',
-                )}>
-                {group?.personalisation?.addMainText
-                  ? group?.personalisation?.addMainText
-                  : 'No Text'}
+            {/* Product Color */}
+            {group.product?.color && (
+              <span className="flex items-center gap-8">
+                Цвят:
+                <ColorBadge color={group.product.color} size="sm" className="ml-2" />
               </span>
-            </p>
-            <span className="grid grid-cols-2 gap-8">
-              Име:{' '}
-              <span className="uppercase justify-self-start">
-                {group?.personalisation?.name}
+            )}
+
+            {/* Name */}
+            {group?.personalisation?.name && (
+              <span className="grid grid-cols-2 gap-8">
+                Име:
+                <span className="uppercase justify-self-start">
+                  {group?.personalisation?.name}
+                </span>
               </span>
-            </span>
-            <span className="grid grid-cols-2 gap-8">
-              Цвят:
-              <span
-                className={cn(
-                  'cacpitalize justify-self-start ml-1 px-5 py-[0.5px] rounded-xl',
-                  group?.personalisation?.textColor === 'gold'
-                    ? 'bg-yellow-400'
-                    : 'bg-slate-400 text-white',
-                )}>
-                {group?.personalisation?.textColor}
+            )}
+
+            {/* Text (Diary) */}
+            {group?.personalisation?.addMainText && group?.personalisation?.addMainText !== 'no-text' && (
+              <span className="grid grid-cols-2 gap-8">
+                Текст:
+                <span
+                  className={cn(
+                    'capitalize justify-self-start',
+                    group?.personalisation?.addMainText === 'italic' && 'italic',
+                  )}>
+                  {group?.personalisation?.addMainText}
+                </span>
               </span>
-            </span>
+            )}
+
+            {/* Text Color (Diary) */}
+            {group?.personalisation?.textColor && (
+              <span className="grid grid-cols-2 gap-8">
+                Цвят на текста:
+                <span
+                  className={cn(
+                    'capitalize justify-self-start ml-1 px-5 py-[0.5px] rounded-xl',
+                    group?.personalisation?.textColor === 'gold'
+                      ? 'bg-yellow-400 text-black'
+                      : 'bg-slate-400 text-white',
+                  )}>
+                  {group?.personalisation?.textColor}
+                </span>
+              </span>
+            )}
+
+            {/* Personalization Type (Blanket) */}
+            {group?.personalisation?.personalizationType && group?.personalisation?.personalizationType !== 'none' && (
+              <span className="grid grid-cols-2 gap-8">
+                Персонализация:
+                <span className="justify-self-start">
+                  {group?.personalisation?.personalizationType === 'name-only' ? 'С име' : 'С име и бродерия'}
+                </span>
+              </span>
+            )}
+
+            {/* Embroidery (Blanket) */}
+            {group?.personalisation?.embroideryImage?.alt && (
+              <span className="grid grid-cols-2 gap-8">
+                Бродерия:
+                <span className="justify-self-start text-green-dark">
+                  {group?.personalisation?.embroideryImage.alt}
+                </span>
+              </span>
+            )}
           </div>
         </div>
       </Link>
@@ -120,17 +161,21 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
 const PriceItem = ({ group, checkout }: ItemsListProps) => {
   const router = useRouter();
 
-  const finalPrice = group?.product?.variant_price
+  const basePrice = group?.product?.variant_price
     ? group.product.variant_price
     : group.product.price;
+  
+  const addonPrice = group?.personalisation?.addonPrice || 0;
+  const finalPrice = basePrice + addonPrice;
 
   return (
     <>
       {!checkout ? (
         <span className=" flex flex-col items-end">
           {/* <AddToCartButton product={group?.product as any} cartItem={group} /> */}
-          <div className="px-2">
-            <ProductsPrice price={finalPrice} />
+          <div className="px-2 flex items-center gap-2">
+            <ProductsPrice price={basePrice} />
+            {addonPrice > 0 && <span className="text-gray-500 text-[1.4rem]">(+ {addonPrice} €)</span>}
           </div>
         </span>
       ) : (

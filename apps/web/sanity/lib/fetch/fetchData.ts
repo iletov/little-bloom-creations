@@ -11,6 +11,18 @@ const productQuery = `
       width,
       height,
       depth,
+      color,
+      personalizationOptions {
+        nameAddonPrice,
+        embroideryAddonPrice,
+        embroideryImages[]{
+          asset-> {
+            _ref,
+            url
+          },
+          alt
+        }
+      },
       category-> {
         name, 
         slug,
@@ -254,72 +266,7 @@ export const getProductBySlug = unstable_cache(
   async (slug: string) => {
     const PRODUCT_QUERY = defineQuery(`
     *[_type == "productType" && slug.current == $slug][0] {
-       
-      name, 
-      slug, 
-      description, 
-      category-> {
-        name, 
-        slug,
-        description,
-        image{
-          asset-> {
-            _ref,
-            url
-          },
-          hotspot,
-          ...
-        },
-        skuPrefix
-      },
-      price,
-
-      images[]{
-        asset-> {
-          _ref,
-          url
-        },
-        hotspot,
-        ...
-      },
-      inStock,
-      // stock,
-      sku,
-      features[] {
-        ...
-      },
-      metaTitle,
-      metaDescription,
-      variants[] {
-        name,
-        price,
-        sku,
-        compareAtPrice,
-        color,
-        images[]{
-          asset-> {
-            _ref,
-            url
-          },
-          hotspot,
-          ...
-        },
-        // stock,
-        inStock,
-        ...
-      },
-      additionalSections[] {
-        ...,
-          backgroundImages[]{
-          asset-> {
-            _ref,
-            url
-          },
-          hotspot,
-          ...
-        },
-      },
-      publishedAt,
+       ${productQuery}
     }
       `);
 
@@ -371,9 +318,9 @@ export const getAllCategories = unstable_cache(
       return [];
     }
   },
-  ['categories'],
+  ['categories-new'],
   {
-    tags: ['categories'],
+    tags: ['categories-new'],
     revalidate: 3600,
   },
 );

@@ -11,7 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useUpdateOrder, useGenerateWaybill, useCancelOrder, useMarkAsDelivered } from '@/hooks/useOrder';
 import { cn } from '@/lib/utils';
-import { statusConfig, deliveryConfig, paymentConfig } from '../badge-configs';
+import { deliveryConfig, paymentConfig } from '../badge-configs';
+import { getOrderStatusConfig } from '@/config/order-status';
 import { Package, Clock, CreditCard } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
@@ -441,7 +442,22 @@ const DetailRow = ({
   isCopyable?: boolean;
 }) => {
   let badgeConfig = null;
-  if (isStatus) badgeConfig = statusConfig[String(value).toLowerCase()] || statusConfig.pending;
+  if (isStatus) {
+    const orderStatusConfig = getOrderStatusConfig(String(value));
+    const StatusIcon = orderStatusConfig.icon;
+    return (
+      <div className="flex flex-col">
+        <span className="text-[1.4rem] text-gray-500 font-medium">{label}</span>
+        <Badge 
+          variant="outline" 
+          className={cn("px-3 py-1 text-[1.2rem] border gap-1.5 w-fit", orderStatusConfig.dashboard.className)}
+        >
+          <StatusIcon className="w-3.5 h-3.5" />
+          {orderStatusConfig.label}
+        </Badge>
+      </div>
+    );
+  }
   else if (isCompany || isDelivery) badgeConfig = deliveryConfig[String(value).toLowerCase()] || { className: 'bg-gray-500/10 text-gray-400 border-gray-500/20 hover:bg-gray-500/20', icon: Package };
   else if (isPayment) badgeConfig = paymentConfig[String(value).toLowerCase()] || { className: 'bg-gray-500/10 text-gray-400 border-gray-500/20 hover:bg-gray-500/20', icon: CreditCard };
 

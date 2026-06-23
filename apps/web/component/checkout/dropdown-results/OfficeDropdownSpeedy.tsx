@@ -68,7 +68,7 @@ export const OfficeDropdownSpeedy = ({
 
   const handleSelectOffice = async (currentOffice: OfficeSpeedy) => {
     setSelectedOffice(currentOffice);
-    updateAddresData({ officeCode: currentOffice?.id } as AddressFormData);
+    updateAddresData({ officeCode: currentOffice?.id, officeName: currentOffice?.name } as AddressFormData);
     setDeliveryCost(0);
     setOpen(false);
   };

@@ -13,9 +13,7 @@ export interface CartItem {
   // cartId: string;
   personalisation?: {
     productId: string;
-    addMainText: string;
-    textColor: string;
-    name: string;
+    [key: string]: any;
   };
   // totalWeight: number;
 }
@@ -159,24 +157,25 @@ export const selectTotalPrice = (state: RootState) => {
     const price = item?.product?.price ?? 0;
     const variantPrice = item?.product?.variant_price ?? 0;
     const discount = item?.product?.discount ?? 0;
+    const addonPrice = item?.personalisation?.addonPrice ?? 0;
 
     if (variantPrice) {
       return (
         acc +
-        calculateDiscountAmount({
+        (calculateDiscountAmount({
           price: variantPrice,
           discount,
-        }) *
+        }) + addonPrice) *
           item.quantity
       );
     }
 
     return (
       acc +
-      calculateDiscountAmount({
+      (calculateDiscountAmount({
         price,
         discount,
-      }) *
+      }) + addonPrice) *
         item.quantity
     );
   }, 0);

@@ -33,19 +33,28 @@ export default async function Product({ params }: Props) {
 
   const sanityData = await getProduct(category, product);
 
-  const supabaseData = await getProductBySku(sanityData?.sku as string);
-  if (!sanityData || !supabaseData) {
-    console.error('NOT FOUND. sanityData:', !!sanityData, 'supabaseData:', !!supabaseData, 'sku:', sanityData?.sku);
+  if (!sanityData || !sanityData.sku) {
+    console.error('NOT FOUND. sanityData:', !!sanityData, 'sku:', sanityData?.sku);
+    return notFound();
+  }
+
+  const supabaseData = await getProductBySku(sanityData.sku);
+  if (!supabaseData) {
+    console.error('NOT FOUND IN SUPABASE. sku:', sanityData.sku);
     return notFound();
   }
   const mergeVariants = (sanityVariants: any[], supabaseVariants: any[]) => {
     return supabaseVariants.map((sbVariant: any) => {
+      const sbSku = sbVariant.variantSku || sbVariant.variant_sku;
       const match = sanityVariants.find(
-        sv => sv.sku === (sbVariant?.variant_sku as string),
+        sv => sv.sku === sbSku,
       );
 
       return {
         ...sbVariant,
+        variant_sku: sbSku,
+        variant_name: sbVariant.variantName || sbVariant.variant_name,
+        product_id: sbVariant.parentId || sbVariant.product_id,
         images: match?.images || [],
         color: match?.color || null,
         weight: match?.weight || null,
@@ -67,6 +76,7 @@ export default async function Product({ params }: Props) {
     name: sanityData?.name,
     supabase_name: supabaseData?.name,
     category: sanityData?.category,
+    price: supabaseData?.price || sanityData?.price,
     variants: completeVariants,
   };
 
