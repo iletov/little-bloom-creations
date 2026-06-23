@@ -55,6 +55,7 @@ let InitiateStripeOrderUseCase = class InitiateStripeOrderUseCase {
                 street: dto.recipientAddress.street || null,
                 streetNumber: dto.recipientAddress.streetNumber || null,
                 officeCode: dto.recipientInfo.officeId || null,
+                additionalInfo: dto.recipientInfo.officeName || null,
             };
             const itemsData = [];
             for (const item of dto.items) {

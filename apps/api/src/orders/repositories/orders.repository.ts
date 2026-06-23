@@ -105,6 +105,34 @@ export class OrdersRepository extends BaseRepository {
       .set({ stripePaymentIntentId: paymentIntentId })
       .where(eq(orders.id, orderId));
   }
+
+  async findOrdersByEmail(email: string, tx?: any) {
+    const dbExecutor = tx || this.db;
+
+    // First find all shipping records that match the email
+    const shippingRecords = await dbExecutor
+      .select({ orderId: orderShipping.orderId })
+      .from(orderShipping)
+      .where(eq(orderShipping.email, email));
+
+    if (shippingRecords.length === 0) {
+      return [];
+    }
+
+    const orderIds = shippingRecords.map(r => r.orderId);
+
+    // Now fetch the orders with shipping and items
+    // Using Drizzle's query API for easier relation fetching
+    return dbExecutor.query.orders.findMany({
+      where: (orders, { inArray }) => inArray(orders.id, orderIds),
+      orderBy: (orders, { desc }) => [desc(orders.createdAt)],
+      with: {
+        shipping: true,
+        items: true,
+      },
+    });
+  }
+
   async findByOrderNumber(orderNumber: string, tx?: any) {
     const dbExecutor = tx || this.db;
 

@@ -9,6 +9,7 @@ export declare class GetOrderStatusUseCase {
             total_amount: any;
             created_at: any;
             order_number: any;
+            payment_method: any;
         };
         order_number: any;
         message: string;

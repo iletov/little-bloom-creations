@@ -10,6 +10,7 @@ import { ConfirmStripeOrderUseCase } from './use-cases/confirm-stripe-order.use-
 import { CancelStripeOrderUseCase } from './use-cases/cancel-stripe-order.use-case';
 import { CancelStripeOrderDto } from './dto/cancel-stripe-order.dto';
 import { GetOrderStatusUseCase } from './use-cases/get-order-status.use-case';
+import { GetUserOrdersUseCase } from './use-cases/get-user-orders.use-case';
 export interface PlaceOrderResponse {
     orderNumber: string;
     clientSecret?: string;
@@ -21,8 +22,10 @@ export declare class OrdersController {
     private readonly confirmStripeOrderUseCase;
     private readonly cancelStripeOrderUseCase;
     private readonly getOrderStatusUseCase;
+    private readonly getUserOrdersUseCase;
     private readonly stripeService;
-    constructor(placeCashOrderUseCase: PlaceCashOrderUseCase, initiateStripeOrderUseCase: InitiateStripeOrderUseCase, confirmStripeOrderUseCase: ConfirmStripeOrderUseCase, cancelStripeOrderUseCase: CancelStripeOrderUseCase, getOrderStatusUseCase: GetOrderStatusUseCase, stripeService: StripeService);
+    constructor(placeCashOrderUseCase: PlaceCashOrderUseCase, initiateStripeOrderUseCase: InitiateStripeOrderUseCase, confirmStripeOrderUseCase: ConfirmStripeOrderUseCase, cancelStripeOrderUseCase: CancelStripeOrderUseCase, getOrderStatusUseCase: GetOrderStatusUseCase, getUserOrdersUseCase: GetUserOrdersUseCase, stripeService: StripeService);
+    getMyOrders(req: any): Promise<any>;
     getOrderStatus(orderNumber: string): Promise<{
         status: string;
         order: {
@@ -30,6 +33,7 @@ export declare class OrdersController {
             total_amount: any;
             created_at: any;
             order_number: any;
+            payment_method: any;
         };
         order_number: any;
         message: string;

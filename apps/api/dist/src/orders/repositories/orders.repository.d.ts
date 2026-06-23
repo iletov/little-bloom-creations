@@ -10,5 +10,6 @@ export declare class OrdersRepository extends BaseRepository {
     findById(orderId: string, tx?: any): Promise<any>;
     updateStatus(orderId: string, newStatus: string, tx?: any): Promise<void>;
     savePaymentIntent(orderId: string, paymentIntentId: string, tx?: any): Promise<void>;
+    findOrdersByEmail(email: string, tx?: any): Promise<any>;
     findByOrderNumber(orderNumber: string, tx?: any): Promise<any>;
 }

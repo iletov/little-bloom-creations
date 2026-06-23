@@ -7,6 +7,7 @@ import {
   BadRequestException,
   Get,
   Param,
+  UseGuards,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import type { RawBodyRequest } from '@nestjs/common'; // Оправя грешката с decorated signature
@@ -21,6 +22,8 @@ import { ConfirmStripeOrderUseCase } from './use-cases/confirm-stripe-order.use-
 import { CancelStripeOrderUseCase } from './use-cases/cancel-stripe-order.use-case';
 import { CancelStripeOrderDto } from './dto/cancel-stripe-order.dto';
 import { GetOrderStatusUseCase } from './use-cases/get-order-status.use-case';
+import { GetUserOrdersUseCase } from './use-cases/get-user-orders.use-case';
+import { SupabaseUserGuard } from '../common/guards/supabase-user.guard';
 
 export interface PlaceOrderResponse {
   orderNumber: string;
@@ -36,8 +39,19 @@ export class OrdersController {
     private readonly confirmStripeOrderUseCase: ConfirmStripeOrderUseCase,
     private readonly cancelStripeOrderUseCase: CancelStripeOrderUseCase,
     private readonly getOrderStatusUseCase: GetOrderStatusUseCase,
+    private readonly getUserOrdersUseCase: GetUserOrdersUseCase,
     private readonly stripeService: StripeService,
   ) {}
+
+  @Get('me')
+  @UseGuards(SupabaseUserGuard)
+  async getMyOrders(@Req() req: any) {
+    const userEmail = req.user?.email;
+    if (!userEmail) {
+      throw new BadRequestException('User email not found in session');
+    }
+    return this.getUserOrdersUseCase.execute(userEmail);
+  }
 
   @Get('status/:orderNumber')
   async getOrderStatus(@Param('orderNumber') orderNumber: string) {

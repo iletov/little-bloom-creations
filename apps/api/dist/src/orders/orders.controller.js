@@ -23,20 +23,31 @@ const confirm_stripe_order_use_case_1 = require("./use-cases/confirm-stripe-orde
 const cancel_stripe_order_use_case_1 = require("./use-cases/cancel-stripe-order.use-case");
 const cancel_stripe_order_dto_1 = require("./dto/cancel-stripe-order.dto");
 const get_order_status_use_case_1 = require("./use-cases/get-order-status.use-case");
+const get_user_orders_use_case_1 = require("./use-cases/get-user-orders.use-case");
+const supabase_user_guard_1 = require("../common/guards/supabase-user.guard");
 let OrdersController = class OrdersController {
     placeCashOrderUseCase;
     initiateStripeOrderUseCase;
     confirmStripeOrderUseCase;
     cancelStripeOrderUseCase;
     getOrderStatusUseCase;
+    getUserOrdersUseCase;
     stripeService;
-    constructor(placeCashOrderUseCase, initiateStripeOrderUseCase, confirmStripeOrderUseCase, cancelStripeOrderUseCase, getOrderStatusUseCase, stripeService) {
+    constructor(placeCashOrderUseCase, initiateStripeOrderUseCase, confirmStripeOrderUseCase, cancelStripeOrderUseCase, getOrderStatusUseCase, getUserOrdersUseCase, stripeService) {
         this.placeCashOrderUseCase = placeCashOrderUseCase;
         this.initiateStripeOrderUseCase = initiateStripeOrderUseCase;
         this.confirmStripeOrderUseCase = confirmStripeOrderUseCase;
         this.cancelStripeOrderUseCase = cancelStripeOrderUseCase;
         this.getOrderStatusUseCase = getOrderStatusUseCase;
+        this.getUserOrdersUseCase = getUserOrdersUseCase;
         this.stripeService = stripeService;
+    }
+    async getMyOrders(req) {
+        const userEmail = req.user?.email;
+        if (!userEmail) {
+            throw new common_1.BadRequestException('User email not found in session');
+        }
+        return this.getUserOrdersUseCase.execute(userEmail);
     }
     async getOrderStatus(orderNumber) {
         return this.getOrderStatusUseCase.execute(orderNumber);
@@ -82,6 +93,14 @@ let OrdersController = class OrdersController {
 };
 exports.OrdersController = OrdersController;
 __decorate([
+    (0, common_1.Get)('me'),
+    (0, common_1.UseGuards)(supabase_user_guard_1.SupabaseUserGuard),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "getMyOrders", null);
+__decorate([
     (0, common_1.Get)('status/:orderNumber'),
     __param(0, (0, common_1.Param)('orderNumber')),
     __metadata("design:type", Function),
@@ -124,6 +143,7 @@ exports.OrdersController = OrdersController = __decorate([
         confirm_stripe_order_use_case_1.ConfirmStripeOrderUseCase,
         cancel_stripe_order_use_case_1.CancelStripeOrderUseCase,
         get_order_status_use_case_1.GetOrderStatusUseCase,
+        get_user_orders_use_case_1.GetUserOrdersUseCase,
         stripe_service_1.StripeService])
 ], OrdersController);
 //# sourceMappingURL=orders.controller.js.map

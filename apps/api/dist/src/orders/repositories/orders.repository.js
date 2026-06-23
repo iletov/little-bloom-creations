@@ -67,6 +67,25 @@ let OrdersRepository = class OrdersRepository extends base_repository_1.BaseRepo
             .set({ stripePaymentIntentId: paymentIntentId })
             .where((0, drizzle_orm_1.eq)(schema_1.orders.id, orderId));
     }
+    async findOrdersByEmail(email, tx) {
+        const dbExecutor = tx || this.db;
+        const shippingRecords = await dbExecutor
+            .select({ orderId: schema_1.orderShipping.orderId })
+            .from(schema_1.orderShipping)
+            .where((0, drizzle_orm_1.eq)(schema_1.orderShipping.email, email));
+        if (shippingRecords.length === 0) {
+            return [];
+        }
+        const orderIds = shippingRecords.map(r => r.orderId);
+        return dbExecutor.query.orders.findMany({
+            where: (orders, { inArray }) => inArray(orders.id, orderIds),
+            orderBy: (orders, { desc }) => [desc(orders.createdAt)],
+            with: {
+                shipping: true,
+                items: true,
+            },
+        });
+    }
     async findByOrderNumber(orderNumber, tx) {
         const dbExecutor = tx || this.db;
         const [order] = await dbExecutor

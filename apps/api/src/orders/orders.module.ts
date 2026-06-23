@@ -9,6 +9,7 @@ import { ConfirmStripeOrderUseCase } from './use-cases/confirm-stripe-order.use-
 import { InitiateStripeOrderUseCase } from './use-cases/initiate-stripe-order.use-case';
 import { CancelStripeOrderUseCase } from './use-cases/cancel-stripe-order.use-case';
 import { GetOrderStatusUseCase } from './use-cases/get-order-status.use-case';
+import { GetUserOrdersUseCase } from './use-cases/get-user-orders.use-case';
 
 @Module({
   imports: [ProductsModule, StripeModule],
@@ -20,6 +21,7 @@ import { GetOrderStatusUseCase } from './use-cases/get-order-status.use-case';
     ConfirmStripeOrderUseCase,
     CancelStripeOrderUseCase,
     GetOrderStatusUseCase,
+    GetUserOrdersUseCase,
   ],
   exports: [OrdersRepository],
 })

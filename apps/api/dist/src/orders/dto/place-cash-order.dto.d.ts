@@ -27,6 +27,7 @@ export declare class OrderRecipientDto {
     phone: string;
     email?: string;
     officeId?: string;
+    officeName?: string;
 }
 export declare class PlaceCashOrderDto {
     items: OrderItemDto[];

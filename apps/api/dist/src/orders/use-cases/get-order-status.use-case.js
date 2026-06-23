@@ -43,6 +43,7 @@ let GetOrderStatusUseCase = class GetOrderStatusUseCase {
                 total_amount: order.totalAmount,
                 created_at: order.createdAt,
                 order_number: order.orderNumber,
+                payment_method: order.paymentMethod,
             },
             order_number: order.orderNumber,
             message,

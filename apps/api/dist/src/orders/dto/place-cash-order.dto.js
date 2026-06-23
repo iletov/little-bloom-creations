@@ -128,6 +128,7 @@ class OrderRecipientDto {
     phone;
     email;
     officeId;
+    officeName;
 }
 exports.OrderRecipientDto = OrderRecipientDto;
 __decorate([
@@ -152,6 +153,11 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], OrderRecipientDto.prototype, "officeId", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], OrderRecipientDto.prototype, "officeName", void 0);
 class PlaceCashOrderDto {
     items;
     recipientAddress;

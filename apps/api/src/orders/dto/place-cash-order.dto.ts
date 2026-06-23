@@ -67,6 +67,7 @@ export class OrderRecipientDto {
   @IsString() phone!: string;
   @IsEmail() @IsOptional() email?: string;
   @IsString() @IsOptional() officeId?: string;
+  @IsString() @IsOptional() officeName?: string;
 }
 
 export class PlaceCashOrderDto {
