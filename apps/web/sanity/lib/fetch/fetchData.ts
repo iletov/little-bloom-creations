@@ -85,7 +85,23 @@ const productQuery = `
             url
           },
           hotspot,
-          ...
+          alt,
+          title
+        },
+        products[]-> {
+          name,
+          slug,
+          images[]{
+            asset->{
+              _ref,
+              url
+            },
+            hotspot,
+            alt
+          },
+          category->{
+            slug
+          }
         },
       },
       publishedAt,
@@ -103,7 +119,23 @@ export const getPageData = unstable_cache(
               url
             },
             hotspot,
-            ...
+            alt,
+            title
+          },
+          products[]-> {
+            name,
+            slug,
+            images[]{
+              asset->{
+                _ref,
+                url
+              },
+              hotspot,
+              alt
+            },
+            category->{
+              slug
+            }
           },
           categories[]-> {
             _id,

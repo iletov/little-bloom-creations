@@ -21,7 +21,7 @@ import EmbroideryModal from './EmbroideryModal';
 import Image from 'next/image';
 import { urlFor } from '@/sanity/lib/image';
 import { AnimatePresence } from 'framer-motion';
-import { X, ZoomIn, Trash2, RefreshCw } from 'lucide-react';
+import { X, ZoomIn, Trash2, RefreshCw, Plus } from 'lucide-react';
 
 const BlanketForm = ({ 
   product,
@@ -272,11 +272,12 @@ const BlanketForm = ({
               ) : (
                 <Button 
                   type="button" 
-                  variant="outline" 
-                  className="w-full text-left justify-start h-auto p-4 text-[1.6rem] border-2 border-dashed hover:border-green-5 hover:bg-green-1/20 transition-all"
+                  variant="ghost" 
+                  className="w-full h-auto p-8 text-[1.6rem] bg-transparent border-2 border-dashed border-gray-300 hover:border-green-dark hover:bg-green-1/20 text-gray-500 hover:text-green-dark transition-all rounded-xl flex flex-col items-center justify-center gap-3"
                   onClick={() => setIsModalOpen(true)}
                 >
-                  <span className="text-gray-500">Кликнете тук, за да изберете бродерия</span>
+                  <Plus size={28} className="opacity-70" />
+                  <span>Кликнете тук, за да изберете бродерия</span>
                 </Button>
               )}
               {blanketForm.formState.errors.embroideryImage && (

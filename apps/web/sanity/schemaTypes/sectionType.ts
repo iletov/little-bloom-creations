@@ -278,6 +278,24 @@ export const sectionType = defineType({
           .warning('Consider using fewer images for better performance'),
     }),
 
+    // products
+    defineField({
+      name: 'products',
+      title: 'Products (References)',
+      description: 'Select products from the catalog to display in this section. If configured, these products will be used instead of manual Background Images.',
+      type: 'array',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'productType' }],
+        },
+      ],
+      hidden: ({ parent }) =>
+        parent?.sectionType !== 'slideBanner' || !parent?.sectionType,
+      validation: rule =>
+        rule.max(6).warning('We recommend showing at most 6 products for optimal layout'),
+    }),
+
     defineField({
       name: 'categories',
       title: 'Categories (References)',
