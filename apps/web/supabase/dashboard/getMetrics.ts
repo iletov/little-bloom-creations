@@ -8,7 +8,7 @@ export async function getMetrics(days: number = 7) {
 
   const token = session?.access_token || process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!token) {
-    console.error('Unauthorized access to getMetrics');
+    console.warn('Unauthorized access to getMetrics');
     return {
       todayRevenue: "0.00",
       todayOrdersCount: 0,
@@ -31,14 +31,14 @@ export async function getMetrics(days: number = 7) {
     });
 
     if (!response.ok) {
-      console.error('Failed to fetch metrics:', await response.text());
+      console.warn('Failed to fetch metrics:', await response.text());
       throw new Error('Failed to fetch metrics');
     }
 
     const metrics = await response.json();
     return metrics;
   } catch (error) {
-    console.error('Error fetching metrics from NestJS:', error);
+    console.warn('Warning: Could not fetch metrics from NestJS API (is the API server running?)', error);
     return {
       todayRevenue: "0.00",
       todayOrdersCount: 0,

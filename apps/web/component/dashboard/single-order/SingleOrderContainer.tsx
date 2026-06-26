@@ -448,9 +448,9 @@ const DetailRow = ({
     return (
       <div className="flex flex-col">
         <span className="text-[1.4rem] text-gray-500 font-medium">{label}</span>
-        <Badge 
-          variant="outline" 
-          className={cn("px-3 py-1 text-[1.2rem] border gap-1.5 w-fit", orderStatusConfig.dashboard.className)}
+        <Badge
+          variant="outline"
+          className={cn("px-3 py-1 text-[1.2rem] border gap-1.5 w-fit rounded-full", orderStatusConfig.badgeClasses)}
         >
           <StatusIcon className="w-3.5 h-3.5" />
           {orderStatusConfig.label}

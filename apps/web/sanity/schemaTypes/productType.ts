@@ -239,7 +239,7 @@ export const productType = defineType({
           : 'Out of Stock';
       return {
         title: title,
-        subtitle: `${price} лв • ${category || 'No category'} • ${stockStatus}`,
+        subtitle: `${price} € • ${category || 'No category'} • ${stockStatus}`,
         media: image,
       };
     },

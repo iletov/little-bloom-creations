@@ -80,8 +80,7 @@ export default async function UserOrdersPage() {
                         </h3>
                         <div className={cn(
                           "flex items-center gap-1.5 px-3 py-1 rounded-full text-[1.1rem] font-medium",
-                          statusConfig.storefront.bg,
-                          statusConfig.storefront.color
+                          statusConfig.badgeClasses
                         )}>
                           <StatusIcon className="w-3.5 h-3.5" />
                           {statusConfig.label}

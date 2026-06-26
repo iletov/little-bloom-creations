@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import HighlightedHeading from '../heading-description/HighlightedHeading';
 import { Slug } from '@/sanity.types';
+import { GradientOverlay } from '@/components/ui/gradient-overlay';
 
 interface HeroBannerProps {
   data: {
@@ -29,22 +30,26 @@ const HeroBanner = ({ data }: HeroBannerProps) => {
   const bannerSize = (value: string) => {
     switch (value) {
       case 'large':
-        return 'min-h-[60vh] lg:min-h-[65vh]';
+        return 'min-h-[100vh]';
       case 'small':
-        return 'min-h-[40vh] lg:min-h-[45vh]';
+        return 'min-h-[60vh] lg:min-h-[50vh]';
       default:
-        return 'min-h-[60vh] lg:min-h-[65vh]';
+        return 'min-h-[100vh]';
     }
   };
 
   return (
-    <section className="bg-pink-1 ">
+    <section 
+      className="bg-pink-1" 
+      data-hero-banner="true"
+      data-hero-size={data?.size === 'small' ? 'small' : 'large'}
+    >
       <div
         className={cn(
           'relative w-full flex flex-col',
           bannerSize(data?.size ?? ''),
         )}>
-        <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
+        <GradientOverlay className="via-black/40" />
         <Image
           src={urlFor(data?.backgroundImage).url()}
           alt={data?.heading?.title ?? 'background-image'}
@@ -57,24 +62,35 @@ const HeroBanner = ({ data }: HeroBannerProps) => {
 
         {/* <SocialMedComponent /> */}
 
-        <header className="absolute grid-section__hero  z-10 w-full h-full place-content-end pb-[6%] place-items-stretch max-w-[85%] inset-x-0 mx-auto">
-          <HighlightedHeading
-            text={data?.heading?.title}
-            word={data?.heading?.highlightedWord}
-            color={data?.heading?.highlightedColor}
-            tag="h1"
-            className="text-pink-1 text-[7.2rem] font-bold leading-[1.2] max-w-[10ch]"
-          />
-          <div className="justify-self-center grid gap-8 ">
-            <PortableTextContainer
-              data={data?.description}
-              className="text-end text-pink-1"
+        <header className={cn("section_wrapper absolute z-10 w-full h-full flex flex-col justify-center md:justify-end pb-[10%] md:pb-[8%] mx-auto inset-x-0", data?.size === 'small' ? 'pb-[15%]' : 'pb-[30%]')}>
+          <div className="flex flex-col items-start gap-4 md:gap-6 max-w-4xl">
+            <HighlightedHeading
+              text={data?.heading?.title}
+              word={data?.heading?.highlightedWord}
+              color={data?.heading?.highlightedColor}
+              tag="h1"
+              className="text-white text-[4rem] md:text-[5.6rem] lg:text-[7.2rem] font-bold leading-[1.1]"
             />
-            <Button asChild className="justify-self-end relative z-20">
-              <Link href={data?.button?.slug?.current ?? '/'}>
-                {data?.button?.text}
-              </Link>
-            </Button>
+            
+            {data?.description && (
+              <div className="text-[1.8rem] md:text-[2.2rem] font-medium">
+                <PortableTextContainer 
+                  data={data.description} 
+                  className="text-white prose-p:text-white prose-headings:text-white prose-strong:text-white" 
+                />
+              </div>
+            )}
+            
+            {data?.button?.text && (
+              <Button 
+                asChild 
+                className="mt-4 relative z-20 bg-white text-black hover:text-black rounded-full px-12 py-7 text-[1.6rem] font-bold h-auto shadow-md "
+              >
+                <Link href={data?.button?.slug?.current ?? '/'}>
+                  {data?.button?.text}
+                </Link>
+              </Button>
+            )}
           </div>
         </header>
       </div>

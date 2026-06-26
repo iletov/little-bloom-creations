@@ -8,12 +8,11 @@ import {
 import '../globals.css';
 // import Header from "@/Components/header/Header;
 import { SanityLive } from '@/sanity/lib/live';
-
 import StoreProvider from '../store/StoreProvider';
 import { Toaster } from '@/components/ui/sonner';
 import Header from '@/component/header/Header';
-import { getAllCategories } from '@/sanity/lib/fetch/fetchData';
-import QueryProvider from './query-provider';
+import { getAllCategories, getAllProductsSanity } from '@/sanity/lib/fetch/fetchData';
+import Footer from '@/component/footer/Footer';
 import LayoutWrapper from './query-wrapper';
 import CookieConsentBanner from '@/component/banner/cookie-banner/CookieBanner';
 
@@ -71,12 +70,17 @@ export const metadata: Metadata = {
   },
 };
 
+
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const categories = await getAllCategories();
+  const [categories, products] = await Promise.all([
+    getAllCategories(),
+    getAllProductsSanity(),
+  ]);
 
   return (
     <html lang="en">
@@ -85,11 +89,12 @@ export default async function RootLayout({
         <LayoutWrapper>
           <StoreProvider>
             <main className="flex flex-col">
-              <Header categories={categories} />
+              <Header categories={categories} products={products} />
               <div className="">
                 {children}
                 <CookieConsentBanner />
               </div>
+              <Footer />
             </main>
             <SanityLive />
             <Toaster />

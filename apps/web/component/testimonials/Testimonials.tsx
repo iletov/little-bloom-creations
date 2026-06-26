@@ -22,7 +22,7 @@ type TestimonialsProps = {
 
 export default function Testimonials({ data }: TestimonialsProps) {
   return (
-    <section className="w-full bg-pink-1 section-y-padding !pb-[10rem] space-y-[2rem] relative">
+    <section className="w-full bg-pink-1 section-y-padding !pb-[10rem] space-y-[2rem] relative min-h-[75vh] flex flex-col justify-center">
       <QuotesIcon2 className="absolute top-[1rem] left-[4rem] w-[26rem] h-[26rem] opacity-10" />
       <header className="grid justify-items-center">
         <HighlightedHeading
@@ -37,33 +37,42 @@ export default function Testimonials({ data }: TestimonialsProps) {
         />
       </header>
       <Carousel className="w-full section_wrapper h-full ">
-        <CarouselContent className="-ml-8">
+        <CarouselContent className="-ml-4 md:-ml-8 py-8">
           {data?.listItems?.map((item, index) => (
             <CarouselItem
               key={index}
-              className=" basis-1/3 pl-8 text-green-dark">
-              <div className="rounded-[1.6rem] border-card text-center gap-[1.5rem] p-[2rem] grid grid-rows-[auto_auto_1fr] h-full">
-                <h3 className="text-[3.2rem] leading-[1.4] font-semibold ">
-                  "{item?.title}"
-                </h3>
-                <div className="w-[10%] h-px bg-green-5 mx-auto" />
-                <em className="text-[1.6rem]  leading-[1.5] ">
-                  <PortableTextContainer data={item?.description} />
-                </em>
-                <p className="font-monsieurLa text-[2.2rem]">
-                  {item?.subTitle}
-                </p>
+              className="basis-full md:basis-1/2 xl:basis-[45%] pl-4 md:pl-8 text-green-dark">
+              <div className="rounded-[2rem] border-card bg-white/50 backdrop-blur-sm shadow-lg text-center gap-[2rem] p-[3rem] sm:p-[4rem] lg:p-[5rem] flex flex-col justify-between h-full transform transition-all duration-500 hover:border-pink-9">
+                
+                <div className="space-y-6 flex-1 flex flex-col justify-center">
+                  <h3 className="text-[2.8rem] md:text-[3.6rem] lg:text-[4.2rem] leading-[1.3] font-semibold text-green-dark">
+                    "{item?.title}"
+                  </h3>
+                  
+                  <div className="w-[15%] h-[2px] bg-green-5/50 mx-auto" />
+                  
+                  <em className="text-[1.8rem] md:text-[2rem] lg:text-[2.2rem] leading-[1.6] text-slate-700 block px-4">
+                    <PortableTextContainer data={item?.description} />
+                  </em>
+                </div>
+
+                <div className="pt-8 mt-auto">
+                  <p className="font-monsieurLa text-[3rem] md:text-[4rem] text-green-9 opacity-80">
+                    {item?.subTitle}
+                  </p>
+                </div>
+                
               </div>
             </CarouselItem>
           ))}
         </CarouselContent>
 
         <CarouselPrevious
-          className="h-[4.5rem] w-[4.5rem] bg-green-5 [&_svg]:size-8"
+          className="hidden md:flex h-[4.5rem] w-[4.5rem] bg-green-5 [&_svg]:size-8"
           variant={'default'}
         />
         <CarouselNext
-          className="h-[4.5rem] w-[4.5rem] bg-green-5 [&_svg]:size-8"
+          className="hidden md:flex h-[4.5rem] w-[4.5rem] bg-green-5 [&_svg]:size-8"
           variant={'default'}
         />
       </Carousel>

@@ -25,6 +25,7 @@ export const sectionType = defineType({
           { title: 'Product Preview', value: 'productPreview' },
           { title: 'Tab Section', value: 'tabSection' },
           { title: 'Trust strip / Предимства', value: 'benefits' },
+          { title: 'Product Carousel', value: 'productCarousel' },
         ],
       },
       validation: rule => rule.required(),
@@ -308,7 +309,7 @@ export const sectionType = defineType({
         },
       ],
       hidden: ({ parent }) =>
-        parent?.sectionType !== 'categoryCard' || !parent?.sectionType,
+        !['categoryCard', 'productCarousel'].includes(parent?.sectionType) || !parent?.sectionType,
       validation: rule =>
         rule.max(6).warning('We recommend showing at most 6 categories for optimal layout'),
     }),
@@ -345,7 +346,7 @@ export const sectionType = defineType({
         },
       ],
       hidden: ({ parent }) =>
-        !['testimonials', 'multisection', 'tabSection'].includes(
+        !['testimonials', 'multisection', 'tabSection', 'headingDescription'].includes(
           parent?.sectionType,
         ),
     }),

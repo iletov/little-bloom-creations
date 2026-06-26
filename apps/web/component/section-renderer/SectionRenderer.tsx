@@ -11,6 +11,7 @@ import {
   ProductPreview,
   TabSection,
   BenefitsSection,
+  ProductCarousel,
 } from '..';
 import { descriptionType, ImagesType, ListItems, Title } from '@/types';
 
@@ -60,6 +61,7 @@ const SectionRenderer = ({ sections }: SectionRendererProps) => {
     productPreview: ProductPreview,
     tabSection: TabSection,
     benefits: BenefitsSection,
+    productCarousel: ProductCarousel,
   };
 
   return (

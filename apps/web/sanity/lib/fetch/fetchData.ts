@@ -150,6 +150,29 @@ export const getPageData = unstable_cache(
               ...
             },
             skuPrefix
+          },
+          "carouselProducts": *[_type == "productType" && (^.sectionType == "productCarousel") && (!defined(^.categories) || category._ref in ^.categories[]._ref)][0...10] {
+            name,
+            slug,
+            price,
+            color,
+            images[]{
+              asset->{ url },
+              hotspot,
+              alt
+            },
+            category->{slug},
+            variants[] {
+              name,
+              price,
+              compareAtPrice,
+              color,
+              images[]{
+                asset->{ url },
+                hotspot,
+                alt
+              }
+            }
           }
         }
       }

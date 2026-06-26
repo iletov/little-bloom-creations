@@ -49,7 +49,7 @@ const TabSection = ({ data }: TabSectionProps) => {
                 activeKey === item?._key && 'bg-green-1',
               )}
               onClick={() => setActiveKey(item?._key)}>
-              <h3 className="text-[1.6rem]">{item?.title}</h3>
+              <h3 className="text-[1.6rem] font-medium">{item?.title}</h3>
             </Button>
           ))}
         </div>
@@ -64,7 +64,7 @@ const TabSection = ({ data }: TabSectionProps) => {
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.2, ease: 'easeIn' }}
               className="grid grid-cols-1 md:grid-cols-[3fr_4fr] gap-[4rem]">
-              <figure className="w-full aspect-[1/0.7] rounded-[1rem] overflow-clip">
+              <figure className="w-full aspect-[1/0.7] rounded-2xl overflow-hidden shadow-lg border border-gray-100 bg-white">
                 <Image
                   src={
                     urlFor(activeItem?.image as SanityImageSource).url() ?? ''
@@ -73,7 +73,7 @@ const TabSection = ({ data }: TabSectionProps) => {
                   width={1024}
                   height={480}
                   sizes="(max-width: 768px) 50vw, (max-width: 1200px) 75vw, 100vw"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-all duration-500 hover:scale-105"
                 />
               </figure>
               <div className="grid grid-rows-[auto_1fr_auto]">

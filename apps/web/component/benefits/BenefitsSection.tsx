@@ -51,7 +51,7 @@ const BenefitsSection = ({
       className="border-y border-green-5/20 bg-green-0 py-12 sm:py-16 lg:py-24"
       aria-label="Основни предимства"
     >
-      <div className="section_wrapper px-6 sm:px-8 xl:px-0">
+      <div className="section_wrapper">
         {data.benefitEyebrow ||
         data.benefitHeading ||
         data.benefitDescription ? (

@@ -179,7 +179,7 @@ export const columns: ColumnDef<Order>[] = [
       const Icon = orderStatusConfig.icon;
 
       return (
-        <Badge variant="outline" className={`rounded-full px-3 py-1 flex items-center w-fit gap-1.5 border ${orderStatusConfig.dashboard.className}`}>
+        <Badge variant="outline" className={`rounded-full px-3 py-1 flex items-center w-fit gap-1.5 border ${orderStatusConfig.badgeClasses}`}>
           <Icon className="w-3.5 h-3.5" />
           <span className="capitalize">{orderStatusConfig.label}</span>
         </Badge>

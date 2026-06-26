@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   AnimatePresence,
@@ -22,22 +23,26 @@ import {
   Phone,
   ShieldCheck,
   ShoppingBag,
+  Store,
   User,
   X,
 } from 'lucide-react';
+import { useCart } from '@/hooks/useCart';
+import { useIsClient } from '@/hooks/useIsClient';
+
+import { Product } from '../products/types';
 
 interface HeaderProps {
   label: string;
   href: string;
+  items?: {
+    label: string;
+    desc?: any;
+    href: string;
+    image?: any;
+  }[];
+  products?: Product[];
   adminOnly?: boolean;
-  items?:
-    | {
-        label: string;
-        href: string;
-        desc?: string;
-      }[]
-    | undefined;
-  categories?: any[];
 }
 
 const getAvatarUrl = (metadata: Record<string, unknown>): string | null => {
@@ -91,7 +96,7 @@ const formatProfileDate = (value: string | null | undefined): string | null => {
   }).format(date);
 };
 
-const getNavItems = (categories?: any[]): HeaderProps[] => [
+const getNavItems = (categories?: any[], products?: Product[]): HeaderProps[] => [
   {
     label: 'Продукти',
     href: 'categories',
@@ -101,6 +106,7 @@ const getNavItems = (categories?: any[]): HeaderProps[] => [
       href: cat.slug?.current || '',
       image: cat.image,
     })) : [],
+    products: products || [],
   },
   { label: 'Как се поръчва', href: '#how-to-order' },
   { label: 'За нас', href: 'about' },
@@ -129,7 +135,7 @@ const mobileItemVariants = {
   },
 };
 
-const Header = ({ categories }: { categories?: any[] }): React.JSX.Element => {
+const Header = ({ categories, products }: { categories?: any[], products?: Product[] }): React.JSX.Element => {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
   const [isSticky, setIsSticky] = useState(false);
@@ -137,6 +143,27 @@ const Header = ({ categories }: { categories?: any[] }): React.JSX.Element => {
   const [openAccordion, setOpenAccordion] = useState<number | null>(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  const pathname = usePathname();
+  
+  const defaultHasHero = pathname === '/' || pathname === '/categories' || pathname.startsWith('/categories/');
+  const [isHome, setIsHome] = useState(defaultHasHero);
+  const [isLargeHero, setIsLargeHero] = useState(defaultHasHero);
+
+  useEffect(() => {
+    // Automatically make the header transparent if there's a HeroBanner on the page
+    const hero = document.querySelector('[data-hero-banner="true"]');
+    if (hero) {
+      setIsHome(true);
+      setIsLargeHero(hero.getAttribute('data-hero-size') !== 'small');
+    } else {
+      setIsHome(defaultHasHero);
+      setIsLargeHero(defaultHasHero);
+    }
+  }, [pathname, defaultHasHero]);
+
+  const { totalItems } = useCart();
+  const isClient = useIsClient();
 
   const { user, signOut } = useAuth();
   const { scrollY } = useScroll();
@@ -161,7 +188,7 @@ const Header = ({ categories }: { categories?: any[] }): React.JSX.Element => {
       ? user.app_metadata.role
       : null;
   const isAdmin = profileRole === 'admin' || profileRole === 'superadmin';
-  const navItems = getNavItems(categories);
+  const navItems = getNavItems(categories, products);
   const visibleNavItems = navItems.filter(
     item => !item.adminOnly || isAdmin,
   );
@@ -169,9 +196,9 @@ const Header = ({ categories }: { categories?: any[] }): React.JSX.Element => {
   const lastSignInAt = formatProfileDate(user?.last_sign_in_at);
 
   useMotionValueEvent(scrollY, 'change', latest => {
-    if (latest > 200) {
+    if (latest > 50) {
       setIsSticky(true);
-    } else if (latest < 80) {
+    } else if (latest < 20) {
       setIsSticky(false);
     }
   });
@@ -282,45 +309,49 @@ const Header = ({ categories }: { categories?: any[] }): React.JSX.Element => {
 
   return (
     <>
-      <nav className="relative flex justify-center bg-pink-1 px-4 pb-[4rem] pt-[2rem] text-[1.8rem] text-green-dark sm:pt-[4rem]">
-        {/* Main Wrapper that contains the Navbar Pill and the Avatar Circle */}
+      <nav className="relative flex justify-center text-[1.8rem] text-green-dark">
+        {/* Desktop & Mobile Top Header Wrapper */}
         <div
           className={cn(
-            'left-0 right-0 z-30 mx-auto flex w-full max-w-[118rem] items-center justify-center px-4 transition-all duration-500',
-            isSticky ? 'fixed top-[1rem]' : 'absolute top-[2rem] sm:top-[4rem]',
+            'left-0 right-0 z-30 mx-auto flex w-full items-center justify-center',
+            isHome 
+              ? 'absolute top-0 lg:fixed'
+              : 'relative lg:sticky lg:top-0'
           )}>
-          {/* Main Navbar Pill */}
-          <motion.section
-            layout
-            animate={{ scale: isSticky ? 1.02 : 1 }}
-            transition={{
-              type: 'spring',
-              stiffness: 300,
-              damping: 30,
-              duration: 0.5,
-            }}
+          {/* Main Navbar */}
+          <section
             className={cn(
-              'grid h-[62px] w-full grid-cols-[auto_1fr_auto] items-stretch rounded-[0.8rem] border-[1px] bg-white sm:h-[68px] lg:h-[70px]',
-              isSticky ? 'shadow-xl' : 'shadow-lg',
+              'w-full transition-colors duration-300 relative',
+              !isHome 
+                ? 'bg-white shadow-md border-b border-slate-200'
+                : (isSticky 
+                    ? 'bg-transparent lg:bg-white lg:shadow-md lg:border-b lg:border-slate-200' 
+                    : 'bg-transparent border-transparent lg:bg-white lg:border-b lg:border-slate-200')
             )}>
-            {/* Left Side: Mobile Menu & Logo */}
-            <div className="flex min-w-[13rem] items-stretch lg:min-w-[22rem]">
-              {/* Mobile Hamburger Menu Button */}
-              <div className="lg:hidden flex">
-                <button
-                  onClick={() => setMobileMenuOpen(true)}
-                  className="grid place-items-center rounded-l-[0.8rem] border-r-[1px] px-[15px] text-green-dark transition duration-200 hover:bg-green-1 sm:px-[20px]"
-                  aria-label="Open menu">
-                  <Menu className="w-6 h-6" />
-                </button>
-              </div>
+            <div className="section_wrapper grid h-[62px] w-full grid-cols-[1fr_auto_1fr] items-stretch sm:h-[68px] lg:h-[70px]">
+            {/* Left Side: Desktop Navigation (Hidden on mobile) */}
+            <div className="hidden lg:flex items-stretch justify-start flex-1">
+              <ul
+                className="flex items-center gap-2  h-full"
+                onMouseLeave={() => {
+                  setHoveredItem(null);
+                  setOpenDropdown(null);
+                }}>
+                {navigationContainer}
+              </ul>
+            </div>
+            
+            {/* Mobile Fallback Left Side (Empty or Mobile Menu Trigger) */}
+            <div className="flex lg:hidden items-center justify-start flex-1 px-4">
+              {/* Mobile menu trigger is in bottom nav */}
+            </div>
 
+            {/* Center: Logo */}
+            <div className="flex items-center justify-center">
               <Link
                 href={'/'}
-                className={cn(
-                  'grid place-items-center border-r-[1px] bg-green-1 px-[18px] transition duration-200 ease-in-out hover:bg-green-5 sm:px-[26px] lg:min-w-[16rem]',
-                  'rounded-none lg:rounded-l-[0.8rem]',
-                )}>
+                className="grid place-items-center px-4 rounded-none transition-transform"
+              >
                 <Image
                   src="/logo-ctr.svg"
                   alt="Little Bloom Creations"
@@ -332,18 +363,8 @@ const Header = ({ categories }: { categories?: any[] }): React.JSX.Element => {
               </Link>
             </div>
 
-            {/* Center: Desktop Navigation */}
-            <ul
-              className="hidden min-w-max items-center justify-center gap-2 px-2 py-2 lg:flex"
-              onMouseLeave={() => {
-                setHoveredItem(null);
-                setOpenDropdown(null);
-              }}>
-              {navigationContainer}
-            </ul>
-
-            {/* Right Side: Cart & Auth */}
-            <div className="relative flex min-w-[11rem] items-stretch justify-end lg:min-w-[22rem]">
+            {/* Right Side: Cart & Auth (Hidden on mobile as it's in bottom nav) */}
+            <div className="hidden lg:flex relative flex-1 items-stretch justify-end">
               <CartButton />
               <div
                 ref={profileMenuRef}
@@ -353,7 +374,7 @@ const Header = ({ categories }: { categories?: any[] }): React.JSX.Element => {
                     type="button"
                     onClick={() => setProfileMenuOpen(current => !current)}
                     className={cn(
-                      'grid h-full min-w-[62px] place-items-center overflow-hidden rounded-r-[0.8rem] border-l-[1px] px-[18px] text-green-dark transition duration-200 hover:bg-green-5 hover:text-white sm:min-w-[68px]',
+                      'grid h-full min-w-[62px] place-items-center overflow-hidden border-l-[1px] px-[18px] text-green-dark transition duration-200 hover:bg-green-5 hover:text-white sm:min-w-[68px]',
                       profileMenuOpen && 'bg-green-1',
                     )}
                     aria-label="Open profile menu"
@@ -374,7 +395,7 @@ const Header = ({ categories }: { categories?: any[] }): React.JSX.Element => {
                 ) : (
                   <Link
                     href="/login"
-                    className="grid h-full min-w-[62px] place-items-center rounded-r-[0.8rem] border-l-[1px] px-[18px] text-green-dark transition duration-200 hover:bg-green-5 hover:text-white sm:min-w-[68px]"
+                    className="grid h-full min-w-[62px] place-items-center border-l-[1px] px-[18px] text-green-dark transition duration-200 hover:bg-green-5 hover:text-white sm:min-w-[68px]"
                     aria-label="Login">
                     <User className="h-6 w-6" />
                   </Link>
@@ -552,9 +573,58 @@ const Header = ({ categories }: { categories?: any[] }): React.JSX.Element => {
                 </AnimatePresence>
               </div>
             </div>
-          </motion.section>
+            </div>
+          </section>
         </div>
       </nav>
+
+      {/* Mobile Bottom Navigation */}
+      <div
+        className={cn(
+          'lg:hidden fixed bottom-0 left-0 right-0 z-40 flex w-full items-center rounded-t-[12px] justify-between px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] transition-colors duration-300',
+          isSticky || !isLargeHero
+            ? 'bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] text-green-dark'
+            : 'bg-transparent text-white/90 drop-shadow-md',
+        )}>
+        <Link href="/categories" className="flex flex-col items-center justify-center gap-1.5 p-2 w-[70px]">
+          <Store className="w-7 h-7" />
+          <span className="text-[0.75rem] font-bold uppercase tracking-wider">Shop</span>
+        </Link>
+        <button onClick={() => setMobileMenuOpen(true)} className="flex flex-col items-center justify-center gap-1.5 p-2 w-[70px]">
+          <Menu className="w-7 h-7" />
+          <span className="text-[0.75rem] font-bold uppercase tracking-wider">Menu</span>
+        </button>
+        <Link href="/cart" className="flex flex-col items-center justify-center gap-1.5 p-2 w-[70px] relative">
+          <ShoppingBag className="w-7 h-7" />
+          {isClient && totalItems && totalItems > 0 ? (
+            <span className="absolute right-2 top-0 grid h-[20px] min-w-[20px] place-items-center rounded-full bg-rose-600 text-[11px] font-bold text-white px-1">
+              {totalItems}
+            </span>
+          ) : null}
+          <span className="text-[0.75rem] font-bold uppercase tracking-wider">Cart</span>
+        </Link>
+        {user ? (
+          <button onClick={() => setMobileMenuOpen(true)} className="flex flex-col items-center justify-center gap-1.5 p-2 w-[70px]">
+             {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt="Profile"
+                  width={28}
+                  height={28}
+                  className={cn("w-7 h-7 rounded-full object-cover", !(isSticky || !isLargeHero) && "border border-white/50")}
+                />
+              ) : (
+                <User className="w-7 h-7" />
+              )}
+            <span className="text-[0.75rem] font-bold uppercase tracking-wider">Profile</span>
+          </button>
+        ) : (
+          <Link href="/login" className="flex flex-col items-center justify-center gap-1.5 p-2 w-[70px]">
+            <User className="w-7 h-7" />
+            <span className="text-[0.75rem] font-bold uppercase tracking-wider">Profile</span>
+          </Link>
+        )}
+      </div>
 
       {/* FULL SCREEN GLASSMORPHISM MOBILE MENU */}
       <AnimatePresence>

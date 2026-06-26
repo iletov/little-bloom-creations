@@ -246,12 +246,38 @@ p {
 
 .section_wrapper {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1536px;
   margin: 0 auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
-@media screen and (min-width: 1520px) {
+
+@media screen and (min-width: 768px) {
   .section_wrapper {
-    max-width: 1366px;
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .section_wrapper {
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  .section_wrapper {
+    padding-left: 6rem;
+    padding-right: 6rem;
+  }
+}
+
+@media screen and (min-width: 1600px) {
+  .section_wrapper {
+    max-width: 1700px;
+    padding-left: 8rem;
+    padding-right: 8rem;
   }
 }
 
@@ -303,7 +329,7 @@ p {
   /* background-color: #000; */
   border-radius: 2rem;
   width: 100%;
-  height: 40rem;
+  height: clamp(50rem, 55vh, 65rem);
   display: grid;
   gap: 1.5rem; /* Replaced padding with gap for perfect edges */
   transition: grid-template-columns 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -374,7 +400,7 @@ p {
 
 @media screen and (max-width: 768px) {
   .slide-container {
-    height: 35rem;
+    height: 45rem;
     display: flex !important; /* Override inline grid */
     overflow-x: auto;
     scroll-snap-type: x mandatory;

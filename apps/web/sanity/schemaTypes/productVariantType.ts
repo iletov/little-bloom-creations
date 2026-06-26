@@ -107,7 +107,7 @@ export const productVariantType = defineType({
     prepare({ name, price, sku, stock, image }) {
       return {
         title: name,
-        subtitle: `${price} лв • SKU: ${sku || 'N/A'} • Stock: ${stock || 0}`,
+        subtitle: `${price} € • SKU: ${sku || 'N/A'} • Stock: ${stock || 0}`,
         media: image,
       };
     },

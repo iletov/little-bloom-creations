@@ -88,9 +88,7 @@ export default async function CustomerOrderPage({
             <div
               className={cn(
                 "inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[1.4rem] font-semibold border",
-                statusConfig.storefront.bg,
-                statusConfig.storefront.border,
-                statusConfig.storefront.color
+                statusConfig.badgeClasses
               )}
             >
               <StatusIcon className="w-5 h-5" />
@@ -156,13 +154,12 @@ export default async function CustomerOrderPage({
             <div
               className={cn(
                 "mt-6 p-4 rounded-xl text-[1.3rem] flex items-start gap-3 border",
-                statusConfig.storefront.bg,
-                statusConfig.storefront.border
+                statusConfig.badgeClasses
               )}
             >
-              <StatusIcon className={cn("w-5 h-5 mt-0.5 flex-shrink-0", statusConfig.storefront.color)} />
+              <StatusIcon className="w-5 h-5 mt-0.5 flex-shrink-0" />
               <div>
-                <p className={cn("font-semibold", statusConfig.storefront.color)}>{statusConfig.label}</p>
+                <p className="font-semibold">{statusConfig.label}</p>
                 <p className="text-gray-600 mt-0.5">{statusConfig.description}</p>
                 {order.shipment_number && (
                   <p className="mt-1.5 font-mono font-medium text-gray-700">

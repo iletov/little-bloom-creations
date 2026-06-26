@@ -19,7 +19,7 @@ import { CartIcon2 } from '../icons/icons';
 import { Product } from './types';
 
 const DiaryForm = ({ product }: { product: Product }) => {
-  const { addItem, updateItem, variants, items } = useCart();
+  const { addItem, updateItem, variants, items, updateVariants } = useCart();
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -87,14 +87,27 @@ const DiaryForm = ({ product }: { product: Product }) => {
           | undefined,
         name: item.personalisation?.name,
       });
+
+      // Synchronize global variant state with the cart item's variant
+      if (item.product) {
+        const itemVariantId = item.product.variant_sku || item.product.sku || item.product.id;
+        const globalVariantId = variants?.variant_sku || variants?.sku || variants?.id;
+        
+        if (itemVariantId && itemVariantId !== globalVariantId) {
+          updateVariants(item.product);
+        }
+      }
     }
-  }, [productId, item]);
+  }, [productId, item?.personalisation?.productId]);
 
   //watch form values for changes
   const formValues = personalisedForm.watch();
 
   const hasCartItemsChanges = item?.product
-    ? cartItems.variant_name !== item.product.variant_name
+    ? cartItems.id !== item.product.id ||
+      cartItems.color !== item.product.color ||
+      cartItems.variant_name !== item.product.variant_name ||
+      cartItems.variant_sku !== item.product.variant_sku
     : false;
 
   const hasPersonalisationChanges = item?.personalisation
@@ -105,8 +118,20 @@ const DiaryForm = ({ product }: { product: Product }) => {
 
   const hasChanges = hasCartItemsChanges || hasPersonalisationChanges;
 
+  const sanitizeData = (data: PersonlisedFormDataType) => {
+    if (data.addMainText === null) {
+      const { textColor, ...rest } = data;
+      return {
+        ...rest,
+        name: '',
+      };
+    }
+    return data;
+  };
+
   const handleSaveChanges = (data: PersonlisedFormDataType) => {
-    updateItem(productId, cartItems, data);
+    const sanitizedData = sanitizeData(data);
+    updateItem(productId, cartItems, sanitizedData);
     toast.success('Changes saved', {
       description: 'Continue to your cart.',
       action: {
@@ -120,7 +145,8 @@ const DiaryForm = ({ product }: { product: Product }) => {
   };
 
   const onSubmit = (data: PersonlisedFormDataType) => {
-    addItem(cartItems, data);
+    const sanitizedData = sanitizeData(data);
+    addItem(cartItems, sanitizedData);
     toast.success('Item added to cart', {
       description: 'Now go to your cart.',
       action: {

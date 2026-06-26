@@ -6,6 +6,8 @@ import React from 'react';
 import HighlightedHeading from '../heading-description/HighlightedHeading';
 import { PortableTextContainer } from '../portabletext-container/PortableTextContainer';
 import FloralDivider from '../heading-description/FloralDivider';
+import { Button } from '@/components/ui/button';
+import { GradientOverlay } from '@/components/ui/gradient-overlay';
 
 interface CategoryCardsProps {
   data: {
@@ -57,8 +59,8 @@ const CategoryCards = ({ data }: CategoryCardsProps) => {
   }
 
   return (
-    <section className="bg-green-0/40 border-y border-green-5/10 py-16 sm:py-20 lg:py-24">
-      <div className="section_wrapper px-6 sm:px-8 xl:px-0">
+    <section className="bg-green-0/40 border-y border-green-5/10 py-16 sm:py-20 lg:py-24 min-h-[85vh] flex flex-col justify-center">
+      <div className="section_wrapper">
         {/* Section Header */}
         {(data.heading?.title || data.title) && (
           <header className="mx-auto mb-12 max-w-[84rem] text-center lg:mb-16 space-y-4">
@@ -67,11 +69,11 @@ const CategoryCards = ({ data }: CategoryCardsProps) => {
                 text={data.heading.title}
                 word={data.heading.highlightedWord}
                 color={data.heading.highlightedColor ?? 'var(--green-5)'}
-                className="mx-auto max-w-[120rem] text-[3.2rem] sm:text-[4rem] lg:text-[4.8rem] font-semibold text-green-dark leading-[1.2]"
+                className="mx-auto max-w-[120rem] text-[3.6rem] sm:text-[4.6rem] lg:text-[5.6rem] font-semibold text-green-dark leading-[1.1]"
                 tag="h2"
               />
             ) : (
-              <h2 className="text-[3.2rem] font-semibold leading-[1.2] text-green-dark sm:text-[4rem] lg:text-[4.8rem]">
+              <h2 className="text-[3.6rem] font-semibold leading-[1.1] text-green-dark sm:text-[4.6rem] lg:text-[5.6rem]">
                 {data.title}
               </h2>
             )}
@@ -80,7 +82,7 @@ const CategoryCards = ({ data }: CategoryCardsProps) => {
               {data.description && (
                 <PortableTextContainer
                   data={data.description}
-                  className="mx-auto max-w-[76rem] text-[1.5rem] leading-[1.6] text-slate-600 sm:text-[1.6rem]"
+                  className="mx-auto max-w-[76rem] text-[1.6rem] leading-[1.6] text-slate-600 sm:text-[1.8rem]"
                 />
               )}
               <div className="grid place-items-center">
@@ -92,12 +94,12 @@ const CategoryCards = ({ data }: CategoryCardsProps) => {
 
         {/* Grid of Categories */}
         {items.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-6 -mx-6 px-6 sm:-mx-8 sm:px-8 sm:gap-6 md:grid md:grid-cols-2 xl:grid-cols-4 md:gap-6 lg:gap-8 md:overflow-visible md:snap-none md:pb-0 md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {items.map(item => (
               <Link
                 href={getSlugLink(item.slug)}
                 key={`${item.slug}-${item.title}`}
-                className="aspect-[4/5] relative w-full overflow-hidden rounded-lg group block shadow-sm hover:shadow-md transition-all duration-300 bg-green-1/10"
+                className="flex-none w-[75vw] sm:w-[50vw] md:w-auto snap-center aspect-[3/4.5] sm:aspect-[6/9.5] relative overflow-hidden rounded-[2rem] group block shadow-md"
               >
                 <Image
                   src={
@@ -106,15 +108,24 @@ const CategoryCards = ({ data }: CategoryCardsProps) => {
                       : '/category-fallback.png'
                   }
                   alt={item.alt || item.title || 'Категория продукти'}
-                  width={800}
-                  height={1000}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
                 />
-                {/* Text Overlay Bar */}
-                <div className="absolute bottom-0 left-0 right-0 bg-green-dark/85 backdrop-blur-[2px] py-5 px-6 text-center text-white z-10 transition-colors duration-300 group-hover:bg-green-dark">
-                  <span className="font-serif text-[2.2rem] font-medium tracking-wide">
+                
+                {/* Gradient Overlay */}
+                <GradientOverlay className="opacity-80 group-hover:opacity-90 transition-opacity duration-500 z-0" />
+
+                {/* Content Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-8 z-10 flex flex-col items-start text-white pointer-events-none">
+                  <h3 className="font text-[2.8rem] font-medium tracking-wide mb-2 drop-shadow-md">
                     {item.title}
-                  </span>
+                  </h3>
+                  
+                  {/* Pill Button */}
+                  <div className="mt-4 bg-white text-black px-8 py-3 rounded-full text-[1.4rem] font-semibold flex items-center justify-center transform transition-all duration-300 shadow-sm">
+                    Разгледай
+                  </div>
                 </div>
               </Link>
             ))}
@@ -126,7 +137,7 @@ const CategoryCards = ({ data }: CategoryCardsProps) => {
           <div className="mt-16 text-center">
             <Link
               href={getSlugLink(data.button.slug?.current || '')}
-              className="inline-flex items-center gap-2 text-green-dark hover:text-green-9 font-serif text-[1.8rem] font-medium transition-colors group relative pb-1"
+              className="inline-flex items-center gap-2 text-green-dark hover:text-green-9 text-[1.8rem] font-medium transition-colors group relative pb-1"
             >
               {data.button.text}
               <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">

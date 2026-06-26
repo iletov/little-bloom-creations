@@ -30,7 +30,7 @@ const BlanketForm = ({
   product: Product;
   onAddonPriceChange?: (price: number) => void;
 }) => {
-  const { addItem, updateItem, variants, items } = useCart();
+  const { addItem, updateItem, variants, items, updateVariants } = useCart();
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -91,13 +91,26 @@ const BlanketForm = ({
         name: personalisationData?.name || '',
         embroideryImage: personalisationData?.embroideryImage,
       });
+
+      // Synchronize global variant state with the cart item's variant
+      if (item.product) {
+        const itemVariantId = item.product.variant_sku || item.product.sku || item.product.id;
+        const globalVariantId = variants?.variant_sku || variants?.sku || variants?.id;
+        
+        if (itemVariantId && itemVariantId !== globalVariantId) {
+          updateVariants(item.product);
+        }
+      }
     }
-  }, [productId, item]);
+  }, [productId, item?.personalisation?.productId]);
 
   const formValues = blanketForm.watch();
 
   const hasCartItemsChanges = item?.product
-    ? cartItems.variant_name !== item.product.variant_name
+    ? cartItems.id !== item.product.id ||
+      cartItems.color !== item.product.color ||
+      cartItems.variant_name !== item.product.variant_name ||
+      cartItems.variant_sku !== item.product.variant_sku
     : false;
 
   const hasPersonalisationChanges = item?.personalisation
@@ -120,8 +133,20 @@ const BlanketForm = ({
     }
   }, [addonPrice, onAddonPriceChange]);
 
+  const sanitizeData = (data: BlanketFormDataType) => {
+    const sanitized = { ...data };
+    if (sanitized.personalizationType === 'name-only') {
+      sanitized.embroideryImage = undefined;
+    } else if (sanitized.personalizationType === 'none') {
+      sanitized.name = '';
+      sanitized.embroideryImage = undefined;
+    }
+    return sanitized;
+  };
+
   const handleSaveChanges = (data: BlanketFormDataType) => {
-    updateItem(productId, cartItems, { ...data, addonPrice, type: 'blanket' });
+    const sanitizedData = sanitizeData(data);
+    updateItem(productId, cartItems, { ...sanitizedData, addonPrice, type: 'blanket' });
     toast.success('Промените са запазени', {
       description: 'Към количката',
       action: {
@@ -135,7 +160,8 @@ const BlanketForm = ({
   };
 
   const onSubmit = (data: BlanketFormDataType) => {
-    addItem(cartItems, { ...data, addonPrice, type: 'blanket' });
+    const sanitizedData = sanitizeData(data);
+    addItem(cartItems, { ...sanitizedData, addonPrice, type: 'blanket' });
     toast.success('Успешно добавено', {
       description: 'Към количката',
       action: {
