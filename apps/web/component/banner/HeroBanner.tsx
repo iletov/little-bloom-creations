@@ -62,7 +62,7 @@ const HeroBanner = ({ data }: HeroBannerProps) => {
 
         {/* <SocialMedComponent /> */}
 
-        <header className={cn("section_wrapper absolute z-10 w-full h-full flex flex-col justify-center md:justify-end pb-[10%] md:pb-[8%] mx-auto inset-x-0", data?.size === 'small' ? 'pb-[15%]' : 'pb-[30%]')}>
+        <header className={cn("section_wrapper absolute z-10 w-full h-full flex flex-col justify-end pb-[20%] md:pb-[8%] mx-auto inset-x-0", data?.size === 'small' ? 'pb-[15%] md:pb-[8%]' : 'pb-[20%] md:pb-[8%]')}>
           <div className="flex flex-col items-start gap-4 md:gap-6 max-w-4xl">
             <HighlightedHeading
               text={data?.heading?.title}

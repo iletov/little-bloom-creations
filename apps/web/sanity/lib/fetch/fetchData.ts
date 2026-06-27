@@ -122,6 +122,22 @@ export const getPageData = unstable_cache(
             alt,
             title
           },
+          listItems[]{
+            ...,
+            video {
+              asset-> {
+                url
+              }
+            },
+            product-> {
+              name,
+              slug,
+              images[]{
+                asset->{ url }
+              },
+              category->{slug}
+            }
+          },
           products[]-> {
             name,
             slug,

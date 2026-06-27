@@ -51,8 +51,8 @@ const Dropdown = ({ data, openDropdown, index }: DropDownProps) => {
           transition={{ duration: 0.2 }}
           className={cn(
             isMegaMenu 
-              ? "fixed top-[62px] sm:top-[68px] lg:top-[70px] left-0 w-[100vw] z-[40]" 
-              : "absolute top-full pt-6 inset-x-0 w-full z-50"
+              ? "fixed left-0 top-[5.6rem] w-[100vw] z-[40]" 
+              : "absolute top-[calc(100%+10px)] left-0 min-w-[200px] z-50"
           )}>
           <div className={cn(
             "bg-white border-slate-200/60 shadow-2xl overflow-hidden",

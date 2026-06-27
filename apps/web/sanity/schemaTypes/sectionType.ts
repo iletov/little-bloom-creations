@@ -342,6 +342,20 @@ export const sectionType = defineType({
                 { name: 'slug', title: 'Button URL', type: 'slug' },
               ],
             },
+            {
+              name: 'video',
+              title: 'Video',
+              type: 'file',
+              options: {
+                accept: 'video/*',
+              },
+            },
+            {
+              name: 'product',
+              title: 'Linked Product',
+              type: 'reference',
+              to: [{ type: 'productType' }],
+            },
           ],
         },
       ],

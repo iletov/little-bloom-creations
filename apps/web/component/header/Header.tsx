@@ -10,6 +10,7 @@ import {
 } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { urlFor } from '@/sanity/lib/image';
 import Dropdown from './Dropdown';
 import { useAuth } from '@/hooks/useAuth';
 import CartButton from '../cart/cart-button/CartButton';
@@ -112,7 +113,6 @@ const getNavItems = (categories?: any[], products?: Product[]): HeaderProps[] =>
   { label: 'За нас', href: 'about' },
   { label: 'Контакти', href: 'contact' },
   { label: 'Блог', href: 'blog' },
-  { label: 'Dashboard', href: 'dashboard', adminOnly: true },
 ];
 
 const mobileContainerVariants = {
@@ -290,7 +290,7 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
           ) : null}
           <motion.p
             className={cn(
-              'transition duration-200 font-medium',
+              'transition duration-200 font-medium whitespace-nowrap',
               item.adminOnly
                 ? 'text-inherit'
                 : hoveredItem === index
@@ -309,7 +309,7 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
 
   return (
     <>
-      <nav className="relative flex justify-center text-[1.8rem] text-green-dark">
+      <nav className="relative flex justify-center text-[1.8rem] text-green-dark font-montserrat">
         {/* Desktop & Mobile Top Header Wrapper */}
         <div
           className={cn(
@@ -328,7 +328,7 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
                     ? 'bg-transparent lg:bg-white lg:shadow-md lg:border-b lg:border-slate-200' 
                     : 'bg-transparent border-transparent lg:bg-white lg:border-b lg:border-slate-200')
             )}>
-            <div className="section_wrapper grid h-[62px] w-full grid-cols-[1fr_auto_1fr] items-stretch sm:h-[68px] lg:h-[70px]">
+            <div className="section_wrapper h-[5.5rem] grid w-full grid-cols-[1fr_auto_1fr] items-stretch">
             {/* Left Side: Desktop Navigation (Hidden on mobile) */}
             <div className="hidden lg:flex items-stretch justify-start flex-1">
               <ul
@@ -374,8 +374,8 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
                     type="button"
                     onClick={() => setProfileMenuOpen(current => !current)}
                     className={cn(
-                      'grid h-full min-w-[62px] place-items-center overflow-hidden border-l-[1px] px-[18px] text-green-dark transition duration-200 hover:bg-green-5 hover:text-white sm:min-w-[68px]',
-                      profileMenuOpen && 'bg-green-1',
+                      'group grid h-full min-w-[62px] place-items-center overflow-hidden border-l-[1px] px-[18px] text-green-dark transition duration-200 hover:text-green-5 sm:min-w-[68px]',
+                      profileMenuOpen && 'text-green-5',
                     )}
                     aria-label="Open profile menu"
                     aria-expanded={profileMenuOpen}
@@ -386,7 +386,7 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
                         alt="Profile picture"
                         width={42}
                         height={42}
-                        className="h-[42px] w-[42px] rounded-full border border-green-5/40 object-cover"
+                        className="h-[42px] w-[42px] rounded-full border border-green-5/40 object-cover transition-all group-hover:ring-2 group-hover:ring-green-5 group-hover:ring-offset-2"
                       />
                     ) : (
                       <User className="h-6 w-6" />
@@ -395,7 +395,7 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
                 ) : (
                   <Link
                     href="/login"
-                    className="grid h-full min-w-[62px] place-items-center border-l-[1px] px-[18px] text-green-dark transition duration-200 hover:bg-green-5 hover:text-white sm:min-w-[68px]"
+                    className="grid h-full min-w-[62px] place-items-center border-l-[1px] px-[18px] text-green-dark transition duration-200 hover:text-green-5 sm:min-w-[68px]"
                     aria-label="Login">
                     <User className="h-6 w-6" />
                   </Link>
@@ -557,6 +557,17 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
                           Моите поръчки
                         </Link>
 
+                        {isAdmin && (
+                          <Link
+                            href="/dashboard"
+                            onClick={() => setProfileMenuOpen(false)}
+                            className="flex w-full items-center justify-start gap-3 rounded-xl px-5 py-3.5 text-[1.4rem] font-semibold text-slate-700 transition-colors duration-200 hover:bg-slate-50 hover:text-green-dark"
+                            role="menuitem">
+                            <ShieldCheck className="h-5 w-5 text-green-9" />
+                            Dashboard
+                          </Link>
+                        )}
+
                         <div className="mx-auto my-3 h-px w-[92%] bg-slate-100" />
 
                         <button
@@ -704,14 +715,27 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
                           damping: 24,
                         }}
                         className="overflow-hidden">
-                        <div className="flex flex-col gap-4 pl-6 py-6 bg-white/40 rounded-b-2xl mb-4 border-l-2 border-green-5">
+                        <div className="flex flex-col gap-2 pl-4 py-4 bg-transparent mb-4 border-l-2 border-green-5/40 ml-4">
                           {item.items.map((sub, sIdx) => (
                             <Link
                               key={sIdx}
                               href={`/${item.href}/${sub.href}`}
                               onClick={() => setMobileMenuOpen(false)}
-                              className="text-[1.8rem] text-gray-700 hover:text-green-9 font-medium transition-colors">
-                              {sub.label}
+                              className="flex items-center gap-4 py-2 px-3 rounded-xl hover:bg-green-5/10 transition-colors group"
+                            >
+                              {sub.image && (
+                                <div className="relative w-[4.5rem] h-[4.5rem] rounded-xl overflow-hidden shadow-sm bg-white border border-green-200/50 shrink-0">
+                                  <Image
+                                    src={urlFor(sub.image).url()}
+                                    alt={sub.label}
+                                    fill
+                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                  />
+                                </div>
+                              )}
+                              <span className="text-[1.8rem] text-green-dark font-medium group-hover:text-green-5 transition-colors">
+                                {sub.label}
+                              </span>
                             </Link>
                           ))}
                         </div>

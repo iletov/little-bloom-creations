@@ -18,12 +18,12 @@ const CartButton = ({ className }: CartButtonProps): React.JSX.Element => {
     <Link
       href={'/cart'}
       className={cn(
-        'relative grid h-full place-items-center border-l-[1px] px-[18px] text-green-dark transition duration-200 ease-in-out hover:bg-green-5 hover:text-white sm:px-[18px]',
+        'relative grid h-full place-items-center border-l-[1px] px-[18px] text-green-dark transition duration-200 ease-in-out hover:text-green-5 sm:px-[18px]',
         className,
       )}>
       {CartIcon2}
       {isClient && totalItems && totalItems > 0 ? (
-        <span className="absolute right-2 -top-2 grid h-8 w-8 place-items-center rounded-full bg-rose-800 text-[1rem] text-white">
+        <span className="absolute right-0 top-1 grid h-8 w-8 place-items-center rounded-full bg-rose-800 text-[1rem] text-white">
           {totalItems}
         </span>
       ) : null}

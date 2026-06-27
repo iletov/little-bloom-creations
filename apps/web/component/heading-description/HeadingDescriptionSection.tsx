@@ -42,12 +42,12 @@ const HeadingDescriptionSection = ({
 
   if (hasSteps && data.listItems) {
     return (
-      <section className="pink-gradient border-y border-pink-5/40 py-14 sm:py-20 lg:py-24 font-montserrat min-h-[85vh] flex flex-col justify-center relative">
+      <section className="pink-gradient border-y border-pink-5/40 py-12 sm:py-16 lg:py-12 xl:py-12 font-montserrat lg:min-h-[60vh] xl:min-h-[60vh] flex flex-col justify-center relative">
         <div className="section_wrapper">
           
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-8 xl:gap-20 items-center">
             {/* Left Column: Text and Steps */}
-            <div className="space-y-8 lg:pr-8">
+            <div className="space-y-6 lg:space-y-8 lg:pr-4 xl:pr-8">
               <div className="space-y-4">
                 {data.eyebrow?.trim() ? (
                   <p className="font-montserrat text-[1.4rem] font-medium uppercase tracking-[0.28em] text-green-9 sm:text-[1.6rem]">
@@ -59,19 +59,19 @@ const HeadingDescriptionSection = ({
                   text={data.heading.title}
                   word={data.heading.highlightedWord}
                   color={data.heading.highlightedColor ?? 'var(--green-5)'}
-                  className="text-[3.6rem] sm:text-[4.6rem] lg:text-[5.6rem] text-left leading-[1.1]"
+                  className="text-[3.6rem] sm:text-[4.6rem] lg:text-[3.6rem] xl:text-[4.2rem] text-left leading-[1.1]"
                   tag="h2"
                 />
 
                 <PortableTextContainer
                   data={data.description}
-                  className="text-[1.6rem] leading-[1.6] text-slate-600 sm:text-[1.8rem] text-left max-w-2xl"
+                  className="text-[1.6rem] leading-[1.6] text-slate-600 sm:text-[1.8rem] lg:text-[1.5rem] xl:text-[1.6rem] text-left max-w-2xl"
                 />
               </div>
 
               {/* Interactive Steps List */}
               <div 
-                className="space-y-6 pt-6 min-h-[380px] sm:min-h-[400px]"
+                className="space-y-3 lg:space-y-2 xl:space-y-4 pt-4 xl:pt-6 h-[400px] sm:h-[450px] lg:h-[320px] xl:h-[380px]"
                 onMouseEnter={() => setIsPaused(true)}
                 onMouseLeave={() => setIsPaused(false)}
               >
@@ -100,7 +100,7 @@ const HeadingDescriptionSection = ({
                       {/* Step Text */}
                       <div className="space-y-1 flex-1 mt-1">
                         <h3 className={cn(
-                          "text-[2rem] sm:text-[2.4rem] font-semibold transition-colors duration-300",
+                          "text-[1.8rem] sm:text-[2.2rem] lg:text-[1.7rem] xl:text-[1.9rem] font-semibold transition-colors duration-300",
                           isActive ? "text-green-dark" : "text-slate-600 group-hover:text-green-dark"
                         )}>
                           {step.title}
@@ -111,7 +111,7 @@ const HeadingDescriptionSection = ({
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
                               exit={{ opacity: 0, height: 0 }}
-                              className="text-[1.5rem] sm:text-[1.6rem] leading-relaxed text-slate-600 overflow-hidden"
+                              className="text-[1.4rem] sm:text-[1.6rem] lg:text-[1.3rem] xl:text-[1.4rem] leading-relaxed text-slate-600 overflow-hidden"
                             >
                               <div className="pt-2">
                                 <PortableTextContainer data={step.description as any} />
@@ -127,7 +127,7 @@ const HeadingDescriptionSection = ({
             </div>
 
             {/* Right Column: Animated Image */}
-            <div className="relative h-[450px] sm:h-[600px] lg:h-[75vh] w-full rounded-[2rem] overflow-hidden shadow-2xl bg-white/50 border border-white/50">
+            <div className="relative h-[400px] sm:h-[500px] lg:h-[400px] xl:h-[480px] w-full rounded-[2rem] overflow-hidden shadow-2xl bg-white/50 border border-white/50">
               <AnimatePresence mode="wait">
                 {data.listItems[activeStep]?.image && (
                   <motion.div

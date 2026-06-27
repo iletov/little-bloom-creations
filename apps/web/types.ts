@@ -128,6 +128,23 @@ export type ListItems = {
       current: string;
     };
   };
+  video?: {
+    asset: {
+      url: string;
+    };
+  };
+  product?: {
+    name: string;
+    slug: {
+      current: string;
+    };
+    images?: ImagesType[];
+    category?: {
+      slug: {
+        current: string;
+      };
+    };
+  };
 };
 
 export type Title = {
