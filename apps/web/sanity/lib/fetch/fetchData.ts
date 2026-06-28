@@ -55,6 +55,22 @@ const productQuery = `
       },
       metaTitle,
       metaDescription,
+      featureIcons,
+      presentationGallery[]{
+        asset-> {
+          _ref,
+          url
+        },
+        hotspot,
+        alt
+      },
+      howToOrder-> {
+        title,
+        steps[]{
+          title,
+          content
+        }
+      },
       variants[] {
         name,
         price,

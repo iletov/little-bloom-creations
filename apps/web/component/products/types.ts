@@ -43,4 +43,7 @@ export interface Product {
   depth?: number;
   color?: string;
   personalizationOptions?: PersonalizationOptions;
+  featureIcons?: string[];
+  presentationGallery?: any[];
+  howToOrder?: any;
 }

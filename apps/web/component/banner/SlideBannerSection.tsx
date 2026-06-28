@@ -32,7 +32,7 @@ const SlideBannerSection = ({ data }: SlideBannerSectionProps) => {
   };
 
   return (
-    <section className="bg-green-1/40 section-y-padding min-h-[55vh] flex flex-col justify-center">
+    <section className="bg-green-1/20 section-y-padding min-h-[55vh] flex flex-col justify-center">
       <div className="grid-section gap-[2rem] md:gap-[4rem] section_wrapper items-center">
         <div className="flex flex-col justify-center text-center md:text-left order-1 gap-4 md:gap-16">
           <header className="space-y-4 slide-banner__title">

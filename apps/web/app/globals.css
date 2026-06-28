@@ -283,7 +283,7 @@ p {
 
 .grid-section {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1.25fr 2fr;
   margin: 0 auto;
 }
 
@@ -294,7 +294,7 @@ p {
 }
 
 .slide-banner__title {
-  max-inline-size: 65ch;
+  max-inline-size: 85ch;
   color: var(--green-dark);
 }
 
@@ -329,7 +329,7 @@ p {
   /* background-color: #000; */
   border-radius: 2rem;
   width: 100%;
-  height: clamp(50rem, 55vh, 65rem);
+  height: clamp(45rem, 55vh, 65rem);
   display: grid;
   gap: 1.5rem; /* Replaced padding with gap for perfect edges */
   transition: grid-template-columns 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);

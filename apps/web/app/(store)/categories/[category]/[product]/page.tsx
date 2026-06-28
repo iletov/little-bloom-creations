@@ -83,10 +83,13 @@ export default async function Product({ params }: Props) {
   // console.log(`category '${category}' for product '${product}'`, data);
 
   return (
-    <section className="max-w-[1280px] mx-auto w-full pt-40">
-      {/* <Todo /> */}
-      <ProductContainer data={data} />
+    <>
+      <div className="bg-[#f4f4f6] w-full pt-20 md:pt-40">
+        <section className="section_wrapper">
+          <ProductContainer data={data} />
+        </section>
+      </div>
       <SectionRenderer sections={sanityData?.additionalSections} />
-    </section>
+    </>
   );
 }

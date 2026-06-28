@@ -190,6 +190,46 @@ export const productType = defineType({
       type: 'number',
     }),
 
+    // New presentation fields for the LARQ-style redesign
+    defineField({
+      name: 'featureIcons',
+      title: 'Feature Icons',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: 'Ръчна изработка', value: 'ръчна изработка' },
+          { title: 'Персонализирано', value: 'персонализирано' },
+          { title: 'Варианти', value: 'варианти' },
+          { title: 'Цветове', value: 'цветове' },
+        ],
+      },
+      description: 'Select icons to display under the product carousel',
+    }),
+    defineField({
+      name: 'presentationGallery',
+      title: 'Presentation Gallery',
+      type: 'array',
+      of: [
+        {
+          type: 'image',
+          options: { hotspot: true },
+          fields: [{ name: 'alt', title: 'Alt Text', type: 'string' }],
+        },
+      ],
+      options: {
+        layout: 'grid',
+      },
+      description: 'Add up to 5 images for the presentation gallery grid',
+    }),
+    defineField({
+      name: 'howToOrder',
+      title: 'How to Order Guide',
+      type: 'reference',
+      to: [{ type: 'howToOrderGuide' }],
+      description: 'Select a guide for the "How to Order" accordion',
+    }),
+
     // SEO fields
     defineField({
       name: 'metaTitle',
