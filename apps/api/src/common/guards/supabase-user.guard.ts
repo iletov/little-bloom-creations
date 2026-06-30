@@ -25,10 +25,10 @@ export class SupabaseUserGuard implements CanActivate {
 
   constructor(private readonly configService: ConfigService) {
     const supabaseUrl = this.configService.get<string>(
-      'NEXT_PUBLIC_SUPABASE_URL',
+      'SUPABASE_URL',
     );
     const supabaseKey = this.configService.get<string>(
-      'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+      'SUPABASE_ANON_KEY',
     );
 
     if (!supabaseUrl || !supabaseKey) {

@@ -8,8 +8,8 @@ export class GetSanitySenderInfoUseCase {
   constructor(private readonly configService: ConfigService) {}
 
   async execute(type: 'ekont' | 'speedy'): Promise<any> {
-    const projectId = this.configService.get<string>('NEXT_PUBLIC_SANITY_PROJECT_ID') || 'wv9xoozi';
-    const dataset = this.configService.get<string>('NEXT_PUBLIC_SANITY_DATASET') || 'production';
+    const projectId = this.configService.get<string>('SANITY_PROJECT_ID') || 'wv9xoozi';
+    const dataset = this.configService.get<string>('SANITY_DATASET') || 'production';
     const apiVersion = '2023-05-03';
     
     const queryType = type === 'ekont' ? 'ekontSenderDetails' : 'speedySenderDetails';
