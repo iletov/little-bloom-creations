@@ -3,15 +3,16 @@
     "deploymentEnabled": {
       "main": true,
       "feature/**": false,
-      "dev/**": false,
+      "dev": true,
+      "dev/**": true,
       "stage": false,
       "*": false
     },
-    "autoDeployBranches": ["main"],
+    "autoDeployBranches": ["main", "dev"],
     "pullRequestEnabled": true,
     "pullRequestPreviewsEnabled": true,
     "pullRequestPreviewsFromFork": false,
-    "deployOnPullRequest": {
+  "deployOnPullRequest": {
       "enabled": true,
       "useBranchFromTarget": true
     }
