@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import { apiConfig } from '@/lib/api/api-config';
 
 export interface ParcelDimensionsPayload {
   seqNo: number;
@@ -42,7 +43,7 @@ export interface CalculateShippingPayload {
 export const useCalculateShipping = () => {
   return useMutation({
     mutationFn: async (payload: CalculateShippingPayload) => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/shipping/calculate`, {
+      const response = await fetch(`${apiConfig.baseUrl}/shipping/calculate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

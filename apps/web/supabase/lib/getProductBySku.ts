@@ -1,4 +1,6 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import { apiConfig } from '@/lib/api/api-config';
+
+const API_URL = apiConfig.baseUrl;
 
 export async function getProductBySku(sku: string) {
   try {

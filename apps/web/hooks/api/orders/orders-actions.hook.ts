@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiConfig } from '@/lib/api/api-config';
 
 export interface OrderItemPayload {
   productId: string;
@@ -61,7 +62,7 @@ export const useInitiateStripeOrder = () => {
     mutationFn: async (
       payload: InitiateStripeOrderPayload,
     ): Promise<InitiateStripeOrderResponse> => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/stripe/initiate`, {
+      const response = await fetch(`${apiConfig.baseUrl}/orders/stripe/initiate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +93,7 @@ export const usePlaceCashOrder = () => {
 
   return useMutation({
     mutationFn: async (payload: PlaceOrderPayload) => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/cash`, {
+      const response = await fetch(`${apiConfig.baseUrl}/orders/cash`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

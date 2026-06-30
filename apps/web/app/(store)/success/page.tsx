@@ -2,6 +2,7 @@
 'use client';
 
 import { Suspense, useEffect } from 'react';
+import { apiConfig } from '@/lib/api/api-config';
 import { useCart } from '@/hooks/useCart';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
@@ -11,7 +12,7 @@ import Link from 'next/link';
 
 async function checkWebhookStatus(orderNumber: string) {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/orders/status/${orderNumber}`,
+    `${apiConfig.baseUrl}/orders/status/${orderNumber}`,
   );
 
   if (!response.ok) {

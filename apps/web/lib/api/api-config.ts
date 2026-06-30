@@ -1,13 +1,9 @@
-const getRequiredPublicEnv = (key: string): string => {
-  const value = process.env[key];
+const rawApiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  if (!value) {
-    throw new Error(`Missing required public environment variable: ${key}`);
-  }
-
-  return value.replace(/\/+$/, '');
-};
+if (!rawApiBaseUrl) {
+  throw new Error('Missing required public environment variable: NEXT_PUBLIC_API_URL');
+}
 
 export const apiConfig = {
-  baseUrl: getRequiredPublicEnv('NEXT_PUBLIC_API_URL'),
+  baseUrl: rawApiBaseUrl.replace(/\/+$/, ''),
 } as const;
