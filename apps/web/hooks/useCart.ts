@@ -41,7 +41,7 @@ import {
   deliveryCostFlag,
   selectDeliveryCostFlag,
 } from '@/app/store/features/stripe/stripeSlice';
-import { Metadata } from '@/app/api/payment-intent/route';
+import { Metadata } from '@/app/store/features/stripe/stripeSlice';
 
 export const useCart = () => {
   const dispatch = useDispatch();

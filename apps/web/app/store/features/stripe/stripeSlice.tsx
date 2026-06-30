@@ -1,6 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../store';
-import { Metadata } from '@/app/api/payment-intent/route';
+export interface Metadata {
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  supabaseUserId: string;
+}
+
 
 export interface GuestFormData {
   firstName?: string;
