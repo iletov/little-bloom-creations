@@ -101,6 +101,7 @@ SANITY_API_TOKEN
 SANITY_API_READ_TOKEN
 SANITY_WEBHOOK_SECRET
 GOOGLE_CLIENT_SECRET
+
 ```
 
 Exception: if `apps/web` still has Next.js Server Actions or Route Handlers that use one of these secrets, keep that specific secret in Vercel temporarily until the logic is moved to NestJS.
