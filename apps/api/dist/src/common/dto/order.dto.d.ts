@@ -1,0 +1,262 @@
+declare const OrderDto_base: import("nestjs-zod").ZodDto<import("zod").ZodObject<{
+    id: import("zod").ZodOptional<import("zod").ZodString>;
+    order_number: import("zod").ZodString;
+    status: import("zod").ZodEnum<["pending", "confirmed", "shipped", "delivered", "refunded", "cancelled"]>;
+    total_amount: import("zod").ZodNumber;
+    subtotal: import("zod").ZodNumber;
+    delivery_cost: import("zod").ZodNumber;
+    delivery_method: import("zod").ZodNativeEnum<typeof import("@repo/shared-types").DeliveryMethodEnum>;
+    payment_method: import("zod").ZodNativeEnum<typeof import("@repo/shared-types").PaymentMethodEnum>;
+    shipment_number: import("zod").ZodOptional<import("zod").ZodNullable<import("zod").ZodString>>;
+    shipping_details: import("zod").ZodObject<{
+        id: import("zod").ZodOptional<import("zod").ZodString>;
+        full_name: import("zod").ZodString;
+        email: import("zod").ZodString;
+        phone: import("zod").ZodString;
+        country: import("zod").ZodString;
+        city: import("zod").ZodString;
+        postal_code: import("zod").ZodString;
+        street: import("zod").ZodOptional<import("zod").ZodString>;
+        street_number: import("zod").ZodOptional<import("zod").ZodString>;
+        block_no: import("zod").ZodOptional<import("zod").ZodString>;
+        entrance_no: import("zod").ZodOptional<import("zod").ZodString>;
+        floor_no: import("zod").ZodOptional<import("zod").ZodString>;
+        apartment_no: import("zod").ZodOptional<import("zod").ZodString>;
+        office_code: import("zod").ZodOptional<import("zod").ZodString>;
+        additional_info: import("zod").ZodOptional<import("zod").ZodString>;
+    }, "strip", import("zod").ZodTypeAny, {
+        full_name: string;
+        email: string;
+        phone: string;
+        country: string;
+        city: string;
+        postal_code: string;
+        id?: string | undefined;
+        street?: string | undefined;
+        street_number?: string | undefined;
+        block_no?: string | undefined;
+        entrance_no?: string | undefined;
+        floor_no?: string | undefined;
+        apartment_no?: string | undefined;
+        office_code?: string | undefined;
+        additional_info?: string | undefined;
+    }, {
+        full_name: string;
+        email: string;
+        phone: string;
+        country: string;
+        city: string;
+        postal_code: string;
+        id?: string | undefined;
+        street?: string | undefined;
+        street_number?: string | undefined;
+        block_no?: string | undefined;
+        entrance_no?: string | undefined;
+        floor_no?: string | undefined;
+        apartment_no?: string | undefined;
+        office_code?: string | undefined;
+        additional_info?: string | undefined;
+    }>;
+    items: import("zod").ZodArray<import("zod").ZodObject<{
+        id: import("zod").ZodOptional<import("zod").ZodString>;
+        product_id: import("zod").ZodString;
+        variant_id: import("zod").ZodOptional<import("zod").ZodNullable<import("zod").ZodString>>;
+        name: import("zod").ZodString;
+        variant_name: import("zod").ZodOptional<import("zod").ZodNullable<import("zod").ZodString>>;
+        quantity: import("zod").ZodNumber;
+        unit_price: import("zod").ZodNumber;
+        subtotal: import("zod").ZodNumber;
+        weight: import("zod").ZodNumber;
+        personalization: import("zod").ZodOptional<import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodAny>>;
+    }, "strip", import("zod").ZodTypeAny, {
+        name: string;
+        weight: number;
+        product_id: string;
+        quantity: number;
+        unit_price: number;
+        subtotal: number;
+        id?: string | undefined;
+        variant_name?: string | null | undefined;
+        variant_id?: string | null | undefined;
+        personalization?: Record<string, any> | undefined;
+    }, {
+        name: string;
+        weight: number;
+        product_id: string;
+        quantity: number;
+        unit_price: number;
+        subtotal: number;
+        id?: string | undefined;
+        variant_name?: string | null | undefined;
+        variant_id?: string | null | undefined;
+        personalization?: Record<string, any> | undefined;
+    }>, "many">;
+}, "strip", import("zod").ZodTypeAny, {
+    status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
+    subtotal: number;
+    order_number: string;
+    total_amount: number;
+    delivery_cost: number;
+    delivery_method: import("@repo/shared-types").DeliveryMethodEnum;
+    payment_method: import("@repo/shared-types").PaymentMethodEnum;
+    shipping_details: {
+        full_name: string;
+        email: string;
+        phone: string;
+        country: string;
+        city: string;
+        postal_code: string;
+        id?: string | undefined;
+        street?: string | undefined;
+        street_number?: string | undefined;
+        block_no?: string | undefined;
+        entrance_no?: string | undefined;
+        floor_no?: string | undefined;
+        apartment_no?: string | undefined;
+        office_code?: string | undefined;
+        additional_info?: string | undefined;
+    };
+    items: {
+        name: string;
+        weight: number;
+        product_id: string;
+        quantity: number;
+        unit_price: number;
+        subtotal: number;
+        id?: string | undefined;
+        variant_name?: string | null | undefined;
+        variant_id?: string | null | undefined;
+        personalization?: Record<string, any> | undefined;
+    }[];
+    id?: string | undefined;
+    shipment_number?: string | null | undefined;
+}, {
+    status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
+    subtotal: number;
+    order_number: string;
+    total_amount: number;
+    delivery_cost: number;
+    delivery_method: import("@repo/shared-types").DeliveryMethodEnum;
+    payment_method: import("@repo/shared-types").PaymentMethodEnum;
+    shipping_details: {
+        full_name: string;
+        email: string;
+        phone: string;
+        country: string;
+        city: string;
+        postal_code: string;
+        id?: string | undefined;
+        street?: string | undefined;
+        street_number?: string | undefined;
+        block_no?: string | undefined;
+        entrance_no?: string | undefined;
+        floor_no?: string | undefined;
+        apartment_no?: string | undefined;
+        office_code?: string | undefined;
+        additional_info?: string | undefined;
+    };
+    items: {
+        name: string;
+        weight: number;
+        product_id: string;
+        quantity: number;
+        unit_price: number;
+        subtotal: number;
+        id?: string | undefined;
+        variant_name?: string | null | undefined;
+        variant_id?: string | null | undefined;
+        personalization?: Record<string, any> | undefined;
+    }[];
+    id?: string | undefined;
+    shipment_number?: string | null | undefined;
+}>, false>;
+export declare class OrderDto extends OrderDto_base {
+}
+declare const OrderItemDto_base: import("nestjs-zod").ZodDto<import("zod").ZodObject<{
+    id: import("zod").ZodOptional<import("zod").ZodString>;
+    product_id: import("zod").ZodString;
+    variant_id: import("zod").ZodOptional<import("zod").ZodNullable<import("zod").ZodString>>;
+    name: import("zod").ZodString;
+    variant_name: import("zod").ZodOptional<import("zod").ZodNullable<import("zod").ZodString>>;
+    quantity: import("zod").ZodNumber;
+    unit_price: import("zod").ZodNumber;
+    subtotal: import("zod").ZodNumber;
+    weight: import("zod").ZodNumber;
+    personalization: import("zod").ZodOptional<import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodAny>>;
+}, "strip", import("zod").ZodTypeAny, {
+    name: string;
+    weight: number;
+    product_id: string;
+    quantity: number;
+    unit_price: number;
+    subtotal: number;
+    id?: string | undefined;
+    variant_name?: string | null | undefined;
+    variant_id?: string | null | undefined;
+    personalization?: Record<string, any> | undefined;
+}, {
+    name: string;
+    weight: number;
+    product_id: string;
+    quantity: number;
+    unit_price: number;
+    subtotal: number;
+    id?: string | undefined;
+    variant_name?: string | null | undefined;
+    variant_id?: string | null | undefined;
+    personalization?: Record<string, any> | undefined;
+}>, false>;
+export declare class OrderItemDto extends OrderItemDto_base {
+}
+declare const OrderShippingDto_base: import("nestjs-zod").ZodDto<import("zod").ZodObject<{
+    id: import("zod").ZodOptional<import("zod").ZodString>;
+    full_name: import("zod").ZodString;
+    email: import("zod").ZodString;
+    phone: import("zod").ZodString;
+    country: import("zod").ZodString;
+    city: import("zod").ZodString;
+    postal_code: import("zod").ZodString;
+    street: import("zod").ZodOptional<import("zod").ZodString>;
+    street_number: import("zod").ZodOptional<import("zod").ZodString>;
+    block_no: import("zod").ZodOptional<import("zod").ZodString>;
+    entrance_no: import("zod").ZodOptional<import("zod").ZodString>;
+    floor_no: import("zod").ZodOptional<import("zod").ZodString>;
+    apartment_no: import("zod").ZodOptional<import("zod").ZodString>;
+    office_code: import("zod").ZodOptional<import("zod").ZodString>;
+    additional_info: import("zod").ZodOptional<import("zod").ZodString>;
+}, "strip", import("zod").ZodTypeAny, {
+    full_name: string;
+    email: string;
+    phone: string;
+    country: string;
+    city: string;
+    postal_code: string;
+    id?: string | undefined;
+    street?: string | undefined;
+    street_number?: string | undefined;
+    block_no?: string | undefined;
+    entrance_no?: string | undefined;
+    floor_no?: string | undefined;
+    apartment_no?: string | undefined;
+    office_code?: string | undefined;
+    additional_info?: string | undefined;
+}, {
+    full_name: string;
+    email: string;
+    phone: string;
+    country: string;
+    city: string;
+    postal_code: string;
+    id?: string | undefined;
+    street?: string | undefined;
+    street_number?: string | undefined;
+    block_no?: string | undefined;
+    entrance_no?: string | undefined;
+    floor_no?: string | undefined;
+    apartment_no?: string | undefined;
+    office_code?: string | undefined;
+    additional_info?: string | undefined;
+}>, false>;
+export declare class OrderShippingDto extends OrderShippingDto_base {
+}
+export {};

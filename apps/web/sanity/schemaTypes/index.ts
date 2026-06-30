@@ -1,0 +1,24 @@
+import { type SchemaTypeDefinition } from 'sanity';
+import { blockContentType } from './blockContentType';
+import { ekontType } from './ekontType';
+import { sectionType } from './sectionType';
+import { pageType } from './pageType';
+import { productType } from './productType';
+import { categoryType } from './categoryType';
+import { productVariantType } from './productVariantType';
+import { speedyType } from './speedyType';
+import { howToOrderGuideType } from './howToOrderGuideType';
+
+export const schema: { types: SchemaTypeDefinition[] } = {
+  types: [
+    blockContentType,
+    pageType,
+    sectionType,
+    productType,
+    categoryType,
+    productVariantType,
+    ekontType,
+    speedyType,
+    howToOrderGuideType,
+  ],
+};

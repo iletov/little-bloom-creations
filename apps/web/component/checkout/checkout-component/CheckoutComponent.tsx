@@ -1,0 +1,154 @@
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  useStripe,
+  useElements,
+  PaymentElement,
+} from '@stripe/react-stripe-js';
+import { Loader } from '../../loader/Loader';
+import { useCart } from '@/hooks/useCart';
+import { CancelPayment } from '../../buttons/CancelPayment';
+import { Button } from '@/components/ui/button';
+import { useSenderDetails } from '@/hooks/useSenderDetails';
+import { AlertBox } from '@/component/modals/AlertBox';
+import { useSenderInfo } from '@/hooks/useSenderInfo';
+import { useAuth } from '@/hooks/useAuth';
+import { createParcelsFromItems } from '@/lib/utils/createParcelsFromItems';
+import { createReceiptFromItems } from '@/lib/utils/createReceiptFromItems';
+import { getSiteOrigin } from '@/lib/get-site-origin';
+
+interface Props {
+  totalPrice: number;
+  paymentMethod: string;
+}
+
+export const CheckoutComponent = ({ totalPrice, paymentMethod }: Props) => {
+  const stripe = useStripe();
+  const { user } = useAuth();
+
+  const { senderData, senderDataSpeedy } = useSenderInfo(false);
+  const { deliveryMethod, selectedOffice, selectedCity, validationStreet } =
+    useSenderDetails();
+  const elements = useElements();
+  const {
+    items,
+    errorState,
+    clientSecret,
+    metadata,
+    paymentIntentId,
+    guestFormData,
+    addressFormData,
+    deliveryCost,
+    deliveryCostFlag,
+    totalWeight,
+  } = useCart();
+
+  const [errorMessage, setErrorMessage] = useState<string | null>();
+  const [loading, setLoading] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState({ title: '', message: '' });
+
+  const isEkont = deliveryMethod.startsWith('ekont');
+  const isSpeedy = deliveryMethod.startsWith('speedy');
+
+  const pathToRedirect = '/cart';
+  const disabledBtn =
+    // !stripe ||
+    // !elements ||
+    // loading ||
+    !clientSecret || !paymentIntentId || deliveryCost === 0;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (!stripe || !elements) {
+      console.log('Stripe.js has not loaded yet.');
+      return;
+    }
+
+    if (!senderData || !addressFormData || !deliveryMethod) {
+      setLoading(false);
+      return 0;
+    }
+
+    // The waybill creation for Stripe orders is now handled by the backend 
+    // inside the Stripe Webhook (POST /webhooks/stripe) after successful payment.
+    // We only need to confirm the payment with Stripe here.
+
+    const { error: submitError } = await elements.submit();
+
+    if (submitError) {
+      setErrorMessage(submitError.message);
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      clientSecret: clientSecret ?? '',
+      confirmParams: {
+        return_url: new URL(
+          `/success?order_number=${encodeURIComponent(metadata.orderNumber)}`,
+          getSiteOrigin(),
+        ).toString(),
+      },
+    });
+
+    if (error) {
+      setErrorMessage(error.message);
+    }
+
+    setLoading(false);
+  };
+
+  if (!clientSecret || !stripe || !elements) {
+    return <Loader />;
+  }
+
+  return (
+    <section>
+      <form onSubmit={handleSubmit}>
+        {clientSecret && (
+          <>
+            <PaymentElement
+              options={{
+                layout: 'tabs',
+              }}
+            />
+          </>
+        )}
+      </form>
+
+      <div className="flex gap-3 mt-3">
+        <Button
+          variant={'default'}
+          onClick={handleSubmit}
+          className={`py-4 px-4 min-w-[135px]
+            ${disabledBtn ? 'opacity-70 cursor-not-allowed' : ''}`}
+          disabled={disabledBtn}>
+          {loading || deliveryCostFlag ? <Loader /> : <span>Pay</span>}
+        </Button>
+
+        <CancelPayment
+          disable={loading}
+          // paymentIntentId={paymentIntentId as string}
+          path={pathToRedirect}
+        />
+        {errorMessage && (
+          <div className="text-red-500 mt-2">{errorMessage}</div>
+        )}
+        {errorState && <div className="text-purple-500 mt-2">{errorState}</div>}
+      </div>
+
+      {showAlert && (
+        <AlertBox
+          title={alertMessage.title}
+          description={alertMessage.message}
+          reset={() => setShowAlert(false)}
+        />
+      )}
+    </section>
+  );
+};

@@ -1,0 +1,89 @@
+'use client';
+
+import { AddressFormData } from '@/app/store/features/stripe/stripeSlice';
+import { CheckoutForm } from '@/component/checkout/checkout-forms/CheckoutForm';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useCart } from '@/hooks/useCart';
+import { useSenderDetails } from '@/hooks/useSenderDetails';
+
+import React from 'react';
+
+export const OrderDetailsContainer = () => {
+  const { updateAddresData, setDeliveryCost } = useCart();
+  const {
+    setDeliveryMethod,
+    deliveryMethod,
+    setSelectedOffice,
+    setSearchForCity,
+    setSelectedCity,
+  } = useSenderDetails();
+
+  const handleSelectDeliveryCompany = (value: string) => {
+    // reset delivery cost
+    setDeliveryCost(0);
+
+    // clear city and office data when switch between values
+    setSearchForCity('');
+    setSelectedCity('');
+    setSelectedOffice('');
+    updateAddresData({
+      city: '',
+      officeCode: '',
+      street: '',
+      streetNumber: '',
+      blockNo: '',
+      entranceNo: '',
+      floorNo: '',
+      apartmentNo: '',
+      other: '',
+    } as AddressFormData);
+
+    setDeliveryMethod(value);
+  };
+
+  const radioGroupItems = [
+    {
+      value: 'ekont-office',
+      label: 'Доставка до офис на Eконт',
+    },
+    {
+      value: 'ekont-delivery',
+      label: 'Доставка с куриер на Eконт',
+    },
+    {
+      value: 'speedy-office',
+      label: 'Доставка до офис на Спиди',
+    },
+    {
+      value: 'speedy-delivery',
+      label: 'Доставка с куриер на Спиди',
+    },
+  ];
+
+  return (
+    <section className="flex-[0.75] bg-secondaryPurple/15 p-5 rounded-lg shadow-md">
+      <h3 className="mb-3 border-b-[2px] w-fit pb-2 font-montserrat">
+        Изберете метод за доставка
+      </h3>
+      <RadioGroup
+        value={deliveryMethod || ''}
+        onValueChange={handleSelectDeliveryCompany}
+        className="mt-5 order-2 pb-3">
+        <div className="grid md:grid-cols-2 md:grid-rows-2 md:grid-flow-col gap-4">
+          {radioGroupItems.map(item => (
+            <div key={item.value} className="space-x-2">
+              <RadioGroupItem value={item.value} id={item.value} />
+              <Label
+                htmlFor={item.value}
+                className={` space-x-2 cursor-pointer`}>
+                {item.label}
+              </Label>
+            </div>
+          ))}
+        </div>
+      </RadioGroup>
+      {deliveryMethod ? <CheckoutForm /> : null}
+    </section>
+  );
+};

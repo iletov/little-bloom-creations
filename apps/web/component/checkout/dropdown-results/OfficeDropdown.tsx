@@ -1,0 +1,154 @@
+'use client';
+import { Button } from '@/components/ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { Check, ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
+import { Loader } from '@/component/loader/Loader';
+import { useOffices, OfficeDto } from '@/hooks/api/shipping/shipping-list.hook';
+import { useSenderDetails } from '@/hooks/useSenderDetails';
+import { useCart } from '@/hooks/useCart';
+import { AddressFormData } from '@/app/store/features/stripe/stripeSlice';
+import { DeliveryMethodEnum } from '@repo/shared-types';
+
+interface CustomDropdownProps {
+  placeholder?: string;
+  className?: string;
+  disabled?: boolean;
+}
+
+export const OfficeDropdown = ({
+  placeholder = 'Select option',
+  className,
+  disabled = false,
+}: CustomDropdownProps) => {
+  const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const { selectedOffice, setSelectedOffice, deliveryMethod, selectedCity } =
+    useSenderDetails();
+  const { updateAddresData, setDeliveryCost } = useCart();
+
+  const { data: offices, isLoading, error } = useOffices(
+    (deliveryMethod as DeliveryMethodEnum) || null,
+    selectedCity?.id,
+  );
+
+  if (isLoading)
+    return (
+      <div className="flex justify-center">
+        <Loader />
+      </div>
+    );
+
+  if (error) return <p>faild to load offices</p>;
+
+  const handleSelectOffice = async (currentOffice: OfficeDto) => {
+    setSelectedOffice(currentOffice);
+    updateAddresData({ officeCode: currentOffice?.id, officeName: currentOffice?.name } as AddressFormData);
+    setDeliveryCost(0);
+    setOpen(false);
+  };
+
+  const filteredByCityOffices = offices?.filter(
+    office => String(office.cityId) === String(selectedCity?.id)
+  ) || [];
+
+  const filteredOffices = searchQuery
+    ? filteredByCityOffices?.filter(office =>
+        office.name.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+    : filteredByCityOffices;
+
+  return (
+    <section className=" w-full relative space-y-2">
+      <h4 className=" mb-3 border-b-[2px] w-fit pb-2 font-montserrat bg">
+        Изберете офис
+      </h4>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="default"
+            role="combobox"
+            aria-expanded={open}
+            className={cn(
+              'w-full justify-between min-h-[2.85rem] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring font-montserrat bg-green-5 text-white px-[8px] [&_svg]:size-[unset]',
+              className,
+            )}
+            disabled={disabled || !selectedCity}>
+            {selectedOffice ? (
+              <p className="flex gap-2 ">
+                <span>{selectedOffice.name}</span>
+                <span>({selectedOffice.id})</span>
+              </p>
+            ) : (
+              <p className="text-white">{placeholder}</p>
+            )}
+            <ChevronDown size={20} className="shrink-0 " />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          align="start"
+          side="bottom"
+          sideOffset={10}
+          className=" md:w-[calc(100%-1.26rem)] p-0 border-[1px] shadow-lg rounded-xl font-montserrat bg-white">
+          <Command>
+            <CommandInput
+              placeholder="Search offices..."
+              className="min-h-16 py-1 text-[1.4rem] bg-white"
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+            />
+
+            <CommandList>
+              {isLoading ? (
+                <div className="w-full py-6 text-center text-[1.4rem] text-gray-500">
+                  <Loader />
+                </div>
+              ) : (
+                <>
+                  <CommandEmpty>No offices found.</CommandEmpty>
+                  <CommandGroup className="max-h-72 overflow-auto ">
+                    {filteredOffices?.map(office => (
+                      <CommandItem
+                        key={office.id}
+                        className="cursor-pointer border-b-[1px] py-1.5 data-[selected=true]:bg-green-1/30"
+                        value={office.name}
+                        onSelect={() => handleSelectOffice(office)}>
+                        <Check
+                          className={cn(
+                            'mr-2 h-4 w-4',
+                            selectedOffice?.id === office.id
+                              ? 'opacity-100'
+                              : 'opacity-0',
+                          )}
+                        />
+                        <div className="flex flex-col items-start justify-center ">
+                          <div className="flex gap-2 font-bold [&>p]:text-[1.4rem]">
+                            <p>{office.name}</p>
+                            <p>({office.id})</p>
+                          </div>
+                          <div className="flex gap-1 [&>p]:text-[1.2rem]">
+                            <p>{office.address}</p>
+                          </div>
+                        </div>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </>
+              )}
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </section>
+  );
+};

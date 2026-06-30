@@ -1,0 +1,219 @@
+// TODO: MIGRATED TO NESTJS - READY TO BE DELETED.
+'use server';
+// ТОЗИ ФАЙЛ Е МИГРИРАН В NESTJS, ВЕЧЕ НЕ СЕ ИЗПОЛЗВА И Е ГОТОВ ЗА ТРИЕНЕ
+
+import { PackingListItem } from '@/lib/utils/createPackingListFromItems';
+
+export const createLabel = async (
+  sender: any,
+  receiverNames: any,
+  receiver: any,
+  totalPrice: number,
+  deliveryMethod: string | null,
+  paymentMethod: string = '',
+  shipmentDescription: string = '',
+  totalWeight: number,
+  packingList: PackingListItem[],
+  create: boolean = false,
+) => {
+  const ekontApiKey = process.env.ECONT_API_KEY;
+  const ekontUrl = process.env.EKONT_API_URL;
+  const auth = Buffer.from(`${ekontApiKey}`).toString('base64');
+
+  const isDelivery =
+    deliveryMethod === 'ekont-delivery' || deliveryMethod === 'delivery';
+  const isPickup =
+    deliveryMethod === 'ekont-office' || deliveryMethod === 'office';
+  const isPaymentCash = paymentMethod === 'cash';
+
+  const receiverFullName =
+    receiverNames?.firstName + ' ' + receiverNames?.lastName;
+
+  const receiverPhones = [receiver?.phoneNumber];
+  const senderPhones = sender?.senderClient?.phones;
+
+  const cityData = (city: string, postalCode: string | number) => ({
+    name: city ?? '',
+    postCode: postalCode ?? '',
+    country: {
+      code3: 'BGR',
+    },
+  });
+
+  const senderCity = cityData(
+    sender?.senderAddress?.city,
+    sender?.senderAddress?.postCode,
+  );
+
+  const senderAddress = {
+    city: senderCity,
+    street: sender?.senderAddress?.street ?? '',
+    num: sender?.senderAddress?.num ?? '',
+    quarter: '',
+    other: '',
+  };
+
+  const receiverCity = cityData(receiver?.city, receiver?.postalCode);
+
+  const receiverAddress = {
+    city: receiverCity,
+    street: isDelivery ? (receiver?.street ?? '') : '',
+    num: isDelivery ? (receiver?.streetNumber ?? '') : '',
+    quarter: isDelivery ? (receiver?.quarter ?? '') : '',
+    other: isDelivery ? (receiver?.other ?? '') : '',
+  };
+
+  const labelData = {
+    label: {
+      senderClient: {
+        name: sender?.senderClient?.name,
+        nameEn: sender?.senderClient?.nameEn,
+        phones: senderPhones,
+        email: sender?.senderClient?.email,
+        juridicalEntity: sender?.senderClient?.juridicalEntity,
+        ein: sender?.senderClient?.ein,
+        ddsEinPrefix: sender?.senderClient?.ddsEinPrefix,
+        ddsEin: sender?.senderClient?.ddsEin,
+      },
+      senderAgent: {
+        name: sender?.senderAgent?.name,
+        phones: senderPhones,
+      },
+      senderAddress,
+      receiverClient: {
+        name: receiverFullName,
+        phones: receiverPhones,
+      },
+      receiverAddress,
+      senderDeliveryType: sender?.senderDeliveryType,
+      senderOfficeCode: sender?.senderOfficeCode,
+      receiverOfficeCode: receiver?.officeCode || '',
+      receiverDeliveryType: isPickup ? 'office' : 'delivery',
+      payAfterAccept: isPaymentCash ? sender?.payAfterAccept : 0,
+      payAfterTest: isPaymentCash ? sender?.payAfterTest : 0,
+      packCount: 1,
+      shipmentType: 'PACK',
+      weight: totalWeight,
+      shipmentDescription,
+      paymentSenderMethod: sender?.paymentSenderMethod || '',
+      paymentSenderAmount: sender?.paymentSenderAmount || '',
+      paymentReceiverMethod: sender?.paymentReceiverMethod || '',
+      paymentReceiverAmount: sender?.paymentReceiverAmount || '',
+      paymentReceiverAmountIsPercent: sender?.paymentReceiverAmountIsPercent,
+      packingListType: 'digital',
+      packingList,
+      services: isPaymentCash
+        ? {
+            cdType: isPaymentCash ? 'GET' : '',
+            cdAmount: isPaymentCash ? Number(totalPrice).toFixed(2) : '',
+            cdCurrency: isPaymentCash ? 'BGN' : '',
+
+            cdPayOptionsTemplate:
+              !sender?.cdPayOptionsVariants && sender?.cdPayOptionsTemplate,
+
+            cdPayOptions: sender?.cdPayOptionsVariants
+              ? {
+                  client: {
+                    name: isPaymentCash ? sender?.senderClient?.name : '',
+                    phones: isPaymentCash ? sender?.senderClient?.phones : '',
+                  },
+                  method: isPaymentCash ? sender?.cdOptions?.method : '',
+                  BIC: isPaymentCash ? sender?.cdOptions?.bic : '',
+                  IBAN: isPaymentCash ? sender?.cdOptions?.iban : '',
+                  bankCurrency: isPaymentCash ? 'BGN' : '',
+                  payDays: isPaymentCash ? 1 : '',
+                  // "payWeekdays":"monday"
+                  officeCode:
+                    sender?.senderOfficeCode && isPaymentCash
+                      ? sender?.senderOfficeCode
+                      : '',
+                }
+              : '',
+          }
+        : null,
+      instructions: {
+        returnInstructionParams: {
+          type: 'return',
+          returnParcelDestination: 'office',
+          returnParcelPaymentSide: 'receiver',
+          returnParcelReceiverOfficeCode: '',
+        },
+      },
+    },
+    // mode: !paymentMethod ? 'calculate' : 'validate',
+    mode: 'validate',
+  };
+
+  try {
+    // console.log('VALIDATE LABEL----->:', JSON.stringify(labelData, null, 2));
+
+    // 1. First Validate
+    const validateRes = await fetch(
+      `${ekontUrl}/Shipments/LabelService.createLabel.json`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Basic ${auth}`,
+        },
+        body: JSON.stringify(labelData),
+      },
+    );
+
+    if (!validateRes.ok) {
+      const errorText = await validateRes.text();
+      console.error('Validation Error Response:', errorText);
+      throw new Error(`Econt API validation error: ${errorText}`);
+    }
+
+    const validationData = await validateRes.json();
+    console.log('# --Validation Response:', validationData);
+
+    // If validation has errors, return them immediately
+    if (validationData?.label?.error) {
+      console.error('Validation Logic Error:', validationData.label.error);
+      return validationData;
+    }
+
+    // 2. If valid and create is true, proceed to Create
+    if (!create) {
+      console.log(
+        '# --Validation successful, skipping label creation (create=false)',
+      );
+      return validationData;
+    }
+
+    const createLabelData = {
+      ...labelData,
+      mode: 'create',
+    };
+
+    console.log('# --CREATING LABEL----->');
+
+    const createRes = await fetch(
+      `${ekontUrl}/Shipments/LabelService.createLabel.json`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Basic ${auth}`,
+        },
+        body: JSON.stringify(createLabelData),
+      },
+    );
+
+    if (!createRes.ok) {
+      const errorText = await createRes.text();
+      console.error('Creation Error Response:', errorText);
+      throw new Error(`Econt API creation error: ${errorText}`);
+    }
+
+    const creationData = await createRes.json();
+    console.log('# --Label Created Successfully----> ', creationData);
+    return creationData;
+  } catch (error) {
+    console.error('Error in createLabel process:', error);
+    // Return error structure if needed, or rethrow
+    return { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+};
