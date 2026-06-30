@@ -1,6 +1,7 @@
 import { unstable_cache } from 'next/cache';
+import { apiConfig } from '@/lib/api/api-config';
 
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+const API_URL = apiConfig.baseUrl;
 
 export const getAllProducts = unstable_cache(
   async () => {

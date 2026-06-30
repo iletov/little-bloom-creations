@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabaseServer';
+import { apiConfig } from '@/lib/api/api-config';
 
 export async function getMetrics(days: number = 7) {
   const supabase = await createClient();
@@ -18,7 +19,7 @@ export async function getMetrics(days: number = 7) {
     };
   }
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiUrl = apiConfig.baseUrl;
   
   try {
     const response = await fetch(`${apiUrl}/admin/metrics?days=${days}`, {

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabaseServer';
+import { apiConfig } from '@/lib/api/api-config';
 import { Order } from '@/types';
 
 export async function getOrders() {
@@ -11,7 +12,7 @@ export async function getOrders() {
     return { recentOrders: [], allOrders: [] };
   }
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiUrl = apiConfig.baseUrl;
 
   try {
     const response = await fetch(`${apiUrl}/admin/orders`, {
@@ -49,7 +50,7 @@ export async function getSingleOrder(id: string) {
     return null;
   }
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiUrl = apiConfig.baseUrl;
 
   try {
     const response = await fetch(`${apiUrl}/admin/orders/${id}`, {
@@ -82,7 +83,7 @@ export async function getSingleOrder(id: string) {
 export async function getOrdersForStaticParams(): Promise<
   Array<Pick<Order, 'order_number'>>
 > {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiUrl = apiConfig.baseUrl;
   try {
     const response = await fetch(`${apiUrl}/admin/orders`, {
       method: 'GET',

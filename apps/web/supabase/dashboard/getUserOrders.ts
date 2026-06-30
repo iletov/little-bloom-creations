@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabaseServer';
+import { apiConfig } from '@/lib/api/api-config';
 
 export async function getUserOrders() {
   const supabase = await createClient();
@@ -9,7 +10,7 @@ export async function getUserOrders() {
     return [];
   }
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiUrl = apiConfig.baseUrl;
 
   try {
     const response = await fetch(`${apiUrl}/orders/me`, {

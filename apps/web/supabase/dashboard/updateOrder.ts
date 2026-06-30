@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabaseServer';
+import { apiConfig } from '@/lib/api/api-config';
 
 export async function updateOrder(
   orderId: string,
@@ -14,7 +15,7 @@ export async function updateOrder(
     return { success: false, error: 'Unauthorized' };
   }
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiUrl = apiConfig.baseUrl;
 
   try {
     const response = await fetch(`${apiUrl}/admin/orders/${orderId}`, {

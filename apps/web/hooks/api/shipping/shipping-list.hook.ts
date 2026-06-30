@@ -17,7 +17,9 @@ export interface OfficeDto {
   cityId?: number | string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { apiConfig } from '@/lib/api/api-config';
+
+const API_URL = apiConfig.baseUrl;
 
 export const useCities = (
   courier: DeliveryMethodEnum | null,

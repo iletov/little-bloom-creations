@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabaseServer';
+import { apiConfig } from '@/lib/api/api-config';
 import { revalidatePath } from 'next/cache';
 
 async function getAuthToken() {
@@ -13,7 +14,7 @@ export async function generateWaybill(orderId: string) {
   const token = await getAuthToken();
   if (!token) return { success: false, error: 'Unauthorized' };
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiUrl = apiConfig.baseUrl;
 
   try {
     const response = await fetch(`${apiUrl}/admin/orders/${orderId}/waybill`, {
@@ -41,7 +42,7 @@ export async function cancelOrder(orderId: string) {
   const token = await getAuthToken();
   if (!token) return { success: false, error: 'Unauthorized' };
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiUrl = apiConfig.baseUrl;
 
   try {
     const response = await fetch(`${apiUrl}/admin/orders/${orderId}/cancel`, {
@@ -69,7 +70,7 @@ export async function markOrderAsDelivered(orderId: string) {
   const token = await getAuthToken();
   if (!token) return { success: false, error: 'Unauthorized' };
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiUrl = apiConfig.baseUrl;
 
   try {
     const response = await fetch(`${apiUrl}/admin/orders/${orderId}/deliver`, {
