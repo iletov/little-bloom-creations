@@ -5,24 +5,24 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[0.8rem] text-[1.6rem] font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-[1.6rem] [&_svg]:shrink-0',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap text-[1.6rem] transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-[1.6rem] [&_svg]:shrink-0',
   {
     variants: {
       variant: {
         primery: 'text-primary-foreground shadow hover:opacity-80',
         default:
-          'bg-green-1 text-green-dark hover:text-green-0 shadow hover:bg-green-5 hover:ring-0 hover:ring-green-5 hover:ring-offset-4 hover:ring-offset-green-1 ',
-        pink: 'bg-pink-9 text-pink-1 shadow  hover:ring-1 hover:ring-pink-9 hover:ring-offset-1 hover:ring-offset-pink-1',
-        outline: 'bg-green-5 shadow-md',
+          'bg-white text-black hover:text-black shadow-md rounded-full font-bold',
+        pink: 'bg-pink-9 text-pink-1 shadow  hover:ring-1 hover:ring-pink-9 hover:ring-offset-1 hover:ring-offset-pink-1 rounded-[0.8rem] font-medium',
+        outline: 'bg-green-5 shadow-md rounded-[0.8rem] font-medium',
         secondary:
-          'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/60 ',
-        ghost: ' bg-pink-1 duration-200 px-4 py-5 shadow-md text-green-9',
-        blue: 'bg-blue-600 text-white shadow-md hover:bg-blue-700',
-        destructive: 'bg-red-600 text-white shadow-md hover:bg-red-700',
-        link: 'text-primary underline-offset-4 hover:underline',
+          'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/60 rounded-[0.8rem] font-medium',
+        ghost: 'bg-pink-1 duration-200 px-4 py-5 shadow-md text-green-9 rounded-[0.8rem] font-medium',
+        blue: 'bg-blue-600 text-white shadow-md hover:bg-blue-700 rounded-[0.8rem] font-medium',
+        destructive: 'bg-red-600 text-white shadow-md hover:bg-red-700 rounded-[0.8rem] font-medium',
+        link: 'text-primary underline-offset-4 hover:underline rounded-[0.8rem] font-medium',
       },
       size: {
-        default: 'h-[4rem] px-12 py-3',
+        default: 'px-12 py-7 h-auto',
         sm: 'h-8 px-3 text-xs',
         lg: 'h-10 px-8',
         xl: 'h-12',

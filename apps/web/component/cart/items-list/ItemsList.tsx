@@ -35,51 +35,51 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
     || (typeof group.product?.category === 'string' ? group.product.category : 'all');
 
   return (
-    <article className=" flex w-full border-b-[1px] rounded-md hover:bg-green-1/20 transition easy-in-out py-4 px-4 gap-8 font-montserrat">
+    <article className="flex flex-col sm:flex-row w-full border-b-[1px] rounded-md hover:bg-green-1/20 transition ease-in-out py-6 px-4 sm:px-6 gap-6 sm:gap-8 font-montserrat bg-white sm:bg-transparent shadow-sm sm:shadow-none mb-4 sm:mb-0">
       <Link
         href={{
           pathname: `/categories/${categorySlug}/${group.product.slug?.current || group.product.slug}`,
           query: { productId: group?.personalisation?.productId },
         }}
-        className="flex gap-10 cursor-pointer pr-4  flex-1">
+        className="flex gap-4 sm:gap-10 cursor-pointer sm:pr-4 flex-1">
         <div
-          className="w-auto h-44 rounded-md overflow-hidden"
+          className="w-[100px] h-[130px] sm:w-[140px] sm:h-44 rounded-md overflow-hidden shrink-0 border border-slate-100"
           // onClick={redirectToProductPage}
         >
           {group.product.images?.[0] ? (
             <Image
               src={urlFor(group.product.images[0] as Reference).url()}
               alt={group.product.name || ''}
-              width={120}
-              height={120}
-              className="w-full h-full object-fill"
+              width={140}
+              height={140}
+              className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-[120px] h-[120px] bg-slate-200 flex items-center justify-center text-slate-400 text-sm">
+            <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 text-sm">
               No Image
             </div>
           )}
         </div>
 
-        <div className="space-y-2">
-          <p className="text-[1.6rem] font-semibold w-full text-start self-start ">
+        <div className="space-y-3 min-w-0 flex-1">
+          <p className="text-[1.6rem] sm:text-[1.8rem] font-semibold w-full text-start self-start leading-tight">
             {group.product.name}
           </p>
 
-          <div className="text-[1.4rem] w-full text-start grid gap-1">
+          <div className="text-[1.3rem] sm:text-[1.4rem] w-full text-start flex flex-col gap-1.5 text-slate-600">
             {/* Product Color */}
             {group.product?.color && (
-              <span className="flex items-center gap-8">
-                Цвят:
-                <ColorBadge color={group.product.color} size="sm" className="ml-2" />
+              <span className="grid grid-cols-[110px_1fr] sm:flex sm:items-center gap-2 sm:gap-8">
+                <span className="text-slate-400 font-medium">Цвят:</span>
+                <ColorBadge color={group.product.color} size="sm" className="sm:ml-2" />
               </span>
             )}
 
             {/* Name */}
             {group?.personalisation?.name && (
-              <span className="grid grid-cols-2 gap-8">
-                Име:
-                <span className="uppercase justify-self-start">
+              <span className="grid grid-cols-[110px_1fr] gap-2 sm:gap-8">
+                <span className="text-slate-400 font-medium">Име:</span>
+                <span className="uppercase font-medium text-slate-800 break-words">
                   {group?.personalisation?.name}
                 </span>
               </span>
@@ -87,11 +87,11 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
 
             {/* Text (Diary) */}
             {group?.personalisation?.addMainText && group?.personalisation?.addMainText !== 'no-text' && (
-              <span className="grid grid-cols-2 gap-8">
-                Текст:
+              <span className="grid grid-cols-[110px_1fr] gap-2 sm:gap-8">
+                <span className="text-slate-400 font-medium">Текст:</span>
                 <span
                   className={cn(
-                    'capitalize justify-self-start',
+                    'capitalize font-medium text-slate-800 break-words',
                     group?.personalisation?.addMainText === 'italic' && 'italic',
                   )}>
                   {group?.personalisation?.addMainText}
@@ -101,13 +101,13 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
 
             {/* Text Color (Diary) */}
             {group?.personalisation?.textColor && (
-              <span className="grid grid-cols-2 gap-8">
-                Цвят на текста:
+              <span className="grid grid-cols-[110px_1fr] gap-2 sm:gap-8 items-center">
+                <span className="text-slate-400 font-medium leading-tight">Цвят на текста:</span>
                 <span
                   className={cn(
-                    'capitalize justify-self-start ml-1 px-5 py-[0.5px] rounded-xl',
+                    'capitalize justify-self-start px-3 py-1 rounded-xl text-[1.2rem] font-medium tracking-wide shadow-sm',
                     group?.personalisation?.textColor === 'gold'
-                      ? 'bg-yellow-400 text-black'
+                      ? 'bg-yellow-400 text-yellow-950'
                       : 'bg-slate-400 text-white',
                   )}>
                   {group?.personalisation?.textColor}
@@ -117,9 +117,9 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
 
             {/* Personalization Type (Blanket) */}
             {group?.personalisation?.personalizationType && group?.personalisation?.personalizationType !== 'none' && (
-              <span className="grid grid-cols-2 gap-8">
-                Персонализация:
-                <span className="justify-self-start">
+              <span className="grid grid-cols-[110px_1fr] gap-2 sm:gap-8">
+                <span className="text-slate-400 font-medium leading-tight">Персонализация:</span>
+                <span className="font-medium text-slate-800 break-words">
                   {group?.personalisation?.personalizationType === 'name-only' ? 'С име' : 'С име и бродерия'}
                 </span>
               </span>
@@ -127,9 +127,9 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
 
             {/* Embroidery (Blanket) */}
             {group?.personalisation?.embroideryImage?.alt && (
-              <span className="grid grid-cols-2 gap-8">
-                Бродерия:
-                <span className="justify-self-start text-green-dark">
+              <span className="grid grid-cols-[110px_1fr] gap-2 sm:gap-8">
+                <span className="text-slate-400 font-medium">Бродерия:</span>
+                <span className="font-medium text-green-dark break-words">
                   {group?.personalisation?.embroideryImage.alt}
                 </span>
               </span>
@@ -137,8 +137,8 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
           </div>
         </div>
       </Link>
-      <div className="flex flex-col gap-8">
-        <div className="flex gap-8">
+      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-4 sm:gap-8 mt-4 pt-4 sm:mt-0 sm:pt-0 border-t sm:border-0 border-slate-100">
+        <div className="flex items-center gap-4 sm:gap-8 shrink-0">
           <PriceItem group={group} checkout={checkout} />
           <ClearCartButton
             productId={group?.personalisation?.productId as string}
@@ -149,8 +149,7 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
           href={{
             pathname: `/categories/${categorySlug}/${group.product.slug?.current || group.product.slug}`,
           }}
-          className="text-[1.4rem] border-2 px-4 py-2 rounded-lg hover:bg-white self-start">
-          {' '}
+          className="text-[1.4rem] font-semibold text-center border-2 border-slate-200 px-6 py-2 rounded-xl hover:bg-slate-50 transition-colors w-full sm:w-auto text-slate-700 whitespace-nowrap">
           Add new item
         </Link>
       </div>
