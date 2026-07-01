@@ -3,20 +3,11 @@ import SingleOrderContainer from '@/component/dashboard/single-order/SingleOrder
 import { Button } from '@/components/ui/button';
 import {
   getSingleOrder,
-  getOrdersForStaticParams,
 } from '@/supabase/dashboard/getOrders';
 import React from 'react';
 import { Order } from '@/types';
 
-// Revalidate this page every 60 seconds
-export const revalidate = 60;
-
-export async function generateStaticParams(): Promise<Array<{ id: string }>> {
-  const orders = await getOrdersForStaticParams();
-  return orders.map((order: Pick<Order, 'order_number'>) => ({
-    id: order.order_number,
-  }));
-}
+// This page is fully dynamic since it accesses cookies() for auth
 
 export default async function SingleOrder({
   params,
