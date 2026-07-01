@@ -598,15 +598,15 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
             : 'bg-transparent text-white/90 drop-shadow-md',
         )}>
         <Link href="/categories" className="flex flex-col items-center justify-center gap-1.5 p-2 w-[70px]">
-          <Store className="w-7 h-7" />
+          <Store className="w-10 h-10" strokeWidth={1} />
           <span className="text-[0.75rem] font-bold uppercase tracking-wider">Shop</span>
         </Link>
         <button onClick={() => setMobileMenuOpen(true)} className="flex flex-col items-center justify-center gap-1.5 p-2 w-[70px]">
-          <Menu className="w-7 h-7" />
+          <Menu className="w-10 h-10" strokeWidth={1} />
           <span className="text-[0.75rem] font-bold uppercase tracking-wider">Menu</span>
         </button>
         <Link href="/cart" className="flex flex-col items-center justify-center gap-1.5 p-2 w-[70px] relative">
-          <ShoppingBag className="w-7 h-7" />
+          <ShoppingBag className="w-10 h-10" strokeWidth={1} />
           {isClient && totalItems && totalItems > 0 ? (
             <span className="absolute right-2 top-0 grid h-[20px] min-w-[20px] place-items-center rounded-full bg-rose-600 text-[11px] font-bold text-white px-1">
               {totalItems}
@@ -622,16 +622,16 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
                   alt="Profile"
                   width={28}
                   height={28}
-                  className={cn("w-7 h-7 rounded-full object-cover", !(isSticky || !isLargeHero) && "border border-white/50")}
+                  className={cn("w-10 h-10 rounded-full object-cover", !(isSticky || !isLargeHero) && "border border-white/50")}
                 />
               ) : (
-                <User className="w-7 h-7" />
+                <User className="w-10 h-10" strokeWidth={1} />
               )}
             <span className="text-[0.75rem] font-bold uppercase tracking-wider">Profile</span>
           </button>
         ) : (
           <Link href="/login" className="flex flex-col items-center justify-center gap-1.5 p-2 w-[70px]">
-            <User className="w-7 h-7" />
+            <User className="w-10 h-10" strokeWidth={1} />
             <span className="text-[0.75rem] font-bold uppercase tracking-wider">Profile</span>
           </Link>
         )}
@@ -758,34 +758,55 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
               }}
               className="p-6 sm:p-8 bg-white/60 border-t border-green-200/50 backdrop-blur-md shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
               {user ? (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Image
-                      src={
-                        user?.user_metadata?.avatar_url || '/default-avatar.png'
-                      }
-                      alt="avatar"
-                      width={56}
-                      height={56}
-                      className="rounded-full border-2 border-green-5 bg-white shadow-sm"
-                    />
-                    <div className="flex flex-col">
-                      <span className="text-[1.6rem] font-bold text-green-dark">
-                        Профил
-                      </span>
-                      <span className="text-[1.2rem] text-gray-500 truncate max-w-[150px]">
-                        {user.email}
-                      </span>
+                <div className="flex flex-col w-full gap-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <Image
+                        src={
+                          user?.user_metadata?.avatar_url || '/default-avatar.png'
+                        }
+                        alt="avatar"
+                        width={56}
+                        height={56}
+                        className="rounded-full border-2 border-green-5 bg-white shadow-sm"
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-[1.6rem] font-bold text-green-dark">
+                          Профил
+                        </span>
+                        <span className="text-[1.2rem] text-gray-500 truncate max-w-[150px]">
+                          {user.email}
+                        </span>
+                      </div>
                     </div>
+                    <button
+                      onClick={() => {
+                        signOut();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="px-6 py-3 rounded-xl bg-rose-50 text-rose-600 font-semibold text-[1.4rem] hover:bg-rose-100 transition-colors">
+                      Изход
+                    </button>
                   </div>
-                  <button
-                    onClick={() => {
-                      signOut();
-                      setMobileMenuOpen(false);
-                    }}
-                    className="px-6 py-3 rounded-xl bg-rose-50 text-rose-600 font-semibold text-[1.4rem] hover:bg-rose-100 transition-colors">
-                    Изход
-                  </button>
+
+                  <div className="flex flex-col gap-2 mt-2 pt-4 border-t border-green-200/50">
+                    <Link
+                      href="/orders"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 py-2 text-[1.8rem] font-semibold text-green-dark hover:text-green-5 transition-colors">
+                      <ShoppingBag className="w-6 h-6 text-green-9" />
+                      Моите поръчки
+                    </Link>
+                    {isAdmin && (
+                      <Link
+                        href="/dashboard"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 py-2 text-[1.8rem] font-semibold text-green-dark hover:text-green-5 transition-colors">
+                        <ShieldCheck className="w-6 h-6 text-green-9" />
+                        Dashboard
+                      </Link>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <Link

@@ -15,7 +15,7 @@ const FooterContent = () => {
   };
 
   return (
-    <div className="bg-gradient-to-r from-[#faf2ed] via-white to-[#eef4f0] pt-28 pb-16 font-sans text-[#0f3b57]">
+    <div className="bg-gradient-to-r from-[#faf2ed] via-white to-[#eef4f0] pt-28 pb-32 lg:pb-16 font-sans text-[#0f3b57]">
       <div className="section_wrapper">
         
         {/* Top Area: Grid */}

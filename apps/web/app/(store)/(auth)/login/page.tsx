@@ -51,7 +51,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex min-h-[calc(100dvh-80px)] bg-white">
+    <div className="flex min-h-[calc(100dvh-56px)] bg-white pb-24 lg:pb-0">
       {/* Left Pane - Image */}
       <div className="hidden lg:block relative w-auto flex-1">
         <Image

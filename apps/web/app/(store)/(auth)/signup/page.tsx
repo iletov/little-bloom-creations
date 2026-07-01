@@ -56,13 +56,13 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex min-h-[calc(100dvh-120px)] bg-white flex-row-reverse">
+    <div className="flex min-h-[calc(100dvh-56px)] bg-white pb-24 lg:pb-0 flex-row-reverse">
       {/* Right Pane - Image (Reversed for visual balance between Login/Signup) */}
       <div className="hidden lg:block relative w-0 flex-1">
         <Image
           className="absolute inset-0 h-full w-full object-cover"
-          src="https://images.unsplash.com/photo-1490750967868-88cb44cb2722?q=80&w=2916&auto=format&fit=crop"
-          alt="Beautiful aesthetic notebook and flowers"
+          src="https://images.unsplash.com/photo-1568051417544-7be7671f4c2a?fm=jpg&q=60&w=3000&auto=format&fit=crop"
+          alt="Beautiful flower"
           fill
           priority
         />
