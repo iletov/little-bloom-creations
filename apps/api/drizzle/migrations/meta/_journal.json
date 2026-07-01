@@ -8,6 +8,13 @@
       "when": 1779741057755,
       "tag": "0000_spooky_captain_cross",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1782916476754,
+      "tag": "0001_daffy_the_stranger",
+      "breakpoints": true
     }
   ]
 }

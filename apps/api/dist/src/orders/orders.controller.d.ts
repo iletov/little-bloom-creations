@@ -11,6 +11,7 @@ import { CancelStripeOrderUseCase } from './use-cases/cancel-stripe-order.use-ca
 import { CancelStripeOrderDto } from './dto/cancel-stripe-order.dto';
 import { GetOrderStatusUseCase } from './use-cases/get-order-status.use-case';
 import { GetUserOrdersUseCase } from './use-cases/get-user-orders.use-case';
+import { OrdersRepository } from './repositories/orders.repository';
 export interface PlaceOrderResponse {
     orderNumber: string;
     clientSecret?: string;
@@ -24,7 +25,8 @@ export declare class OrdersController {
     private readonly getOrderStatusUseCase;
     private readonly getUserOrdersUseCase;
     private readonly stripeService;
-    constructor(placeCashOrderUseCase: PlaceCashOrderUseCase, initiateStripeOrderUseCase: InitiateStripeOrderUseCase, confirmStripeOrderUseCase: ConfirmStripeOrderUseCase, cancelStripeOrderUseCase: CancelStripeOrderUseCase, getOrderStatusUseCase: GetOrderStatusUseCase, getUserOrdersUseCase: GetUserOrdersUseCase, stripeService: StripeService);
+    private readonly ordersRepo;
+    constructor(placeCashOrderUseCase: PlaceCashOrderUseCase, initiateStripeOrderUseCase: InitiateStripeOrderUseCase, confirmStripeOrderUseCase: ConfirmStripeOrderUseCase, cancelStripeOrderUseCase: CancelStripeOrderUseCase, getOrderStatusUseCase: GetOrderStatusUseCase, getUserOrdersUseCase: GetUserOrdersUseCase, stripeService: StripeService, ordersRepo: OrdersRepository);
     getMyOrders(req: any): Promise<any>;
     getOrderStatus(orderNumber: string): Promise<{
         status: string;

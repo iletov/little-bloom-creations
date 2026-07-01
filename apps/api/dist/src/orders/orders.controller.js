@@ -25,6 +25,7 @@ const cancel_stripe_order_dto_1 = require("./dto/cancel-stripe-order.dto");
 const get_order_status_use_case_1 = require("./use-cases/get-order-status.use-case");
 const get_user_orders_use_case_1 = require("./use-cases/get-user-orders.use-case");
 const supabase_user_guard_1 = require("../common/guards/supabase-user.guard");
+const orders_repository_1 = require("./repositories/orders.repository");
 let OrdersController = class OrdersController {
     placeCashOrderUseCase;
     initiateStripeOrderUseCase;
@@ -33,7 +34,8 @@ let OrdersController = class OrdersController {
     getOrderStatusUseCase;
     getUserOrdersUseCase;
     stripeService;
-    constructor(placeCashOrderUseCase, initiateStripeOrderUseCase, confirmStripeOrderUseCase, cancelStripeOrderUseCase, getOrderStatusUseCase, getUserOrdersUseCase, stripeService) {
+    ordersRepo;
+    constructor(placeCashOrderUseCase, initiateStripeOrderUseCase, confirmStripeOrderUseCase, cancelStripeOrderUseCase, getOrderStatusUseCase, getUserOrdersUseCase, stripeService, ordersRepo) {
         this.placeCashOrderUseCase = placeCashOrderUseCase;
         this.initiateStripeOrderUseCase = initiateStripeOrderUseCase;
         this.confirmStripeOrderUseCase = confirmStripeOrderUseCase;
@@ -41,6 +43,7 @@ let OrdersController = class OrdersController {
         this.getOrderStatusUseCase = getOrderStatusUseCase;
         this.getUserOrdersUseCase = getUserOrdersUseCase;
         this.stripeService = stripeService;
+        this.ordersRepo = ordersRepo;
     }
     async getMyOrders(req) {
         const userEmail = req.user?.email;
@@ -77,16 +80,84 @@ let OrdersController = class OrdersController {
         catch (err) {
             throw new common_1.BadRequestException(`Webhook Error: ${err.message}`);
         }
-        if (event.type === 'payment_intent.amount_capturable_updated') {
-            const paymentIntent = event.data.object;
-            const orderId = paymentIntent.metadata.orderId;
-            try {
-                await this.confirmStripeOrderUseCase.execute(orderId, paymentIntent.id);
-                console.log(`[Stripe Webhook] Order ${orderId} confirmed.`);
+        const existingEvent = await this.ordersRepo.findWebhookEventByStripeId(event.id);
+        if (existingEvent) {
+            console.log(`[Stripe Webhook] Skipping duplicate event ${event.id}`);
+            return { received: true };
+        }
+        const paymentIntent = event.data.object;
+        const orderId = paymentIntent?.metadata?.orderId;
+        const orderNumber = paymentIntent?.metadata?.orderNumber;
+        console.log(`[Stripe Webhook] Received ${event.type} for PaymentIntent ${paymentIntent?.id} (Order: ${orderId})`);
+        await this.ordersRepo.createWebhookEvent({
+            stripeEventId: event.id,
+            stripePaymentIntent: paymentIntent?.id || 'unknown',
+            orderId: orderId || null,
+            orderNumber: orderNumber || null,
+            eventType: event.type,
+            status: 'pending',
+            payload: event,
+        });
+        if (!orderId) {
+            console.log(`[Stripe Webhook] No orderId in metadata for event ${event.id}`);
+            await this.ordersRepo.updateWebhookEventStatus(event.id, 'ignored', 'Missing orderId in metadata');
+            return { received: true };
+        }
+        const order = await this.ordersRepo.findById(orderId);
+        if (!order) {
+            console.error(`[Stripe Webhook] Order ${orderId} not found for event ${event.id}`);
+            await this.ordersRepo.updateWebhookEventStatus(event.id, 'ignored', 'Order not found');
+            return { received: true };
+        }
+        try {
+            switch (event.type) {
+                case 'payment_intent.amount_capturable_updated': {
+                    if (['confirmed', 'cancelled', 'failed', 'refunded'].includes(order.status)) {
+                        console.log(`[Stripe Webhook] Order ${orderId} already ${order.status}, skipping fulfillment`);
+                        await this.ordersRepo.updateWebhookEventStatus(event.id, 'duplicate', `Order already ${order.status}`);
+                        break;
+                    }
+                    await this.confirmStripeOrderUseCase.execute(orderId, paymentIntent.id);
+                    await this.ordersRepo.updateWebhookEventStatus(event.id, 'success');
+                    console.log(`[Stripe Webhook] Order ${orderId} confirmed via capture.`);
+                    break;
+                }
+                case 'payment_intent.succeeded': {
+                    console.log(`[Stripe Webhook] Order ${orderId} payment succeeded`);
+                    await this.ordersRepo.updateWebhookEventStatus(event.id, 'success');
+                    break;
+                }
+                case 'payment_intent.payment_failed': {
+                    if (['pending'].includes(order.status)) {
+                        await this.ordersRepo.updateStatus(orderId, 'failed');
+                        console.log(`[Stripe Webhook] Order ${orderId} marked as failed.`);
+                    }
+                    await this.ordersRepo.updateWebhookEventStatus(event.id, 'success');
+                    break;
+                }
+                case 'payment_intent.canceled': {
+                    if (['pending'].includes(order.status)) {
+                        await this.ordersRepo.updateStatus(orderId, 'cancelled');
+                        console.log(`[Stripe Webhook] Order ${orderId} marked as cancelled.`);
+                    }
+                    await this.ordersRepo.updateWebhookEventStatus(event.id, 'success');
+                    break;
+                }
+                case 'charge.refunded': {
+                    await this.ordersRepo.updateStatus(orderId, 'refunded');
+                    console.log(`[Stripe Webhook] Order ${orderId} marked as refunded.`);
+                    await this.ordersRepo.updateWebhookEventStatus(event.id, 'success');
+                    break;
+                }
+                default: {
+                    await this.ordersRepo.updateWebhookEventStatus(event.id, 'ignored');
+                    break;
+                }
             }
-            catch (error) {
-                console.error(`[Stripe Webhook] Fulfillment failed for ${orderId}:`, error);
-            }
+        }
+        catch (error) {
+            console.error(`[Stripe Webhook] Processing failed for ${event.id}:`, error);
+            await this.ordersRepo.updateWebhookEventStatus(event.id, 'failed', error.message);
         }
         return { received: true };
     }
@@ -144,6 +215,7 @@ exports.OrdersController = OrdersController = __decorate([
         cancel_stripe_order_use_case_1.CancelStripeOrderUseCase,
         get_order_status_use_case_1.GetOrderStatusUseCase,
         get_user_orders_use_case_1.GetUserOrdersUseCase,
-        stripe_service_1.StripeService])
+        stripe_service_1.StripeService,
+        orders_repository_1.OrdersRepository])
 ], OrdersController);
 //# sourceMappingURL=orders.controller.js.map

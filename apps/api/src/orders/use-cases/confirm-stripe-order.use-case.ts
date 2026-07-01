@@ -31,6 +31,11 @@ export class ConfirmStripeOrderUseCase {
           throw new BadRequestException(`Order with id ${orderId} not found`);
         }
 
+        if (['confirmed', 'cancelled', 'failed', 'refunded'].includes(order.status)) {
+          this.logger.warn(`Order ${orderId} is already ${order.status}, skipping fulfillment`);
+          return;
+        }
+
         // 2. Опитваме да намалим наличностите
         for (const item of order.items) {
           await this.productsRepo.decreaseStockSafelyById(

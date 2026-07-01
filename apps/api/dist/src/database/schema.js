@@ -104,12 +104,15 @@ exports.orderItems = (0, pg_core_1.pgTable)('order_items', {
 });
 exports.webhookEvents = (0, pg_core_1.pgTable)('webhook_events', {
     id: (0, pg_core_1.uuid)('id').primaryKey().defaultRandom(),
-    stripePaymentIntent: (0, pg_core_1.varchar)('stripe_payment_intent').notNull(),
+    stripeEventId: (0, pg_core_1.varchar)('stripe_event_id').unique().notNull(),
+    stripePaymentIntent: (0, pg_core_1.varchar)('stripe_payment_intent'),
     orderNumber: (0, pg_core_1.varchar)('order_number'),
     orderId: (0, pg_core_1.uuid)('order_id').references(() => exports.orders.id),
     eventType: (0, pg_core_1.varchar)('event_type').notNull(),
     status: (0, pg_core_1.varchar)('status').notNull(),
     errorMessage: (0, pg_core_1.text)('error_message'),
+    processedAt: (0, pg_core_1.timestamp)('processed_at'),
+    payload: (0, pg_core_1.jsonb)('payload'),
 });
 exports.productsRelations = (0, drizzle_orm_1.relations)(exports.products, ({ many }) => ({
     variants: many(exports.productVariants),

@@ -136,13 +136,17 @@ export const orderItems = pgTable('order_items', {
 
 export const webhookEvents = pgTable('webhook_events', {
   id: uuid('id').primaryKey().defaultRandom(),
-  stripePaymentIntent: varchar('stripe_payment_intent').notNull(),
+  stripeEventId: varchar('stripe_event_id').unique().notNull(),
+  stripePaymentIntent: varchar('stripe_payment_intent'),
   orderNumber: varchar('order_number'),
   orderId: uuid('order_id').references(() => orders.id),
   eventType: varchar('event_type').notNull(),
   status: varchar('status').notNull(),
   errorMessage: text('error_message'),
+  processedAt: timestamp('processed_at'),
+  payload: jsonb('payload'),
 });
+
 
 // Relations
 

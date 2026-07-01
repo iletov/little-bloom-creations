@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { BaseRepository } from '../../database/base.repository';
 // ВНИМАНИЕ: Провери дали експортите от schema.ts се казват точно orders, orderShipping и orderItems
-import { orders, orderShipping, orderItems } from '../../database/schema';
+import { orders, orderShipping, orderItems, webhookEvents } from '../../database/schema';
 import { DrizzleTransaction } from '../../database/database.provider';
 
 // Стриктно извличане на типовете за INSERT операции спрямо Drizzle схемата
@@ -142,5 +142,32 @@ export class OrdersRepository extends BaseRepository {
       .where(eq(orders.orderNumber, orderNumber));
 
     return order || null;
+  }
+
+  async findWebhookEventByStripeId(eventId: string, tx?: any) {
+    const dbExecutor = tx || this.db;
+    const [event] = await dbExecutor
+      .select()
+      .from(webhookEvents)
+      .where(eq(webhookEvents.stripeEventId, eventId));
+    return event || null;
+  }
+
+  async createWebhookEvent(data: typeof webhookEvents.$inferInsert, tx?: any) {
+    const dbExecutor = tx || this.db;
+    await dbExecutor.insert(webhookEvents).values(data);
+  }
+
+  async updateWebhookEventStatus(
+    eventId: string,
+    status: string,
+    errorMessage?: string,
+    tx?: any
+  ) {
+    const dbExecutor = tx || this.db;
+    await dbExecutor
+      .update(webhookEvents)
+      .set({ status, errorMessage, processedAt: new Date() })
+      .where(eq(webhookEvents.stripeEventId, eventId));
   }
 }

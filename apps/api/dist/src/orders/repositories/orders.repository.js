@@ -94,6 +94,25 @@ let OrdersRepository = class OrdersRepository extends base_repository_1.BaseRepo
             .where((0, drizzle_orm_1.eq)(schema_1.orders.orderNumber, orderNumber));
         return order || null;
     }
+    async findWebhookEventByStripeId(eventId, tx) {
+        const dbExecutor = tx || this.db;
+        const [event] = await dbExecutor
+            .select()
+            .from(schema_1.webhookEvents)
+            .where((0, drizzle_orm_1.eq)(schema_1.webhookEvents.stripeEventId, eventId));
+        return event || null;
+    }
+    async createWebhookEvent(data, tx) {
+        const dbExecutor = tx || this.db;
+        await dbExecutor.insert(schema_1.webhookEvents).values(data);
+    }
+    async updateWebhookEventStatus(eventId, status, errorMessage, tx) {
+        const dbExecutor = tx || this.db;
+        await dbExecutor
+            .update(schema_1.webhookEvents)
+            .set({ status, errorMessage, processedAt: new Date() })
+            .where((0, drizzle_orm_1.eq)(schema_1.webhookEvents.stripeEventId, eventId));
+    }
 };
 exports.OrdersRepository = OrdersRepository;
 exports.OrdersRepository = OrdersRepository = __decorate([

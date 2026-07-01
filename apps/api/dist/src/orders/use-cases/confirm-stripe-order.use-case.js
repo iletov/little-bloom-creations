@@ -33,6 +33,10 @@ let ConfirmStripeOrderUseCase = ConfirmStripeOrderUseCase_1 = class ConfirmStrip
                 if (!order) {
                     throw new common_1.BadRequestException(`Order with id ${orderId} not found`);
                 }
+                if (['confirmed', 'cancelled', 'failed', 'refunded'].includes(order.status)) {
+                    this.logger.warn(`Order ${orderId} is already ${order.status}, skipping fulfillment`);
+                    return;
+                }
                 for (const item of order.items) {
                     await this.productsRepo.decreaseStockSafelyById(item.productId, item.variantId, item.quantity);
                 }

@@ -1,5 +1,5 @@
 import { BaseRepository } from '../../database/base.repository';
-import { orders, orderShipping, orderItems } from '../../database/schema';
+import { orders, orderShipping, orderItems, webhookEvents } from '../../database/schema';
 import { DrizzleTransaction } from '../../database/database.provider';
 export type InsertOrderType = typeof orders.$inferInsert;
 export type InsertOrderShippingType = typeof orderShipping.$inferInsert;
@@ -12,4 +12,7 @@ export declare class OrdersRepository extends BaseRepository {
     savePaymentIntent(orderId: string, paymentIntentId: string, tx?: any): Promise<void>;
     findOrdersByEmail(email: string, tx?: any): Promise<any>;
     findByOrderNumber(orderNumber: string, tx?: any): Promise<any>;
+    findWebhookEventByStripeId(eventId: string, tx?: any): Promise<any>;
+    createWebhookEvent(data: typeof webhookEvents.$inferInsert, tx?: any): Promise<void>;
+    updateWebhookEventStatus(eventId: string, status: string, errorMessage?: string, tx?: any): Promise<void>;
 }
