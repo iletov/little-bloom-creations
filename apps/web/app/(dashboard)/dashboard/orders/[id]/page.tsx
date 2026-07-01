@@ -1,13 +1,12 @@
 import BackButton from '@/component/dashboard/back-button/BackButton';
 import SingleOrderContainer from '@/component/dashboard/single-order/SingleOrderContainer';
-import { Button } from '@/components/ui/button';
 import {
   getSingleOrder,
 } from '@/supabase/dashboard/getOrders';
 import React from 'react';
-import { Order } from '@/types';
 
-// This page is fully dynamic since it accesses cookies() for auth
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function SingleOrder({
   params,

@@ -20,8 +20,8 @@ let GetSanitySenderInfoUseCase = GetSanitySenderInfoUseCase_1 = class GetSanityS
         this.configService = configService;
     }
     async execute(type) {
-        const projectId = this.configService.get('NEXT_PUBLIC_SANITY_PROJECT_ID') || 'wv9xoozi';
-        const dataset = this.configService.get('NEXT_PUBLIC_SANITY_DATASET') || 'production';
+        const projectId = this.configService.get('SANITY_PROJECT_ID') || 'wv9xoozi';
+        const dataset = this.configService.get('SANITY_DATASET') || 'production';
         const apiVersion = '2023-05-03';
         const queryType = type === 'ekont' ? 'ekontSenderDetails' : 'speedySenderDetails';
         const query = encodeURIComponent(`*[_type == "${queryType}"][0]`);

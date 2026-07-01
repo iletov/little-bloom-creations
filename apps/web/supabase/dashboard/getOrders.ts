@@ -59,10 +59,7 @@ export async function getSingleOrder(id: string) {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      next: {
-        tags: ['single-order', id],
-        revalidate: 360,
-      },
+      cache: 'no-store'
     });
 
     if (!response.ok) {
