@@ -46,12 +46,9 @@ export class ProductsRepository extends BaseRepository {
     productId: string,
     variantId: string | null,
     quantity: number,
-    tx?: any,
   ): Promise<void> {
-    const dbExecutor = tx || this.db;
-
     if (variantId) {
-      const result = await dbExecutor
+      const result = await this.db
         .update(productVariants)
         .set({
           currentStock: sql`${productVariants.currentStock} - ${quantity}`,
@@ -70,7 +67,7 @@ export class ProductsRepository extends BaseRepository {
         );
       }
     } else {
-      const result = await dbExecutor
+      const result = await this.db
         .update(products)
         .set({
           currentStock: sql`${products.currentStock} - ${quantity}`,

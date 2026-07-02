@@ -12,39 +12,36 @@ const drizzle_orm_1 = require("drizzle-orm");
 const base_repository_1 = require("../../database/base.repository");
 const schema_1 = require("../../database/schema");
 let OrdersRepository = class OrdersRepository extends base_repository_1.BaseRepository {
-    async createFullOrder(orderData, shippingData, itemsData, tx) {
-        const dbExecutor = tx || this.db;
-        const [newOrder] = await dbExecutor
+    async createFullOrder(orderData, shippingData, itemsData) {
+        const [newOrder] = await this.db
             .insert(schema_1.orders)
             .values(orderData)
             .returning({ id: schema_1.orders.id });
         const shippingWithOrderId = { ...shippingData, orderId: newOrder.id };
-        await dbExecutor.insert(schema_1.orderShipping).values(shippingWithOrderId);
+        await this.db.insert(schema_1.orderShipping).values(shippingWithOrderId);
         if (itemsData.length > 0) {
             const itemsWithOrderId = itemsData.map((item) => ({
                 ...item,
                 orderId: newOrder.id,
             }));
-            await dbExecutor.insert(schema_1.orderItems).values(itemsWithOrderId);
+            await this.db.insert(schema_1.orderItems).values(itemsWithOrderId);
         }
         return newOrder.id;
     }
-    async updateShipmentNumber(orderNumber, shipmentNumber, tx) {
-        const dbExecutor = tx || this.db;
-        await dbExecutor
+    async updateShipmentNumber(orderNumber, shipmentNumber) {
+        await this.db
             .update(schema_1.orders)
             .set({ shipmentNumber })
             .where((0, drizzle_orm_1.eq)(schema_1.orders.orderNumber, orderNumber));
     }
-    async findById(orderId, tx) {
-        const dbExecutor = tx || this.db;
-        const [order] = await dbExecutor
+    async findById(orderId) {
+        const [order] = await this.db
             .select()
             .from(schema_1.orders)
             .where((0, drizzle_orm_1.eq)(schema_1.orders.id, orderId));
         if (!order)
             return null;
-        const items = await dbExecutor
+        const items = await this.db
             .select()
             .from(schema_1.orderItems)
             .where((0, drizzle_orm_1.eq)(schema_1.orderItems.orderId, orderId));
@@ -53,23 +50,20 @@ let OrdersRepository = class OrdersRepository extends base_repository_1.BaseRepo
             items,
         };
     }
-    async updateStatus(orderId, newStatus, tx) {
-        const dbExecutor = tx || this.db;
-        await dbExecutor
+    async updateStatus(orderId, newStatus) {
+        await this.db
             .update(schema_1.orders)
             .set({ status: newStatus })
             .where((0, drizzle_orm_1.eq)(schema_1.orders.id, orderId));
     }
-    async savePaymentIntent(orderId, paymentIntentId, tx) {
-        const dbExecutor = tx || this.db;
-        await dbExecutor
+    async savePaymentIntent(orderId, paymentIntentId) {
+        await this.db
             .update(schema_1.orders)
             .set({ stripePaymentIntentId: paymentIntentId })
             .where((0, drizzle_orm_1.eq)(schema_1.orders.id, orderId));
     }
-    async findOrdersByEmail(email, tx) {
-        const dbExecutor = tx || this.db;
-        const shippingRecords = await dbExecutor
+    async findOrdersByEmail(email) {
+        const shippingRecords = await this.db
             .select({ orderId: schema_1.orderShipping.orderId })
             .from(schema_1.orderShipping)
             .where((0, drizzle_orm_1.eq)(schema_1.orderShipping.email, email));
@@ -77,7 +71,7 @@ let OrdersRepository = class OrdersRepository extends base_repository_1.BaseRepo
             return [];
         }
         const orderIds = shippingRecords.map(r => r.orderId);
-        return dbExecutor.query.orders.findMany({
+        return this.db.query.orders.findMany({
             where: (orders, { inArray }) => inArray(orders.id, orderIds),
             orderBy: (orders, { desc }) => [desc(orders.createdAt)],
             with: {
@@ -86,29 +80,39 @@ let OrdersRepository = class OrdersRepository extends base_repository_1.BaseRepo
             },
         });
     }
-    async findByOrderNumber(orderNumber, tx) {
-        const dbExecutor = tx || this.db;
-        const [order] = await dbExecutor
+    async findByOrderNumber(orderNumber) {
+        const [order] = await this.db
             .select()
             .from(schema_1.orders)
             .where((0, drizzle_orm_1.eq)(schema_1.orders.orderNumber, orderNumber));
         return order || null;
     }
-    async findWebhookEventByStripeId(eventId, tx) {
-        const dbExecutor = tx || this.db;
-        const [event] = await dbExecutor
+    async findByPaymentIntentId(paymentIntentId) {
+        const [order] = await this.db
+            .select()
+            .from(schema_1.orders)
+            .where((0, drizzle_orm_1.eq)(schema_1.orders.stripePaymentIntentId, paymentIntentId));
+        return order || null;
+    }
+    async findWebhookEventByStripeId(eventId) {
+        const [event] = await this.db
             .select()
             .from(schema_1.webhookEvents)
             .where((0, drizzle_orm_1.eq)(schema_1.webhookEvents.stripeEventId, eventId));
         return event || null;
     }
-    async createWebhookEvent(data, tx) {
-        const dbExecutor = tx || this.db;
-        await dbExecutor.insert(schema_1.webhookEvents).values(data);
+    async createWebhookEvent(data) {
+        await this.db.insert(schema_1.webhookEvents).values(data);
     }
-    async updateWebhookEventStatus(eventId, status, errorMessage, tx) {
-        const dbExecutor = tx || this.db;
-        await dbExecutor
+    async createWebhookEventIfNotExists(data) {
+        const [inserted] = await this.db.insert(schema_1.webhookEvents)
+            .values(data)
+            .onConflictDoNothing({ target: schema_1.webhookEvents.stripeEventId })
+            .returning();
+        return inserted || null;
+    }
+    async updateWebhookEventStatus(eventId, status, errorMessage) {
+        await this.db
             .update(schema_1.webhookEvents)
             .set({ status, errorMessage, processedAt: new Date() })
             .where((0, drizzle_orm_1.eq)(schema_1.webhookEvents.stripeEventId, eventId));

@@ -20,6 +20,7 @@ import {
 export const orderStatusEnum = pgEnum('order_status_enum', [
   'pending',
   'confirmed',
+  'failed',
   'shipped',
   'delivered',
   'refunded',
@@ -136,7 +137,7 @@ export const orderItems = pgTable('order_items', {
 
 export const webhookEvents = pgTable('webhook_events', {
   id: uuid('id').primaryKey().defaultRandom(),
-  stripeEventId: varchar('stripe_event_id').unique().notNull(),
+  stripeEventId: varchar('stripe_event_id').unique(),
   stripePaymentIntent: varchar('stripe_payment_intent'),
   orderNumber: varchar('order_number'),
   orderId: uuid('order_id').references(() => orders.id),

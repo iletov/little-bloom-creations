@@ -9,7 +9,7 @@ export declare enum PaymentMethodEnum {
     CASH = "cash",
     STRIPE = "stripe"
 }
-export declare const OrderStatusSchema: z.ZodEnum<["pending", "confirmed", "shipped", "delivered", "refunded", "cancelled"]>;
+export declare const OrderStatusSchema: z.ZodEnum<["pending", "confirmed", "failed", "shipped", "delivered", "refunded", "cancelled"]>;
 export declare const PaymentMethodSchema: z.ZodNativeEnum<typeof PaymentMethodEnum>;
 export declare const DeliveryMethodSchema: z.ZodNativeEnum<typeof DeliveryMethodEnum>;
 export type OrderStatus = z.infer<typeof OrderStatusSchema>;

@@ -16,6 +16,7 @@ const orders_repository_1 = require("../repositories/orders.repository");
 const products_repository_1 = require("../../products/products.repository");
 const stripe_service_1 = require("../../stripe/stripe.service");
 const transaction_manager_1 = require("../../database/transaction.manager");
+const getErrorMessage = (error) => error instanceof Error ? error.message : 'Unknown error';
 let ConfirmStripeOrderUseCase = ConfirmStripeOrderUseCase_1 = class ConfirmStripeOrderUseCase {
     ordersRepo;
     productsRepo;
@@ -46,19 +47,19 @@ let ConfirmStripeOrderUseCase = ConfirmStripeOrderUseCase_1 = class ConfirmStrip
             });
         }
         catch (error) {
-            this.logger.error(`Failed to confirm order ${orderId}:`, error);
+            this.logger.error(`Failed to confirm order ${orderId}:`, getErrorMessage(error));
             try {
                 await this.stripeService.cancelPayment(paymentIntentId);
                 this.logger.log(`Payment intent ${paymentIntentId} was cancelled due to stock availability or other error.`);
             }
             catch (cancelError) {
-                this.logger.error(`Failed to cancel Stripe payment ${paymentIntentId} for order ${orderId}:`, cancelError);
+                this.logger.error(`Failed to cancel Stripe payment ${paymentIntentId} for order ${orderId}:`, getErrorMessage(cancelError));
             }
             try {
                 await this.ordersRepo.updateStatus(orderId, 'cancelled');
             }
             catch (statusError) {
-                this.logger.error(`Failed to update order ${orderId} status to cancelled:`, statusError);
+                this.logger.error(`Failed to update order ${orderId} status to cancelled:`, getErrorMessage(statusError));
             }
             throw new common_1.InternalServerErrorException('Error confirming Stripe order. Payment cancelled.');
         }

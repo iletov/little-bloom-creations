@@ -12,7 +12,7 @@ export enum PaymentMethodEnum {
   STRIPE = 'stripe',
 }
 
-export const OrderStatusSchema = z.enum(['pending', 'confirmed', 'shipped', 'delivered', 'refunded', 'cancelled']);
+export const OrderStatusSchema = z.enum(['pending', 'confirmed', 'failed', 'shipped', 'delivered', 'refunded', 'cancelled']);
 export const PaymentMethodSchema = z.nativeEnum(PaymentMethodEnum);
 export const DeliveryMethodSchema = z.nativeEnum(DeliveryMethodEnum);
 

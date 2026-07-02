@@ -37,10 +37,9 @@ let ProductsRepository = class ProductsRepository extends base_repository_1.Base
             throw new common_1.BadRequestException(`Недостатъчна наличност или невалиден артикул за SKU: ${sku}`);
         }
     }
-    async decreaseStockSafelyById(productId, variantId, quantity, tx) {
-        const dbExecutor = tx || this.db;
+    async decreaseStockSafelyById(productId, variantId, quantity) {
         if (variantId) {
-            const result = await dbExecutor
+            const result = await this.db
                 .update(schema_1.productVariants)
                 .set({
                 currentStock: (0, drizzle_orm_1.sql) `${schema_1.productVariants.currentStock} - ${quantity}`,
@@ -52,7 +51,7 @@ let ProductsRepository = class ProductsRepository extends base_repository_1.Base
             }
         }
         else {
-            const result = await dbExecutor
+            const result = await this.db
                 .update(schema_1.products)
                 .set({
                 currentStock: (0, drizzle_orm_1.sql) `${schema_1.products.currentStock} - ${quantity}`,

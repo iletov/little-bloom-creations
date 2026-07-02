@@ -97,51 +97,78 @@ export class OrdersController {
 
     let event: Stripe.Event;
 
+    const getErrorMessage = (error: unknown): string =>
+      error instanceof Error ? error.message : 'Unknown error';
+
     try {
       event = this.stripeService.constructEvent(req.rawBody, signature);
-    } catch (err: any) {
-      throw new BadRequestException(`Webhook Error: ${err.message}`);
+    } catch (err: unknown) {
+      throw new BadRequestException(`Webhook Error: ${getErrorMessage(err)}`);
     }
 
-    // Check for duplicate event (idempotency)
-    const existingEvent = await this.ordersRepo.findWebhookEventByStripeId(event.id);
-    if (existingEvent) {
-      console.log(`[Stripe Webhook] Skipping duplicate event ${event.id}`);
-      return { received: true };
+    let paymentIntentId = 'unknown';
+    let orderId: string | null = null;
+    let orderNumber: string | null = null;
+
+    if (event.type === 'charge.refunded') {
+      const charge = event.data.object as Stripe.Charge;
+      paymentIntentId =
+        typeof charge.payment_intent === 'string'
+          ? charge.payment_intent
+          : charge.payment_intent?.id || 'unknown';
+    } else {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      paymentIntentId = paymentIntent?.id || 'unknown';
+      orderId = paymentIntent?.metadata?.orderId || null;
+      orderNumber = paymentIntent?.metadata?.orderNumber || null;
     }
 
-    const paymentIntent = event.data.object as Stripe.PaymentIntent;
-    const orderId = paymentIntent?.metadata?.orderId;
-    const orderNumber = paymentIntent?.metadata?.orderNumber;
+    console.log(`[Stripe Webhook] Received ${event.type} for PaymentIntent ${paymentIntentId}`);
 
-    // Log the initial event reception
-    console.log(`[Stripe Webhook] Received ${event.type} for PaymentIntent ${paymentIntent?.id} (Order: ${orderId})`);
-
-    // Insert initial pending event
-    await this.ordersRepo.createWebhookEvent({
+    // Idempotency: Insert initial pending event using ON CONFLICT DO NOTHING
+    const createdEvent = await this.ordersRepo.createWebhookEventIfNotExists({
       stripeEventId: event.id,
-      stripePaymentIntent: paymentIntent?.id || 'unknown',
-      orderId: orderId || null,
-      orderNumber: orderNumber || null,
+      stripePaymentIntent: paymentIntentId,
+      orderId: orderId,
+      orderNumber: orderNumber,
       eventType: event.type,
       status: 'pending',
       payload: event,
     });
 
-    if (!orderId) {
-      console.log(`[Stripe Webhook] No orderId in metadata for event ${event.id}`);
-      await this.ordersRepo.updateWebhookEventStatus(event.id, 'ignored', 'Missing orderId in metadata');
-      return { received: true };
-    }
-
-    const order = await this.ordersRepo.findById(orderId);
-    if (!order) {
-      console.error(`[Stripe Webhook] Order ${orderId} not found for event ${event.id}`);
-      await this.ordersRepo.updateWebhookEventStatus(event.id, 'ignored', 'Order not found');
+    if (!createdEvent) {
+      console.log(`[Stripe Webhook] Skipping duplicate event ${event.id}`);
       return { received: true };
     }
 
     try {
+      if (event.type === 'charge.refunded') {
+        const order = await this.ordersRepo.findByPaymentIntentId(paymentIntentId);
+        if (!order) {
+          console.log(`[Stripe Webhook] Order not found for charge.refunded event ${event.id}`);
+          await this.ordersRepo.updateWebhookEventStatus(event.id, 'ignored', 'Order not found');
+          return { received: true };
+        }
+        
+        await this.ordersRepo.updateStatus(order.id, 'refunded');
+        console.log(`[Stripe Webhook] Order ${order.id} marked as refunded.`);
+        await this.ordersRepo.updateWebhookEventStatus(event.id, 'success');
+        return { received: true };
+      }
+
+      if (!orderId) {
+        console.log(`[Stripe Webhook] No orderId in metadata for event ${event.id}`);
+        await this.ordersRepo.updateWebhookEventStatus(event.id, 'ignored', 'Missing orderId in metadata');
+        return { received: true };
+      }
+
+      const order = await this.ordersRepo.findById(orderId);
+      if (!order) {
+        console.error(`[Stripe Webhook] Order ${orderId} not found for event ${event.id}`);
+        await this.ordersRepo.updateWebhookEventStatus(event.id, 'ignored', 'Order not found');
+        return { received: true };
+      }
+
       switch (event.type) {
         case 'payment_intent.amount_capturable_updated': {
           if (['confirmed', 'cancelled', 'failed', 'refunded'].includes(order.status)) {
@@ -149,38 +176,42 @@ export class OrdersController {
             await this.ordersRepo.updateWebhookEventStatus(event.id, 'duplicate', `Order already ${order.status}`);
             break;
           }
-          await this.confirmStripeOrderUseCase.execute(orderId, paymentIntent.id);
+          await this.confirmStripeOrderUseCase.execute(orderId, paymentIntentId);
           await this.ordersRepo.updateWebhookEventStatus(event.id, 'success');
           console.log(`[Stripe Webhook] Order ${orderId} confirmed via capture.`);
           break;
         }
         case 'payment_intent.succeeded': {
           // Manual capture means order is already confirmed.
-          // If automatic capture, this would be the confirm trigger.
-          console.log(`[Stripe Webhook] Order ${orderId} payment succeeded`);
-          await this.ordersRepo.updateWebhookEventStatus(event.id, 'success');
+          if (order.status === 'pending') {
+            console.warn(`[Stripe Webhook] payment_intent.succeeded received but order ${orderId} is still pending. Manual capture might have been bypassed.`);
+            await this.ordersRepo.updateWebhookEventStatus(event.id, 'ignored', 'Order is pending on succeeded event');
+          } else {
+            console.log(`[Stripe Webhook] Order ${orderId} payment succeeded`);
+            await this.ordersRepo.updateWebhookEventStatus(event.id, 'success');
+          }
           break;
         }
         case 'payment_intent.payment_failed': {
-          if (['pending'].includes(order.status)) {
+          if (order.status === 'pending') {
             await this.ordersRepo.updateStatus(orderId, 'failed');
             console.log(`[Stripe Webhook] Order ${orderId} marked as failed.`);
+            await this.ordersRepo.updateWebhookEventStatus(event.id, 'success');
+          } else {
+            console.log(`[Stripe Webhook] Order ${orderId} is already ${order.status}, ignoring failed event`);
+            await this.ordersRepo.updateWebhookEventStatus(event.id, 'ignored', `Order already ${order.status}`);
           }
-          await this.ordersRepo.updateWebhookEventStatus(event.id, 'success');
           break;
         }
         case 'payment_intent.canceled': {
-          if (['pending'].includes(order.status)) {
+          if (order.status === 'pending') {
             await this.ordersRepo.updateStatus(orderId, 'cancelled');
             console.log(`[Stripe Webhook] Order ${orderId} marked as cancelled.`);
+            await this.ordersRepo.updateWebhookEventStatus(event.id, 'success');
+          } else {
+            console.log(`[Stripe Webhook] Order ${orderId} is already ${order.status}, ignoring canceled event`);
+            await this.ordersRepo.updateWebhookEventStatus(event.id, 'ignored', `Order already ${order.status}`);
           }
-          await this.ordersRepo.updateWebhookEventStatus(event.id, 'success');
-          break;
-        }
-        case 'charge.refunded': {
-          await this.ordersRepo.updateStatus(orderId, 'refunded');
-          console.log(`[Stripe Webhook] Order ${orderId} marked as refunded.`);
-          await this.ordersRepo.updateWebhookEventStatus(event.id, 'success');
           break;
         }
         default: {
@@ -188,9 +219,10 @@ export class OrdersController {
           break;
         }
       }
-    } catch (error: any) {
-      console.error(`[Stripe Webhook] Processing failed for ${event.id}:`, error);
-      await this.ordersRepo.updateWebhookEventStatus(event.id, 'failed', error.message);
+    } catch (error: unknown) {
+      const msg = getErrorMessage(error);
+      console.error(`[Stripe Webhook] Processing failed for ${event.id}:`, msg);
+      await this.ordersRepo.updateWebhookEventStatus(event.id, 'failed', msg);
     }
 
     return { received: true };

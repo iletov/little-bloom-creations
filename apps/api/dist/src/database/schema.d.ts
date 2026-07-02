@@ -1,5 +1,5 @@
 import { DeliveryMethodEnum, PaymentMethodEnum } from '@repo/shared-types';
-export declare const orderStatusEnum: import("drizzle-orm/pg-core").PgEnum<["pending", "confirmed", "shipped", "delivered", "refunded", "cancelled"]>;
+export declare const orderStatusEnum: import("drizzle-orm/pg-core").PgEnum<["pending", "confirmed", "failed", "shipped", "delivered", "refunded", "cancelled"]>;
 export declare const paymentMethodEnum: import("drizzle-orm/pg-core").PgEnum<["bank", "cash", "stripe"]>;
 export declare const deliveryMethodEnum: import("drizzle-orm/pg-core").PgEnum<["ekont-office", "ekont-delivery", "speedy-delivery", "speedy-office"]>;
 export declare const products: import("drizzle-orm/pg-core").PgTableWithColumns<{
@@ -409,19 +409,19 @@ export declare const orders: import("drizzle-orm/pg-core").PgTableWithColumns<{
             tableName: "orders";
             dataType: "string";
             columnType: "PgEnumColumn";
-            data: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
+            data: "pending" | "confirmed" | "failed" | "shipped" | "delivered" | "refunded" | "cancelled";
             driverParam: string;
             notNull: true;
             hasDefault: false;
             isPrimaryKey: false;
             isAutoincrement: false;
             hasRuntimeDefault: false;
-            enumValues: ["pending", "confirmed", "shipped", "delivered", "refunded", "cancelled"];
+            enumValues: ["pending", "confirmed", "failed", "shipped", "delivered", "refunded", "cancelled"];
             baseColumn: never;
             identity: undefined;
             generated: undefined;
         }, {}, {
-            $type: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
+            $type: "pending" | "confirmed" | "failed" | "shipped" | "delivered" | "refunded" | "cancelled";
         }>;
         totalAmount: import("drizzle-orm/pg-core").PgColumn<{
             name: "total_amount";
@@ -1084,7 +1084,7 @@ export declare const webhookEvents: import("drizzle-orm/pg-core").PgTableWithCol
             columnType: "PgVarchar";
             data: string;
             driverParam: string;
-            notNull: true;
+            notNull: false;
             hasDefault: false;
             isPrimaryKey: false;
             isAutoincrement: false;

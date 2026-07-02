@@ -49,3 +49,16 @@ npm run lint
 ```bash
 npm run build
 ```
+
+### Търсене в кода (Grep)
+Полезни команди за бързо намиране на специфични проблеми (напр. използване на `any` тип или стари ръчни транзакции):
+```bash
+git grep -n -E "catch \\([^)]*: any\\)" -- apps/api/src
+git grep -n "tx?: any" -- apps/api/src
+git grep -n "findWebhookEventByStripeId" -- apps/api/src/orders
+git grep -n "createWebhookEventIfNotExists" -- apps/api/src
+git ls-files apps/api/node_modules | head -20
+git ls-files | grep -E '(^|/)node_modules/' | head -50
+
+git ls-files | grep -E '(^|/)node_modules/' | xargs git rm --cached -- # това маха всичко наведнъж
+```

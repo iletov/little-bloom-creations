@@ -20,26 +20,23 @@ export class OrdersRepository extends BaseRepository {
     orderData: InsertOrderType,
     shippingData: InsertOrderShippingType,
     itemsData: InsertOrderItemType[],
-    tx?: DrizzleTransaction, // Поддръжка на транзакции
   ): Promise<string> {
-    const dbExecutor = tx || this.db;
-
     // Записваме поръчката и връщаме генерираното ID (работи перфектно с PostgreSQL/Supabase)
-    const [newOrder] = await dbExecutor
+    const [newOrder] = await this.db
       .insert(orders)
       .values(orderData)
       .returning({ id: orders.id });
 
     // Уверяваме се, че свързаните таблици получават правилното orderId
     const shippingWithOrderId = { ...shippingData, orderId: newOrder.id };
-    await dbExecutor.insert(orderShipping).values(shippingWithOrderId);
+    await this.db.insert(orderShipping).values(shippingWithOrderId);
 
     if (itemsData.length > 0) {
       const itemsWithOrderId = itemsData.map((item) => ({
         ...item,
         orderId: newOrder.id,
       }));
-      await dbExecutor.insert(orderItems).values(itemsWithOrderId);
+      await this.db.insert(orderItems).values(itemsWithOrderId);
     }
 
     return newOrder.id;
@@ -48,27 +45,23 @@ export class OrdersRepository extends BaseRepository {
   async updateShipmentNumber(
     orderNumber: string,
     shipmentNumber: string,
-    tx?: any,
   ): Promise<void> {
-    const dbExecutor = tx || this.db;
-    await dbExecutor
+    await this.db
       .update(orders)
       // Внимавай дали колоната е shipmentNumber или shipment_number в схемата ти
       .set({ shipmentNumber })
       .where(eq(orders.orderNumber, orderNumber));
   }
 
-  async findById(orderId: string, tx?: any) {
-    const dbExecutor = tx || this.db;
-
-    const [order] = await dbExecutor
+  async findById(orderId: string) {
+    const [order] = await this.db
       .select()
       .from(orders)
       .where(eq(orders.id, orderId));
 
     if (!order) return null;
 
-    const items = await dbExecutor
+    const items = await this.db
       .select()
       .from(orderItems)
       .where(eq(orderItems.orderId, orderId));
@@ -84,11 +77,9 @@ export class OrdersRepository extends BaseRepository {
    */
   async updateStatus(
     orderId: string,
-    newStatus: string,
-    tx?: any,
+    newStatus: NonNullable<typeof orders.$inferInsert['status']>,
   ): Promise<void> {
-    const dbExecutor = tx || this.db;
-    await dbExecutor
+    await this.db
       .update(orders)
       .set({ status: newStatus })
       .where(eq(orders.id, orderId));
@@ -97,20 +88,16 @@ export class OrdersRepository extends BaseRepository {
   async savePaymentIntent(
     orderId: string,
     paymentIntentId: string,
-    tx?: any,
   ): Promise<void> {
-    const dbExecutor = tx || this.db;
-    await dbExecutor
+    await this.db
       .update(orders)
       .set({ stripePaymentIntentId: paymentIntentId })
       .where(eq(orders.id, orderId));
   }
 
-  async findOrdersByEmail(email: string, tx?: any) {
-    const dbExecutor = tx || this.db;
-
+  async findOrdersByEmail(email: string) {
     // First find all shipping records that match the email
-    const shippingRecords = await dbExecutor
+    const shippingRecords = await this.db
       .select({ orderId: orderShipping.orderId })
       .from(orderShipping)
       .where(eq(orderShipping.email, email));
@@ -123,7 +110,7 @@ export class OrdersRepository extends BaseRepository {
 
     // Now fetch the orders with shipping and items
     // Using Drizzle's query API for easier relation fetching
-    return dbExecutor.query.orders.findMany({
+    return this.db.query.orders.findMany({
       where: (orders, { inArray }) => inArray(orders.id, orderIds),
       orderBy: (orders, { desc }) => [desc(orders.createdAt)],
       with: {
@@ -133,10 +120,8 @@ export class OrdersRepository extends BaseRepository {
     });
   }
 
-  async findByOrderNumber(orderNumber: string, tx?: any) {
-    const dbExecutor = tx || this.db;
-
-    const [order] = await dbExecutor
+  async findByOrderNumber(orderNumber: string) {
+    const [order] = await this.db
       .select()
       .from(orders)
       .where(eq(orders.orderNumber, orderNumber));
@@ -144,28 +129,41 @@ export class OrdersRepository extends BaseRepository {
     return order || null;
   }
 
-  async findWebhookEventByStripeId(eventId: string, tx?: any) {
-    const dbExecutor = tx || this.db;
-    const [event] = await dbExecutor
+  async findByPaymentIntentId(paymentIntentId: string) {
+    const [order] = await this.db
+      .select()
+      .from(orders)
+      .where(eq(orders.stripePaymentIntentId, paymentIntentId));
+
+    return order || null;
+  }
+
+  async findWebhookEventByStripeId(eventId: string) {
+    const [event] = await this.db
       .select()
       .from(webhookEvents)
       .where(eq(webhookEvents.stripeEventId, eventId));
     return event || null;
   }
 
-  async createWebhookEvent(data: typeof webhookEvents.$inferInsert, tx?: any) {
-    const dbExecutor = tx || this.db;
-    await dbExecutor.insert(webhookEvents).values(data);
+  async createWebhookEvent(data: typeof webhookEvents.$inferInsert) {
+    await this.db.insert(webhookEvents).values(data);
+  }
+
+  async createWebhookEventIfNotExists(data: typeof webhookEvents.$inferInsert) {
+    const [inserted] = await this.db.insert(webhookEvents)
+      .values(data)
+      .onConflictDoNothing({ target: webhookEvents.stripeEventId })
+      .returning();
+    return inserted || null;
   }
 
   async updateWebhookEventStatus(
     eventId: string,
     status: string,
     errorMessage?: string,
-    tx?: any
   ) {
-    const dbExecutor = tx || this.db;
-    await dbExecutor
+    await this.db
       .update(webhookEvents)
       .set({ status, errorMessage, processedAt: new Date() })
       .where(eq(webhookEvents.stripeEventId, eventId));

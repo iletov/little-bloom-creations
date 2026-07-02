@@ -9,6 +9,9 @@ import { ProductsRepository } from '../../products/products.repository';
 import { StripeService } from '../../stripe/stripe.service';
 import { TransactionManager } from '../../database/transaction.manager';
 
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : 'Unknown error';
+
 @Injectable()
 export class ConfirmStripeOrderUseCase {
   private readonly logger = new Logger(ConfirmStripeOrderUseCase.name);
@@ -52,18 +55,18 @@ export class ConfirmStripeOrderUseCase {
         await this.ordersRepo.updateStatus(orderId, 'confirmed');
         await this.ordersRepo.savePaymentIntent(orderId, paymentIntentId);
       });
-    } catch (error) {
-      this.logger.error(`Failed to confirm order ${orderId}:`, error);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to confirm order ${orderId}:`, getErrorMessage(error));
 
       // В случай на грешка (напр. липса на наличност или грешка при capture),
       // отменяме оторизираното плащане
       try {
         await this.stripeService.cancelPayment(paymentIntentId);
         this.logger.log(`Payment intent ${paymentIntentId} was cancelled due to stock availability or other error.`);
-      } catch (cancelError) {
+      } catch (cancelError: unknown) {
         this.logger.error(
           `Failed to cancel Stripe payment ${paymentIntentId} for order ${orderId}:`,
-          cancelError,
+          getErrorMessage(cancelError),
         );
       }
 
@@ -71,10 +74,10 @@ export class ConfirmStripeOrderUseCase {
       // за да се запази дори след rollback-а на първоначалната транзакция
       try {
         await this.ordersRepo.updateStatus(orderId, 'cancelled');
-      } catch (statusError) {
+      } catch (statusError: unknown) {
         this.logger.error(
           `Failed to update order ${orderId} status to cancelled:`,
-          statusError,
+          getErrorMessage(statusError),
         );
       }
 

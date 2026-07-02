@@ -27,17 +27,51 @@ export declare class OrdersController {
     private readonly stripeService;
     private readonly ordersRepo;
     constructor(placeCashOrderUseCase: PlaceCashOrderUseCase, initiateStripeOrderUseCase: InitiateStripeOrderUseCase, confirmStripeOrderUseCase: ConfirmStripeOrderUseCase, cancelStripeOrderUseCase: CancelStripeOrderUseCase, getOrderStatusUseCase: GetOrderStatusUseCase, getUserOrdersUseCase: GetUserOrdersUseCase, stripeService: StripeService, ordersRepo: OrdersRepository);
-    getMyOrders(req: any): Promise<any>;
+    getMyOrders(req: any): Promise<{
+        id: string;
+        order_number: string;
+        created_at: Date;
+        status: "pending" | "confirmed" | "failed" | "shipped" | "delivered" | "refunded" | "cancelled";
+        total_amount: number;
+        subtotal: number;
+        delivery_cost: number;
+        delivery_method: import("@repo/shared-types").DeliveryMethodEnum;
+        payment_method: import("@repo/shared-types").PaymentMethodEnum;
+        shipment_number: string | null;
+        order_shipping: {
+            id: string;
+            full_name: string;
+            email: string;
+            phone: string;
+            country: string;
+            city: string;
+            postal_code: string;
+            street: string | null;
+            street_number: string | null;
+            office_code: string | null;
+            additional_info: string | null;
+        } | null;
+        order_items: {
+            id: string;
+            name: string;
+            quantity: number;
+            unit_price: number;
+            subtotal: number;
+            weight: string;
+            product_sku: string;
+            variant_name: string | null;
+        }[];
+    }[]>;
     getOrderStatus(orderNumber: string): Promise<{
         status: string;
         order: {
-            id: any;
-            total_amount: any;
-            created_at: any;
-            order_number: any;
-            payment_method: any;
+            id: string;
+            total_amount: string;
+            created_at: Date;
+            order_number: string;
+            payment_method: import("@repo/shared-types").PaymentMethodEnum;
         };
-        order_number: any;
+        order_number: string;
         message: string;
     }>;
     placeCashOrder(dto: PlaceCashOrderDto): Promise<PlaceOrderResponse>;

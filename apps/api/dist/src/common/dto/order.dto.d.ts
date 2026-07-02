@@ -1,7 +1,7 @@
 declare const OrderDto_base: import("nestjs-zod").ZodDto<import("zod").ZodObject<{
     id: import("zod").ZodOptional<import("zod").ZodString>;
     order_number: import("zod").ZodString;
-    status: import("zod").ZodEnum<["pending", "confirmed", "shipped", "delivered", "refunded", "cancelled"]>;
+    status: import("zod").ZodEnum<["pending", "confirmed", "failed", "shipped", "delivered", "refunded", "cancelled"]>;
     total_amount: import("zod").ZodNumber;
     subtotal: import("zod").ZodNumber;
     delivery_cost: import("zod").ZodNumber;
@@ -92,7 +92,7 @@ declare const OrderDto_base: import("nestjs-zod").ZodDto<import("zod").ZodObject
         personalization?: Record<string, any> | undefined;
     }>, "many">;
 }, "strip", import("zod").ZodTypeAny, {
-    status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
+    status: "pending" | "confirmed" | "failed" | "shipped" | "delivered" | "refunded" | "cancelled";
     subtotal: number;
     order_number: string;
     total_amount: number;
@@ -131,7 +131,7 @@ declare const OrderDto_base: import("nestjs-zod").ZodDto<import("zod").ZodObject
     id?: string | undefined;
     shipment_number?: string | null | undefined;
 }, {
-    status: "pending" | "confirmed" | "shipped" | "delivered" | "refunded" | "cancelled";
+    status: "pending" | "confirmed" | "failed" | "shipped" | "delivered" | "refunded" | "cancelled";
     subtotal: number;
     order_number: string;
     total_amount: number;

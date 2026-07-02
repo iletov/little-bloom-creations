@@ -6,6 +6,7 @@ const drizzle_orm_1 = require("drizzle-orm");
 exports.orderStatusEnum = (0, pg_core_1.pgEnum)('order_status_enum', [
     'pending',
     'confirmed',
+    'failed',
     'shipped',
     'delivered',
     'refunded',
@@ -104,7 +105,7 @@ exports.orderItems = (0, pg_core_1.pgTable)('order_items', {
 });
 exports.webhookEvents = (0, pg_core_1.pgTable)('webhook_events', {
     id: (0, pg_core_1.uuid)('id').primaryKey().defaultRandom(),
-    stripeEventId: (0, pg_core_1.varchar)('stripe_event_id').unique().notNull(),
+    stripeEventId: (0, pg_core_1.varchar)('stripe_event_id').unique(),
     stripePaymentIntent: (0, pg_core_1.varchar)('stripe_payment_intent'),
     orderNumber: (0, pg_core_1.varchar)('order_number'),
     orderId: (0, pg_core_1.uuid)('order_id').references(() => exports.orders.id),

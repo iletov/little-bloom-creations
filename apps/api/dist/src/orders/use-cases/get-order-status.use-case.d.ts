@@ -5,13 +5,13 @@ export declare class GetOrderStatusUseCase {
     execute(orderNumber: string): Promise<{
         status: string;
         order: {
-            id: any;
-            total_amount: any;
-            created_at: any;
-            order_number: any;
-            payment_method: any;
+            id: string;
+            total_amount: string;
+            created_at: Date;
+            order_number: string;
+            payment_method: import("@repo/shared-types").PaymentMethodEnum;
         };
-        order_number: any;
+        order_number: string;
         message: string;
     }>;
 }
