@@ -29,37 +29,41 @@ export default function Newsletter({ data }: NewsletterProps) {
     if (value === 'green') {
       return 'bg-green-1';
     } else {
-      return 'bg-pink-5/60';
+      return 'bg-pink-5/40';
     }
   };
 
   return (
     <section
-      className={cn('py-[1.2rem]', bgColor(data?.backgroundColor ?? ''))}>
-      <div className="section_wrapper grid grid-cols-[2fr_1fr] items-center">
-        <header className="  text-center space-y-8 ">
+      className={cn('py-16 md:py-[8rem]', bgColor(data?.backgroundColor ?? ''))}>
+      <div className="section_wrapper grid grid-cols-1 lg:grid-cols-[1fr_1fr] items-center gap-12 lg:gap-16">
+        <header className="flex flex-col text-center lg:text-left space-y-6 md:space-y-8 order-2 lg:order-1">
           <HighlightedHeading
             text={data?.heading?.title}
             word={data?.heading?.highlightedWord}
             color={data?.heading?.highlightedColor}
             tag="h2"
+            className="text-[3.2rem] md:text-[4.8rem] leading-[1.2]"
           />
-          <div className="space-y-4 grid justify-center items-center">
+          <div className="text-[1.6rem] md:text-[1.8rem] text-slate-700 leading-relaxed max-w-[600px] mx-auto lg:mx-0">
             <PortableTextContainer data={data?.description} />
           </div>
 
-          <NewsletterInput />
+          <div className="pt-2 w-full max-w-[500px] mx-auto lg:mx-0">
+            <NewsletterInput />
+          </div>
         </header>
 
-        <div className=" mask-image-transparent ">
-          <Image
-            src={urlFor(data?.backgroundImage).url()}
-            alt={data?.heading?.title}
-            width={100}
-            height={100}
-            sizes="50vw"
-            className="w-full object-cover h-full"
-          />
+        <div className="w-full flex justify-center order-1 lg:order-2">
+          <div className="mask-image-transparent w-[80%] max-w-[400px] lg:max-w-[510px] aspect-square relative">
+            <Image
+              src={urlFor(data?.backgroundImage).url()}
+              alt={data?.heading?.title || 'Newsletter'}
+              fill
+              sizes="(max-width: 1024px) 80vw, 50vw"
+              className="object-cover w-full h-full"
+            />
+          </div>
         </div>
       </div>
     </section>

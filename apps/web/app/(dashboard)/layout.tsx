@@ -52,7 +52,7 @@ export default async function DashboardLayout({
             <AppSidebar />
 
             <SidebarInset>
-              <div className="w-full flex items-center px-10 pt-8 pb-2">
+              <div className="w-full flex items-center px-4 md:px-10 pt-4 md:pt-8 pb-2">
                 <SidebarTrigger />
               </div>
               {children}

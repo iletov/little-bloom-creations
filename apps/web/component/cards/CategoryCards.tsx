@@ -94,12 +94,12 @@ const CategoryCards = ({ data }: CategoryCardsProps) => {
 
         {/* Grid of Categories */}
         {items.length > 0 && (
-          <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-6 -mx-6 px-6 sm:-mx-8 sm:px-8 sm:gap-6 md:grid md:grid-cols-2 xl:grid-cols-4 md:gap-6 lg:gap-8 md:overflow-visible md:snap-none md:pb-0 md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-4 lg:gap-8">
             {items.map(item => (
               <Link
                 href={getSlugLink(item.slug)}
                 key={`${item.slug}-${item.title}`}
-                className="flex-none w-[75vw] sm:w-[50vw] md:w-auto snap-center aspect-[3/4.5] sm:aspect-[6/9.5] relative overflow-hidden rounded-[2rem] group block shadow-md"
+                className="relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] group block shadow-md aspect-[3/4.5] sm:aspect-[6/9.5]"
               >
                 <Image
                   src={
@@ -117,13 +117,13 @@ const CategoryCards = ({ data }: CategoryCardsProps) => {
                 <GradientOverlay className="opacity-80 group-hover:opacity-90 transition-opacity duration-500 z-0" />
 
                 {/* Content Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-8 z-10 flex flex-col items-start text-white pointer-events-none">
-                  <h3 className="font text-[2.8rem] font-medium tracking-wide mb-2 drop-shadow-md">
+                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8 z-10 flex flex-col items-start text-white pointer-events-none">
+                  <h3 className="font text-[1.8rem] md:text-[2.8rem] font-medium tracking-wide mb-2 drop-shadow-md">
                     {item.title}
                   </h3>
                   
                   {/* Pill Button */}
-                  <div className="mt-4 bg-white text-black px-8 py-3 rounded-full text-[1.4rem] font-semibold flex items-center justify-center transform transition-all duration-300 shadow-sm">
+                  <div className="mt-2 md:mt-4 bg-white text-black px-4 md:px-8 py-2 md:py-3 rounded-full text-[1.2rem] md:text-[1.4rem] font-semibold flex items-center justify-center transform transition-all duration-300 shadow-sm">
                     Разгледай
                   </div>
                 </div>

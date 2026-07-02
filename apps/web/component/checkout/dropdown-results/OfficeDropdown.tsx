@@ -76,21 +76,21 @@ export const OfficeDropdown = ({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
-            variant="default"
+            variant="outline"
             role="combobox"
             aria-expanded={open}
             className={cn(
-              'w-full justify-between min-h-[2.85rem] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring font-montserrat bg-green-5 text-white px-[8px] [&_svg]:size-[unset]',
+              'w-full justify-between min-h-[2.85rem] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring font-montserrat px-[8px] [&_svg]:size-[unset]',
               className,
             )}
             disabled={disabled || !selectedCity}>
             {selectedOffice ? (
-              <p className="flex gap-2 ">
+              <p className="flex gap-2 text-foreground">
                 <span>{selectedOffice.name}</span>
                 <span>({selectedOffice.id})</span>
               </p>
             ) : (
-              <p className="text-white">{placeholder}</p>
+              <p className="text-muted-foreground">{placeholder}</p>
             )}
             <ChevronDown size={20} className="shrink-0 " />
           </Button>
@@ -99,7 +99,7 @@ export const OfficeDropdown = ({
           align="start"
           side="bottom"
           sideOffset={10}
-          className=" md:w-[calc(100%-1.26rem)] p-0 border-[1px] shadow-lg rounded-xl font-montserrat bg-white">
+          className="w-[var(--radix-popover-trigger-width)] p-0 border-[1px] shadow-lg rounded-xl font-montserrat bg-white">
           <Command>
             <CommandInput
               placeholder="Search offices..."

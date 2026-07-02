@@ -146,7 +146,7 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
 
   const pathname = usePathname();
   
-  const defaultHasHero = pathname === '/' || pathname === '/categories' || pathname.startsWith('/categories/');
+  const defaultHasHero = pathname === '/';
   const [isHome, setIsHome] = useState(defaultHasHero);
   const [isLargeHero, setIsLargeHero] = useState(defaultHasHero);
 
@@ -157,10 +157,10 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
       setIsHome(true);
       setIsLargeHero(hero.getAttribute('data-hero-size') !== 'small');
     } else {
-      setIsHome(defaultHasHero);
-      setIsLargeHero(defaultHasHero);
+      setIsHome(false);
+      setIsLargeHero(false);
     }
-  }, [pathname, defaultHasHero]);
+  }, [pathname]);
 
   const { totalItems } = useCart();
   const isClient = useIsClient();
@@ -325,7 +325,7 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
               !isHome 
                 ? 'bg-white shadow-md border-b border-slate-200'
                 : (isSticky 
-                    ? 'bg-transparent lg:bg-white lg:shadow-md lg:border-b lg:border-slate-200' 
+                    ? 'bg-white shadow-md border-b border-slate-200' 
                     : 'bg-transparent border-transparent lg:bg-white lg:border-b lg:border-slate-200')
             )}>
             <div className="section_wrapper h-[5.5rem] grid w-full grid-cols-[1fr_auto_1fr] items-stretch">

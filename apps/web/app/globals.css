@@ -482,10 +482,14 @@ p {
   /* -webkit-mask-image: url('@/public/cloud-fill.svg'); */
   mask-image: url('/cloud-fill.svg');
   -webkit-mask-image: url('/cloud-fill.svg');
-  width: 51rem;
+  width: 100%;
+  max-width: 51rem;
   mask-position: center;
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-size: contain;
+  -webkit-mask-size: contain;
   -webkit-mask-repeat: no-repeat;
 }
 

@@ -80,8 +80,10 @@ const MultiSection = ({ data }: MultiSectionProps) => {
           )}>
           <motion.header
             className={cn(
-              'flex flex-col justify-center items-center my-[6rem] p-[2rem] text-center max-w-[70%]  m-auto text-green-dark',
-              isOdd ? 'lg:order-1' : 'lg:order-2 bg-white border-card h-fit',
+              'flex flex-col justify-center items-center text-center m-auto text-green-dark',
+              isOdd 
+                ? 'lg:order-1 py-12 px-6 md:py-[6rem] md:px-[2rem] max-w-[90%] md:max-w-[70%]' 
+                : 'lg:order-2 bg-white border-card h-fit my-12 p-8 md:my-[6rem] md:p-[4rem] max-w-[85%] md:max-w-[70%]',
             )}
             variants={childVariants}>
             <HighlightedHeading
@@ -89,21 +91,21 @@ const MultiSection = ({ data }: MultiSectionProps) => {
               word={data?.heading?.highlightedWord}
               color={data?.heading?.highlightedColor}
               tag="h2"
-              className="uppercase"
+              className="uppercase text-[3.2rem] md:text-[4.8rem] leading-[1.1] mb-2"
             />
 
-            <p className="text-[3.2rem] w-full uppercase text-green-dark/40">
+            <p className="text-[1.8rem] md:text-[2.4rem] w-full uppercase text-green-dark/40 font-medium tracking-wider">
               {item?.subTitle}
             </p>
 
             <PortableTextContainer
               data={item?.description}
-              className="mt-[2rem] text-[1.6rem] leading-[1.4] text-inherit"
+              className="mt-6 md:mt-[2rem] text-[1.6rem] leading-[1.6] text-inherit"
             />
             <Link
               href={item?.button?.slug?.current ?? '/'}
-              className={cn('w-full   mt-[3rem] ')}>
-              <Button variant={'ghost'} className="">
+              className={cn('w-full mt-8 md:mt-[3rem]')}>
+              <Button variant={'ghost'} className="text-[1.4rem] px-8 py-6 uppercase tracking-wider font-semibold hover:bg-green-1/20">
                 {item.button?.text}
               </Button>
             </Link>
@@ -112,8 +114,7 @@ const MultiSection = ({ data }: MultiSectionProps) => {
           <motion.figure
             variants={imageVariants}
             className={cn(
-              ` 
-            relative w-full overflow-hidden max-h-[55rem] min-h-[20rem lg:min-h-[unset]`,
+              `relative w-full overflow-hidden max-h-[55rem] min-h-[25rem] lg:min-h-[unset] aspect-square md:aspect-auto`,
               isOdd ? ' lg:order-2' : ' lg:order-1',
             )}>
             {item?.image && (
@@ -135,8 +136,8 @@ const MultiSection = ({ data }: MultiSectionProps) => {
   });
 
   return (
-    <section className="bg-green-1/10">
-      <div className=" grid max-w-[1920px] border-x-[1px] border-green-5 mx-auto">
+    <section className="bg-green-1/10 overflow-hidden">
+      <div className="grid max-w-[1920px] border-x-[1px] border-green-5 mx-auto">
         {aboutUsComponents}
       </div>
     </section>

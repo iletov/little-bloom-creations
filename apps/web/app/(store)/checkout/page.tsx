@@ -218,10 +218,10 @@ export default function CheckoutPage() {
     )
   );
 
-  const lableStyles = `px-[1rem] cursor-pointer hover:shadow-md py-[1.25rem] border-[1px] text-[1rem] md:text-[1.375rem] font-normal leading-[120%] gap-3 md:gap-1 text-foreground font-montserrat w-full md:w-fit flex md:flex-col justify-start items-center md:items-start transition-all duration-300 ease-in-out bg-secondaryPurple/15 rounded-xl `;
+  const lableStyles = `px-[1rem] cursor-pointer hover:shadow-md py-[1.25rem] border-[1px] text-[1.2rem] md:text-[1.375rem] font-medium leading-[120%] gap-3 md:gap-1 text-foreground font-montserrat w-full flex flex-row md:flex-col justify-start md:justify-center items-center transition-all duration-300 ease-in-out bg-secondaryPurple/15 rounded-xl `;
 
   return (
-    <section className="section_wrapper pt-40 xl:px-32 space-y-5 md:flex gap-10 xl:gap-10 mb-[30rem] lg:mb-[24rem]">
+    <section className="section_wrapper pt-10 xl:px-32 space-y-5 md:flex gap-10 xl:gap-10 pb-[10rem] lg:mb-[24rem]">
       <div className="flex-[1.1] lg:mt-5 px-3">
         <div className="rounded-xl shadow-md border-[1px] my-5 px-3">
           {items?.map(group => (
@@ -246,8 +246,8 @@ export default function CheckoutPage() {
               value={paymentMethod || ''}
               onValueChange={handlePaymentChange}
               className="mt-5">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex w-full md:w-fit ">
+              <div className="flex flex-col md:flex-row gap-4 w-full">
+                <div className="flex w-full md:flex-1">
                   <RadioGroupItem value="cash" id="cash" className="sr-only" />
                   <Label
                     htmlFor="cash"
@@ -256,7 +256,7 @@ export default function CheckoutPage() {
                     <span>Наложен платеж</span>
                   </Label>
                 </div>
-                <div className="flex">
+                <div className="flex w-full md:flex-1">
                   <RadioGroupItem value="bank" id="bank" className="sr-only" />
                   <Label
                     htmlFor="bank"

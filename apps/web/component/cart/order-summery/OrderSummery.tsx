@@ -23,7 +23,7 @@ export const OrderSummery = ({ isCartView = false }: OrderSummeryProps) => {
     <>
       <div
         className="
-      z-50 w-full max-w-full mx-auto h-fit md:border-[1px] font-montserrat rounded-lg shadow-md bg-white space-y-1.5 md:space-y-3 px-6 py-4 order-first fixed bottom-[68px] left-0 lg:left-auto lg:sticky lg:top-[10rem] lg:order-last ">
+      z-10 w-full max-w-full mx-auto h-fit border-[1px] font-montserrat rounded-lg shadow-md bg-white space-y-1.5 md:space-y-3 px-6 py-4 mt-6 lg:mt-0 lg:sticky lg:top-[10rem]">
         <h3 className="md:font-semibold">Информация за поръчката:</h3>
         <p className="flex justify-between text-[1.6rem]">
           Артикули:
