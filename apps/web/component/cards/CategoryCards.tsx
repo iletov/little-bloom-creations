@@ -94,12 +94,12 @@ const CategoryCards = ({ data }: CategoryCardsProps) => {
 
         {/* Grid of Categories */}
         {items.length > 0 && (
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-4 lg:gap-8">
+          <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 sm:gap-6 md:grid md:grid-cols-2 xl:grid-cols-4 lg:gap-8 pb-6 px-4 -mx-4 md:px-0 md:mx-0 scrollbar-hide">
             {items.map(item => (
               <Link
                 href={getSlugLink(item.slug)}
                 key={`${item.slug}-${item.title}`}
-                className="relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] group block shadow-md aspect-[3/4.5] sm:aspect-[6/9.5]"
+                className="relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] group block shadow-md aspect-[3/4] sm:aspect-[6/9.5] flex-none w-[75vw] sm:w-[45vw] md:w-auto snap-center"
               >
                 <Image
                   src={
