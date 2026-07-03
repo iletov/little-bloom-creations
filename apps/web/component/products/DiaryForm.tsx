@@ -157,7 +157,6 @@ const DiaryForm = ({ product }: { product: Product }) => {
         },
       },
     });
-    personalisedForm.reset();
   };
 
   const isEditMode = item && productId;

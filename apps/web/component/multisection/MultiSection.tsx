@@ -82,8 +82,8 @@ const MultiSection = ({ data }: MultiSectionProps) => {
             className={cn(
               'flex flex-col justify-center items-center text-center m-auto text-green-dark',
               isOdd 
-                ? 'lg:order-1 py-12 px-6 md:py-[6rem] md:px-[2rem] max-w-[90%] md:max-w-[70%]' 
-                : 'lg:order-2 bg-white border-card h-fit my-12 p-8 md:my-[6rem] md:p-[4rem] max-w-[85%] md:max-w-[70%]',
+                ? 'lg:order-1 py-16 px-8 md:py-[8rem] md:px-[4rem] max-w-full md:max-w-[80%]' 
+                : 'lg:order-2 bg-white rounded-[2rem] shadow-sm border border-green-900/5 h-fit my-12 mx-4 p-10 md:my-[8rem] md:p-[6rem] max-w-[95%] md:max-w-[80%]',
             )}
             variants={childVariants}>
             <HighlightedHeading
@@ -91,7 +91,7 @@ const MultiSection = ({ data }: MultiSectionProps) => {
               word={data?.heading?.highlightedWord}
               color={data?.heading?.highlightedColor}
               tag="h2"
-              className="uppercase text-[3.2rem] md:text-[4.8rem] leading-[1.1] mb-2"
+              className="uppercase text-[3.2rem] md:text-[4.8rem] leading-[1.2] mb-4"
             />
 
             <p className="text-[1.8rem] md:text-[2.4rem] w-full uppercase text-green-dark/40 font-medium tracking-wider">

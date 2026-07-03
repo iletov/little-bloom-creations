@@ -42,7 +42,7 @@ export default async function Products() {
   console.log('# --products-dash -->', products);
 
   return (
-    <div className="w-full min-h-svh pt-4 pb-24 px-10 space-y-8">
+    <div className="w-full min-h-svh pt-4 pb-24 px-4 md:px-10 space-y-8">
       {/* Page Header */}
 
       <h1 className="text-[2.8rem] font-[500] text-orange-400">Products</h1>

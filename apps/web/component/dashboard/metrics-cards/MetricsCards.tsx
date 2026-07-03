@@ -10,7 +10,8 @@ import {
 import { DashboardMetrics } from '@/types';
 import React from 'react';
 
-async function MetricsCards({ metrics }: { metrics: DashboardMetrics }) {
+async function MetricsCards() {
+  const metrics = await getMetrics();
   // console.log('metrics', metrics);
   const cards = [
     {

@@ -172,7 +172,6 @@ const BlanketForm = ({
         },
       },
     });
-    blanketForm.reset();
   };
 
   const isEditMode = item && productId;

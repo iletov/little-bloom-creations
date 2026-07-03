@@ -10,7 +10,7 @@ export default async function OrdersPage() {
   const orders = await getOrders();
 
   return (
-    <div className="w-full min-h-svh pt-4 pb-24 px-10 space-y-8">
+    <div className="w-full min-h-svh pt-4 pb-24 px-4 md:px-10 space-y-8">
       {/* Page Header */}
       <div>
         <h1 className="text-[2.8rem] font-[500] text-[#d78aec]">Orders</h1>

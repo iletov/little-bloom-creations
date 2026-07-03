@@ -311,86 +311,109 @@ const SingleOrderContainer = ({ data }: { data: Order }) => {
           <CardContent className="p-0">
             <div className="space-y-0">
             {data.order_items.map((item, index) => (
-              <div key={item.id} className="border-b last:border-b-0">
-                <article
-                  onClick={() => handleOpenItem(item.id)}
-                  className="grid grid-cols-1 md:grid-cols-8 gap-4 bg-green-dark m-4 p-4 rounded-sm cursor-pointer">
-                  <DetailRow label="Product Name" value={item.name} />
-                  <DetailRow label="SKU" value={item.product_sku} />
-                  {item.variant_name && (
-                    <DetailRow label="Variant" value={item.variant_name} />
-                  )}
-
-                  <DetailRow label="Variant SKU" value={item?.variant_sku} />
-
-                  <DetailRow
-                    label="Quantity"
-                    value={item.quantity.toString()}
-                  />
-                  <DetailRow label="Weight" value={`${item.weight} kg`} />
-                  <DetailRow
-                    label="Unit Price"
-                    value={`${item.unit_price.toFixed(2)} EUR`}
-                  />
-                  <DetailRow
-                    label="Subtotal"
-                    value={`${item.subtotal.toFixed(2)} EUR`}
-                  />
-                </article>
-                {/* === */}
-                <div
-                  className={`grid transition-[grid-template-rows] duration-150 ease-out ${
-                    isOpen.includes(item.id)
-                      ? 'grid-rows-[1fr]'
-                      : 'grid-rows-[0fr]'
-                  }`}>
-                  <div className="overflow-hidden">
-                    <article className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 mb-4 px-4 mx-6 border-b-[1px] border-l-[1px] border-slate-600">
-                      <div className="border-b pb-4 last:border-b-0">
-                        <h3 className="text-[1.8rem] font-semibold mb-4 border-b border-slate-600 pb-2 mt-8 w-fit">
-                          Personalization
-                        </h3>
-
-                        <div className="flex flex-col md:flex-row gap-4 md:gap-20">
-                          <DetailRow
-                            label="Name"
-                            value={item.personalization?.name}
-                          />
-                          <DetailRow
-                            label="Text Color"
-                            value={item.personalization?.textColor}
-                          />
-                          <DetailRow
-                            label="Main Text"
-                            value={item.personalization?.addMainText}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="border-b pb-4 last:border-b-0">
-                        <h3 className="text-[1.8rem] font-semibold mb-4 border-b border-slate-600 pb-2 mt-8 w-fit">
-                          Dimensions
-                        </h3>
-
-                        <div className="flex flex-col md:flex-row gap-4 md:gap-20">
-                          <DetailRow
-                            label="Width"
-                            value={item.dimensions?.width}
-                          />
-                          <DetailRow
-                            label="Height"
-                            value={item.dimensions?.height}
-                          />
-                          <DetailRow
-                            label="Depth"
-                            value={item.dimensions?.depth}
-                          />
-                        </div>
-                      </div>
-                    </article>
+              <div key={item.id} className="bg-[#1f2937] border border-slate-700 m-4 rounded-lg overflow-hidden transition-all hover:border-slate-500 shadow-sm">
+                <div onClick={() => handleOpenItem(item.id)} className="p-4 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <h4 className="text-[1.8rem] font-semibold text-white">{item.name}</h4>
+                    <div className="flex flex-wrap items-center gap-3 mt-2">
+                      <Badge variant="outline" className="bg-slate-800 text-slate-300 border-slate-600 px-2 py-0.5 text-[1.2rem]">SKU: {item.product_sku}</Badge>
+                      {item.variant_name && <Badge variant="outline" className="bg-slate-800 text-slate-300 border-slate-600 px-2 py-0.5 text-[1.2rem]">{item.variant_name}</Badge>}
+                      {item.variant_sku && <Badge variant="outline" className="bg-slate-800 text-slate-300 border-slate-600 px-2 py-0.5 text-[1.2rem]">Var: {item.variant_sku}</Badge>}
+                      <span className="text-slate-400 text-[1.3rem] ml-1">Qty: <strong className="text-white">{item.quantity}</strong></span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between md:flex-col md:items-end gap-1 shrink-0 border-t border-slate-700 pt-3 md:border-0 md:pt-0">
+                    <div className="text-[1.8rem] font-semibold text-emerald-400">
+                      {(item.subtotal || 0).toFixed(2)} EUR
+                    </div>
+                    <div className="text-[1.3rem] text-slate-400">
+                      {(item.unit_price || 0).toFixed(2)} EUR / unit
+                    </div>
                   </div>
                 </div>
-                {/* === */}
+
+                <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen.includes(item.id) ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <div className="p-4 pt-0 border-t border-slate-700 bg-slate-800/50">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                      {/* Personalization Section */}
+                      {item.personalization && Object.keys(item.personalization).length > 0 && (
+                        <div>
+                          <h5 className="text-[1.5rem] font-medium text-slate-300 mb-3 flex items-center gap-2">
+                            <Pencil className="w-4 h-4" /> Personalization
+                          </h5>
+                          <div className="space-y-3 bg-slate-800 p-4 rounded-md border border-slate-700">
+                            {item.personalization.name && (
+                              <div className="flex justify-between items-center text-[1.4rem]">
+                                <span className="text-slate-400">Name:</span>
+                                <span className="font-medium text-white">{item.personalization.name}</span>
+                              </div>
+                            )}
+                            {item.personalization.addMainText && item.personalization.addMainText !== 'no-text' && (
+                              <div className="flex justify-between items-center text-[1.4rem]">
+                                <span className="text-slate-400">Main Text:</span>
+                                <span className="font-medium text-white capitalize">{item.personalization.addMainText}</span>
+                              </div>
+                            )}
+                            {item.personalization.textColor && (
+                              <div className="flex justify-between items-center text-[1.4rem]">
+                                <span className="text-slate-400">Text Color:</span>
+                                <span className="font-medium text-white capitalize">{item.personalization.textColor}</span>
+                              </div>
+                            )}
+                            {item.personalization.personalizationType && item.personalization.personalizationType !== 'none' && (
+                              <div className="flex justify-between items-center text-[1.4rem]">
+                                <span className="text-slate-400">Type:</span>
+                                <span className="font-medium text-white">
+                                  {item.personalization.personalizationType === 'name-only' ? 'С име' : 'С име и бродерия'}
+                                </span>
+                              </div>
+                            )}
+                            {item.personalization.embroideryImage?.alt && (
+                              <div className="flex justify-between items-center text-[1.4rem]">
+                                <span className="text-slate-400">Embroidery:</span>
+                                <span className="font-medium text-emerald-400">{item.personalization.embroideryImage.alt}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Dimensions Section */}
+                      {((item.dimensions && Object.keys(item.dimensions).length > 0) || item.weight) && (
+                        <div>
+                          <h5 className="text-[1.5rem] font-medium text-slate-300 mb-3 flex items-center gap-2">
+                            <Package className="w-4 h-4" /> Package & Dimensions
+                          </h5>
+                          <div className="space-y-3 bg-slate-800 p-4 rounded-md border border-slate-700">
+                            <div className="flex justify-between items-center text-[1.4rem]">
+                              <span className="text-slate-400">Weight:</span>
+                              <span className="font-medium text-white">{item.weight || 0} kg</span>
+                            </div>
+                            {item.dimensions?.width && (
+                              <div className="flex justify-between items-center text-[1.4rem]">
+                                <span className="text-slate-400">Width:</span>
+                                <span className="font-medium text-white">{item.dimensions.width}</span>
+                              </div>
+                            )}
+                            {item.dimensions?.height && (
+                              <div className="flex justify-between items-center text-[1.4rem]">
+                                <span className="text-slate-400">Height:</span>
+                                <span className="font-medium text-white">{item.dimensions.height}</span>
+                              </div>
+                            )}
+                            {item.dimensions?.depth && (
+                              <div className="flex justify-between items-center text-[1.4rem]">
+                                <span className="text-slate-400">Depth:</span>
+                                <span className="font-medium text-white">{item.dimensions.depth}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
             </div>

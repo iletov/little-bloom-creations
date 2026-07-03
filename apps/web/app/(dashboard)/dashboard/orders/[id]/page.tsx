@@ -19,7 +19,7 @@ export default async function SingleOrder({
 
   if (!order) {
     return (
-      <section className="max-w-[1600px] p-10 space-y-8">
+      <section className="max-w-[1600px] p-4 md:p-10 space-y-8">
         <BackButton />
         <div className="text-center py-20">
           <h1 className="text-3xl font-semibold">Order not found</h1>
@@ -32,7 +32,7 @@ export default async function SingleOrder({
   }
 
   return (
-    <section className="max-w-[1600px] p-10 space-y-8">
+    <section className="max-w-[1600px] p-4 md:p-10 space-y-8">
       <div className="flex items-center w-full gap-6">
         <BackButton />
         <h1 className="text-[2.4rem] font-semibold">Order Information</h1>

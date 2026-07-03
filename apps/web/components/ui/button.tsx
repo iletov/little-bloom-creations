@@ -9,17 +9,17 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primery: 'text-primary-foreground shadow hover:opacity-80',
+        primery: 'text-primary-foreground shadow hover:opacity-80 rounded-full',
         default:
           'bg-white text-black hover:text-black shadow-md rounded-full font-bold',
-        pink: 'bg-pink-9 text-pink-1 shadow  hover:ring-1 hover:ring-pink-9 hover:ring-offset-1 hover:ring-offset-pink-1 rounded-[0.8rem] font-medium',
-        outline: 'bg-green-5 shadow-md rounded-[0.8rem] font-medium',
+        pink: 'bg-pink-9 text-pink-1 shadow  hover:ring-1 hover:ring-pink-9 hover:ring-offset-1 hover:ring-offset-pink-1 rounded-full font-medium',
+        outline: 'bg-green-5 shadow-md rounded-full font-medium',
         secondary:
-          'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/60 rounded-[0.8rem] font-medium',
-        ghost: 'bg-pink-1 duration-200 px-4 py-5 shadow-md text-green-9 rounded-[0.8rem] font-medium',
-        blue: 'bg-blue-600 text-white shadow-md hover:bg-blue-700 rounded-[0.8rem] font-medium',
-        destructive: 'bg-red-600 text-white shadow-md hover:bg-red-700 rounded-[0.8rem] font-medium',
-        link: 'text-primary underline-offset-4 hover:underline rounded-[0.8rem] font-medium',
+          'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/60 rounded-full font-medium',
+        ghost: 'bg-pink-1 duration-200 px-4 py-5 shadow-md text-green-9 rounded-full font-medium',
+        blue: 'bg-blue-600 text-white shadow-md hover:bg-blue-700 rounded-full font-medium',
+        destructive: 'bg-red-600 text-white shadow-md hover:bg-red-700 rounded-full font-medium',
+        link: 'text-primary underline-offset-4 hover:underline rounded-full font-medium',
       },
       size: {
         default: 'px-12 py-7 h-auto',
