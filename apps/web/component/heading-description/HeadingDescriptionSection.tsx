@@ -83,7 +83,7 @@ const HeadingDescriptionSection = ({
                       key={step._key || index}
                       onClick={() => setActiveStep(index)}
                       className={cn(
-                        "group flex gap-6 cursor-pointer transition-all duration-300 rounded-3xl p-6 -ml-6 border border-transparent",
+                        "group flex gap-4 md:gap-6 cursor-pointer transition-all duration-300 rounded-3xl p-4 md:p-6 md:-ml-6 border border-transparent",
                         isActive ? "bg-white/60 shadow-sm border-white/80" : "hover:bg-white/30"
                       )}
                     >

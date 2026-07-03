@@ -58,9 +58,9 @@ async function MetricsCards() {
   ];
 
   return (
-    <div className="grid gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex gap-4 md:gap-10 overflow-x-auto pb-4 snap-x snap-mandatory hide-scrollbar">
       {cards?.map((card, index) => (
-        <Card key={card.title} className={`pt-4 px-3 ${card.bgColor}`}>
+        <Card key={card.title} className={`pt-4 px-3 shrink-0 w-[85vw] md:w-auto md:flex-1 snap-center ${card.bgColor}`}>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-[2.2rem] font-[600] text-[#f1f1f1]">
               {card.title}
