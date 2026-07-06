@@ -309,14 +309,17 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
 
   return (
     <>
-      <nav className="relative flex justify-center text-[1.8rem] text-green-dark font-montserrat">
+      <nav className={cn(
+        "flex justify-center text-[1.8rem] text-green-dark font-montserrat w-full z-50",
+        !isHome ? "sticky top-0" : "relative"
+      )}>
         {/* Desktop & Mobile Top Header Wrapper */}
         <div
           className={cn(
             'left-0 right-0 z-30 mx-auto flex w-full items-center justify-center',
             isHome 
               ? 'absolute top-0 lg:fixed'
-              : 'relative lg:sticky lg:top-0'
+              : 'w-full'
           )}>
           {/* Main Navbar */}
           <section
@@ -365,6 +368,13 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
 
             {/* Right Side: Cart & Auth (Hidden on mobile as it's in bottom nav) */}
             <div className="hidden lg:flex relative flex-1 items-stretch justify-end">
+              <Link
+                href="/shop"
+                className="grid h-full min-w-[62px] place-items-center border-l-[1px] px-[18px] text-green-dark transition duration-200 hover:text-green-5 sm:min-w-[68px]"
+                aria-label="Shop"
+              >
+                <Store className="h-8 w-8" strokeWidth={1.3} />
+              </Link>
               <CartButton />
               <div
                 ref={profileMenuRef}
@@ -397,7 +407,7 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
                     href="/login"
                     className="grid h-full min-w-[62px] place-items-center border-l-[1px] px-[18px] text-green-dark transition duration-200 hover:text-green-5 sm:min-w-[68px]"
                     aria-label="Login">
-                    <User className="h-6 w-6" />
+                    <User className="h-8 w-8" strokeWidth={1.3} />
                   </Link>
                 )}
                 <AnimatePresence>
@@ -597,7 +607,7 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
             ? 'bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] text-green-dark'
             : 'bg-transparent text-white/90 drop-shadow-md',
         )}>
-        <Link href="/categories" className="flex flex-col items-center justify-center gap-1.5 p-2 w-[70px]">
+        <Link href="/shop" className="flex flex-col items-center justify-center gap-1.5 p-2 w-[70px]">
           <Store className="w-10 h-10" strokeWidth={1} />
           <span className="text-[0.75rem] font-bold uppercase tracking-wider">Shop</span>
         </Link>
@@ -606,7 +616,7 @@ const Header = ({ categories, products }: { categories?: any[], products?: Produ
           <span className="text-[0.75rem] font-bold uppercase tracking-wider">Menu</span>
         </button>
         <Link href="/cart" className="flex flex-col items-center justify-center gap-1.5 p-2 w-[70px] relative">
-          <ShoppingBag className="w-10 h-10" strokeWidth={1} />
+          <ShoppingBag className="h-8 w-8" strokeWidth={1.3} />
           {isClient && totalItems && totalItems > 0 ? (
             <span className="absolute right-2 top-0 grid h-[20px] min-w-[20px] place-items-center rounded-full bg-rose-600 text-[11px] font-bold text-white px-1">
               {totalItems}

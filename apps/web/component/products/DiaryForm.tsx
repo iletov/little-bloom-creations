@@ -146,7 +146,7 @@ const DiaryForm = ({ product }: { product: Product }) => {
 
   const onSubmit = (data: PersonlisedFormDataType) => {
     const sanitizedData = sanitizeData(data);
-    addItem(cartItems, sanitizedData);
+    addItem(cartItems, { ...sanitizedData });
     toast.success('Item added to cart', {
       description: 'Now go to your cart.',
       action: {
@@ -270,7 +270,7 @@ const DiaryForm = ({ product }: { product: Product }) => {
           <Button
             variant="default"
             type="submit"
-            disabled={!hasChanges || !personalisedForm.formState.isValid}
+            disabled={!hasChanges}
             className={`text-green-dark w-auto flex items-center justify-center hover:opacity-[unset]`}>
             Save Changes
           </Button>
@@ -278,7 +278,6 @@ const DiaryForm = ({ product }: { product: Product }) => {
           <Button
             variant="default"
             type="submit"
-            disabled={!personalisedForm.formState.isValid}
             className={`text-green-dark w-auto flex items-center justify-center hover:opacity-[unset]`}>
             Add to Cart
           </Button>

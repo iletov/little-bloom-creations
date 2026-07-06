@@ -53,7 +53,7 @@ export default function CartComponent() {
 
   return (
     <section>
-      <div className="section_wrapper pt-10 font-montserrat xl:px-32 flex flex-col-reverse md:flex-row gap-10 xl:gap-10 mb-[30rem] lg:mb-[24rem]">
+      <div className="section_wrapper pt-10 font-montserrat xl:px-32 flex flex-col md:flex-row gap-10 xl:gap-10 pb-[10rem] lg:mb-[24rem]">
         <div className="flex-[1.1] lg:mt-5 px-3">
           <div className="  bg-secondaryPurple/15 rounded-lg shadow-md">
             {items?.map(group => (
@@ -63,7 +63,7 @@ export default function CartComponent() {
               />
             ))}
           </div>
-          <div className="my-10"></div>
+          {/* <div className="my-10"></div> */}
         </div>
         <div className=" flex-[0.75]">
           <OrderSummery isCartView={true} />

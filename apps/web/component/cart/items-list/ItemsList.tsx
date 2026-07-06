@@ -7,7 +7,6 @@ import { Reference } from 'sanity';
 import { Pencil, X } from 'lucide-react';
 import { ProductsPrice } from '@/component/products/ProductsPrice';
 import Link from 'next/link';
-import ClearCartButton from '../clear-cart-button/ClearCartButton';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
 import { ColorBadge } from '@/component/products/ColorBadge';
@@ -31,11 +30,21 @@ type ItemsListProps = {
 };
 
 export const ItemsList = ({ group, checkout }: ItemsListProps) => {
+  const { removeItem } = useCart();
   const categorySlug = group.product?.category?.slug?.current 
     || (typeof group.product?.category === 'string' ? group.product.category : 'all');
 
   return (
-    <article className="flex flex-col sm:flex-row w-full border-b-[1px] rounded-md hover:bg-green-1/20 transition ease-in-out py-6 px-4 sm:px-6 gap-6 sm:gap-8 font-montserrat bg-white sm:bg-transparent shadow-sm sm:shadow-none mb-4 sm:mb-0">
+    <article className="relative flex flex-col sm:flex-row w-full border-b-[1px] rounded-md hover:bg-green-1/20 transition ease-in-out py-6 px-4 sm:px-6 gap-6 sm:gap-8 font-montserrat bg-white sm:bg-transparent shadow-sm sm:shadow-none mb-4 sm:mb-0">
+      <button
+        type="button"
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeItem(group?.personalisation?.productId as string); }}
+        className="absolute top-1 right-1 p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors z-10"
+        aria-label="Remove item"
+      >
+        <X size={20} strokeWidth={1.5} />
+      </button>
+
       <Link
         href={{
           pathname: `/categories/${categorySlug}/${group.product.slug?.current || group.product.slug}`,
@@ -69,17 +78,17 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
           <div className="text-[1.3rem] sm:text-[1.4rem] w-full text-start flex flex-col gap-1.5 text-slate-600">
             {/* Product Color */}
             {group.product?.color && (
-              <span className="grid grid-cols-[110px_1fr] sm:flex sm:items-center gap-2 sm:gap-8">
-                <span className="text-slate-400 font-medium">Цвят:</span>
-                <ColorBadge color={group.product.color} size="sm" className="sm:ml-2" />
+              <span className="flex justify-between sm:justify-start items-center gap-4 sm:gap-0 w-full">
+                <span className="text-slate-400 font-medium sm:w-[140px] shrink-0">Цвят:</span>
+                <ColorBadge color={group.product.color} size="sm" />
               </span>
             )}
 
             {/* Name */}
             {group?.personalisation?.name && (
-              <span className="grid grid-cols-[110px_1fr] gap-2 sm:gap-8">
-                <span className="text-slate-400 font-medium">Име:</span>
-                <span className="uppercase font-medium text-slate-800 break-words">
+              <span className="flex justify-between sm:justify-start items-start gap-4 sm:gap-0 w-full">
+                <span className="text-slate-400 font-medium sm:w-[140px] shrink-0">Име:</span>
+                <span className="uppercase font-medium text-slate-800 break-words text-right sm:text-left">
                   {group?.personalisation?.name}
                 </span>
               </span>
@@ -87,11 +96,11 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
 
             {/* Text (Diary) */}
             {group?.personalisation?.addMainText && group?.personalisation?.addMainText !== 'no-text' && (
-              <span className="grid grid-cols-[110px_1fr] gap-2 sm:gap-8">
-                <span className="text-slate-400 font-medium">Текст:</span>
+              <span className="flex justify-between sm:justify-start items-start gap-4 sm:gap-0 w-full">
+                <span className="text-slate-400 font-medium sm:w-[140px] shrink-0">Текст:</span>
                 <span
                   className={cn(
-                    'capitalize font-medium text-slate-800 break-words',
+                    'capitalize font-medium text-slate-800 break-words text-right sm:text-left',
                     group?.personalisation?.addMainText === 'italic' && 'italic',
                   )}>
                   {group?.personalisation?.addMainText}
@@ -101,11 +110,11 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
 
             {/* Text Color (Diary) */}
             {group?.personalisation?.textColor && (
-              <span className="grid grid-cols-[110px_1fr] gap-2 sm:gap-8 items-center">
-                <span className="text-slate-400 font-medium leading-tight">Цвят на текста:</span>
+              <span className="flex justify-between sm:justify-start items-center gap-4 sm:gap-0 w-full">
+                <span className="text-slate-400 font-medium leading-tight sm:w-[140px] shrink-0">Цвят на текста:</span>
                 <span
                   className={cn(
-                    'capitalize justify-self-start px-3 py-1 rounded-xl text-[1.2rem] font-medium tracking-wide shadow-sm',
+                    'capitalize text-right sm:text-left px-3 py-1 rounded-xl text-[1.2rem] font-medium tracking-wide shadow-sm',
                     group?.personalisation?.textColor === 'gold'
                       ? 'bg-yellow-400 text-yellow-950'
                       : 'bg-slate-400 text-white',
@@ -117,9 +126,9 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
 
             {/* Personalization Type (Blanket) */}
             {group?.personalisation?.personalizationType && group?.personalisation?.personalizationType !== 'none' && (
-              <span className="grid grid-cols-[110px_1fr] gap-2 sm:gap-8">
-                <span className="text-slate-400 font-medium leading-tight">Персонализация:</span>
-                <span className="font-medium text-slate-800 break-words">
+              <span className="flex justify-between sm:justify-start items-start gap-4 sm:gap-0 w-full">
+                <span className="text-slate-400 font-medium leading-tight sm:w-[140px] shrink-0">Персонализаци:</span>
+                <span className="font-medium text-slate-800 break-words text-right sm:text-left">
                   {group?.personalisation?.personalizationType === 'name-only' ? 'С име' : 'С име и бродерия'}
                 </span>
               </span>
@@ -127,9 +136,9 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
 
             {/* Embroidery (Blanket) */}
             {group?.personalisation?.embroideryImage?.alt && (
-              <span className="grid grid-cols-[110px_1fr] gap-2 sm:gap-8">
-                <span className="text-slate-400 font-medium">Бродерия:</span>
-                <span className="font-medium text-green-dark break-words">
+              <span className="flex justify-between sm:justify-start items-start gap-4 sm:gap-0 w-full">
+                <span className="text-slate-400 font-medium sm:w-[140px] shrink-0">Бродерия:</span>
+                <span className="font-medium text-green-dark break-words text-right sm:text-left">
                   {group?.personalisation?.embroideryImage.alt}
                 </span>
               </span>
@@ -137,21 +146,17 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
           </div>
         </div>
       </Link>
-      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-4 sm:gap-8 mt-4 pt-4 sm:mt-0 sm:pt-0 border-t sm:border-0 border-slate-100">
-        <div className="flex items-center gap-4 sm:gap-8 shrink-0">
-          <PriceItem group={group} checkout={checkout} />
-          <ClearCartButton
-            productId={group?.personalisation?.productId as string}
-            className={cn(checkout && 'self-center')}
-          />
-        </div>
+      <div className="flex flex-col items-center justify-center gap-4 mt-4 pt-4 sm:mt-0 sm:pt-0 border-t sm:border-0 border-slate-100 w-full sm:w-auto">
         <Link
           href={{
             pathname: `/categories/${categorySlug}/${group.product.slug?.current || group.product.slug}`,
           }}
-          className="text-[1.4rem] font-semibold text-center border-2 border-slate-200 px-6 py-2 rounded-xl hover:bg-slate-50 transition-colors w-full sm:w-auto text-slate-700 whitespace-nowrap">
-          Add new item
+          className="text-[1.4rem] font-semibold text-center border-2 border-slate-200 px-6 py-2 rounded-xl hover:bg-slate-50 transition-colors w-full text-slate-700 whitespace-nowrap">
+            Добави
         </Link>
+        <div className="flex items-center w-full justify-center sm:justify-end">
+          <PriceItem group={group} checkout={checkout} />
+        </div>
       </div>
     </article>
   );
@@ -170,11 +175,11 @@ const PriceItem = ({ group, checkout }: ItemsListProps) => {
   return (
     <>
       {!checkout ? (
-        <span className=" flex flex-col items-end">
+        <span className=" flex flex-col items-end w-full">
           {/* <AddToCartButton product={group?.product as any} cartItem={group} /> */}
-          <div className="px-2 flex items-center gap-2">
-            <ProductsPrice price={basePrice} />
-            {addonPrice > 0 && <span className="text-gray-500 text-[1.4rem]">(+ {addonPrice} €)</span>}
+          <div className="px-2 flex items-center gap-2 justify-center sm:justify-end w-full">
+            <ProductsPrice price={basePrice} className="font-bold text-[1.8rem] sm:text-[2rem]" />
+            {addonPrice > 0 && <span className="text-gray-500 text-[1.6rem] font-medium">(+ {addonPrice} €)</span>}
           </div>
         </span>
       ) : (

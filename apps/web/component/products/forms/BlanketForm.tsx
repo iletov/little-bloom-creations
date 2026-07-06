@@ -324,7 +324,7 @@ const BlanketForm = ({
             <Button
               variant="default"
               type="submit"
-              disabled={!hasChanges || !blanketForm.formState.isValid}
+              disabled={!hasChanges}
               className={`text-green-dark w-auto flex items-center justify-center hover:opacity-[unset]`}>
               Запази Промените
             </Button>
@@ -332,7 +332,6 @@ const BlanketForm = ({
             <Button
               variant="default"
               type="submit"
-              disabled={!blanketForm.formState.isValid}
               className={`text-green-dark w-auto flex items-center justify-center hover:opacity-[unset]`}>
               Добави в Количката
             </Button>
