@@ -24,6 +24,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ProviderErrorModal } from '@/component/modals/ProviderErrorModal';
 
 const SingleOrderContainer = ({ data }: { data: Order }) => {
   const [isOpen, setIsOpen] = useState<string[]>([]);
@@ -105,9 +106,10 @@ const SingleOrderContainer = ({ data }: { data: Order }) => {
           ))}
         </div>
         
-        <div className="mt-6 flex flex-wrap gap-4 border-t border-slate-600 pt-4">
+        <div className="mt-6 flex flex-col md:flex-row gap-4 border-t border-slate-600 pt-6">
           <Button 
-            variant="blue"
+            className="w-full md:w-auto h-12 text-[1.4rem] px-6  hover:bg-slate-100/80 transition-all duration-200 leading-normal tracking-wide"
+            variant="default"
             disabled={isGeneratingWaybill || !!optimisticShipmentNumber || optimisticStatus === 'cancelled'} 
             onClick={() => {
               generateWaybill(undefined, {
@@ -126,35 +128,11 @@ const SingleOrderContainer = ({ data }: { data: Order }) => {
               });
             }}
           >
-            {isGeneratingWaybill ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Generate Waybill
+            {isGeneratingWaybill ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
+            Товарителница
           </Button>
           
-          <ConfirmModal
-            open={isCancelModalOpen}
-            onOpenChange={setIsCancelModalOpen}
-            title="Cancel Order"
-            description="Are you sure you want to cancel this order? This action will set the order status to Cancelled and restock the items. This cannot be easily undone."
-            confirmText="Yes, Cancel Order"
-            variant="destructive"
-            isLoading={isCancelling}
-            onConfirm={() => cancelOrder(undefined, {
-              onSuccess: () => {
-                setOptimisticStatus('cancelled');
-                setIsCancelModalOpen(false);
-                router.refresh();
-              }
-            })}
-            trigger={
-              <Button 
-                variant="destructive"
-                disabled={isCancelling || optimisticStatus === 'cancelled'} 
-              >
-                {isCancelling ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Cancel Order
-              </Button>
-            }
-          />
+
 
           <ConfirmModal
             open={isDeliverModalOpen}
@@ -172,15 +150,45 @@ const SingleOrderContainer = ({ data }: { data: Order }) => {
             })}
             trigger={
               <Button
-                variant="default"
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                variant="outline"
+                className="w-full md:w-auto h-12 text-[1.4rem] px-6 bg-emerald-900 hover:bg-emerald-500/20 text-emerald-300 shadow-sm hover:shadow-md transition-all duration-200"
                 disabled={isMarkingDelivered || optimisticStatus === 'delivered' || optimisticStatus === 'cancelled'}
               >
-                {isMarkingDelivered ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                {isMarkingDelivered ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
                 Mark as Delivered
               </Button>
             }
           />
+          
+
+          <div className="w-full md:w-auto md:ml-auto">
+            <ConfirmModal
+              open={isCancelModalOpen}
+              onOpenChange={setIsCancelModalOpen}
+              title="Cancel Order"
+              description="Are you sure you want to cancel this order? This action will set the order status to Cancelled and restock the items. This cannot be easily undone."
+              confirmText="Yes, Cancel Order"
+              variant="destructive"
+              isLoading={isCancelling}
+              onConfirm={() => cancelOrder(undefined, {
+                onSuccess: () => {
+                  setOptimisticStatus('cancelled');
+                  setIsCancelModalOpen(false);
+                  router.refresh();
+                }
+              })}
+              trigger={
+                <Button 
+                  variant="destructive"
+                  className="w-full md:w-auto h-12 text-[1.4rem] px-6 shadow-sm hover:shadow-md transition-all duration-200"
+                  disabled={isCancelling || optimisticStatus === 'cancelled'} 
+                >
+                  {isCancelling ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
+                  Cancel Order
+                </Button>
+              }
+            />
+          </div>
         </div>
         </CardContent>
       </Card>
@@ -227,38 +235,12 @@ const SingleOrderContainer = ({ data }: { data: Order }) => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!waybillError} onOpenChange={(open) => !open && setWaybillError(null)}>
-        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto bg-blue-dark text-white border-red-500">
-          <DialogHeader>
-            <DialogTitle className="text-red-400">Error Generating Waybill</DialogTitle>
-            <DialogDescription className="text-slate-300">
-              The courier API returned the following error. Please check the order details and try again.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <pre className="bg-slate-900 p-4 rounded-md text-[1.4rem] text-red-300 whitespace-pre-wrap break-all">
-              {(() => {
-                if (!waybillError) return '';
-                try {
-                  const parsed = JSON.parse(waybillError);
-                  return JSON.stringify(parsed, null, 2);
-                } catch {
-                  return waybillError;
-                }
-              })()}
-            </pre>
-          </div>
-          <DialogFooter className="sm:justify-end">
-            <Button
-              type="button"
-              className="bg-red-500 text-white hover:bg-red-600"
-              onClick={() => setWaybillError(null)}
-            >
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ProviderErrorModal 
+        error={waybillError}
+        onClose={() => setWaybillError(null)}
+        title="Waybill Generation Failed"
+        description="The courier API returned the following error. Please check the order details and try again."
+      />
 
       {/* Shipping Information */}
       {data.order_shipping && (
@@ -309,9 +291,9 @@ const SingleOrderContainer = ({ data }: { data: Order }) => {
             <CardTitle className="text-[2.4rem]">Order Items</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="space-y-0">
+            <div className="space-y-4 p-4 pb-6">
             {data.order_items.map((item, index) => (
-              <div key={item.id} className="bg-[#1f2937] border border-slate-700 m-4 rounded-lg overflow-hidden transition-all hover:border-slate-500 shadow-sm">
+              <div key={item.id} className="bg-[#1f2937] border border-slate-700 rounded-lg overflow-hidden transition-all hover:border-slate-500 shadow-sm">
                 <div onClick={() => handleOpenItem(item.id)} className="p-4 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex-1">
                     <h4 className="text-[1.8rem] font-semibold text-white">{item.name}</h4>
@@ -372,7 +354,22 @@ const SingleOrderContainer = ({ data }: { data: Order }) => {
                             {item.personalization.embroideryImage?.alt && (
                               <div className="flex justify-between items-center text-[1.4rem]">
                                 <span className="text-slate-400">Embroidery:</span>
-                                <span className="font-medium text-emerald-400">{item.personalization.embroideryImage.alt}</span>
+                                <div className="flex items-center gap-3">
+                                  {item.personalization.embroideryImage.asset?.url ? (
+                                    <img 
+                                      src={item.personalization.embroideryImage.asset.url} 
+                                      alt={item.personalization.embroideryImage.alt}
+                                      className="w-24 h-24 object-contain bg-slate-700/50 rounded-md border border-slate-600 p-1"
+                                    />
+                                  ) : item.personalization.embroideryImage.url ? (
+                                    <img 
+                                      src={item.personalization.embroideryImage.url} 
+                                      alt={item.personalization.embroideryImage.alt}
+                                      className="w-12 h-12 object-contain bg-slate-700/50 rounded-md border border-slate-600 p-1"
+                                    />
+                                  ) : null}
+                                  <span className="font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-md">{item.personalization.embroideryImage.alt}</span>
+                                </div>
                               </div>
                             )}
                           </div>
@@ -504,94 +501,6 @@ const DetailRow = ({
   );
 };
 
-// Editable Row Component
-// const EditableDetailRow = ({
-//   label,
-//   value,
-//   fieldKey,
-//   editable,
-//   onUpdate,
-//   isUpdating,
-// }: {
-//   label: string;
-//   value?: string | number;
-//   fieldKey: string;
-//   editable?: boolean;
-//   onUpdate: (value: string) => void;
-//   isUpdating?: boolean;
-// }) => {
-//   const [isEditing, setIsEditing] = useState(false);
-//   const [inputValue, setInputValue] = useState(value || '');
 
-//   const handleSave = () => {
-//     if (inputValue === value) {
-//       setIsEditing(false);
-//       return;
-//     }
-
-//     // Call the update function passed from parent
-//     onUpdate(inputValue as string);
-//     setIsEditing(false);
-//   };
-
-//   const handleCancel = () => {
-//     setInputValue(value || '');
-//     setIsEditing(false);
-//   };
-
-//   return (
-//     <div className="flex flex-col relative group">
-//       <span className="text-[1.4rem] text-gray-500 font-medium flex items-center gap-2">
-//         {label}
-//         {editable && !isEditing && (
-//           <button
-//             onClick={() => setIsEditing(true)}
-//             className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-400 hover:text-blue-300"
-//             title="Edit">
-//             <Pencil size={14} />
-//           </button>
-//         )}
-//       </span>
-
-//       {isEditing ? (
-//         <div className="flex items-center gap-2 mt-1">
-//           <Input
-//             value={inputValue}
-//             onChange={(e: any) => setInputValue(e.target.value)}
-//             className="h-9 text-[1.6rem] bg-slate-900 border-slate-700 max-w-[200px]"
-//             disabled={isUpdating}
-//             autoFocus
-//           />
-//           <div className="flex items-center gap-1">
-//             <Button
-//               size="icon"
-//               variant="secondary"
-//               className="h-8 w-8 bg-green-600 hover:bg-green-700 text-white"
-//               onClick={handleSave}
-//               disabled={isUpdating}>
-//               {isUpdating ? (
-//                 <Loader2 size={16} className="animate-spin" />
-//               ) : (
-//                 <Check size={16} />
-//               )}
-//             </Button>
-//             <Button
-//               size="icon"
-//               variant="secondary"
-//               className="h-8 w-8 bg-red-600 hover:bg-red-700 text-white"
-//               onClick={handleCancel}
-//               disabled={isUpdating}>
-//               <X size={16} />
-//             </Button>
-//           </div>
-//         </div>
-//       ) : (
-//         <span className="text-[1.8rem] text-gray-100 mt-1">
-//           {value || 'N/A'}
-//         </span>
-//       )}
-//     </div>
-//   );
-// };
 
 export default SingleOrderContainer;

@@ -26,6 +26,7 @@ import { CartItem } from '@/app/store/features/cart/cartSlice';
 import { OrderDetailsContainer } from '@/component/cart/order-details-container/OrderDetailsContainer';
 import { OrderSummery } from '@/component/cart/order-summery/OrderSummery';
 import { useAuth } from '@/hooks/useAuth';
+import { ProviderErrorModal } from '@/component/modals/ProviderErrorModal';
 
 const getErrorMessage = (error: unknown, fallback: string): string =>
   error instanceof Error ? error.message : fallback;
@@ -53,6 +54,7 @@ export default function CheckoutPage() {
 
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [isDissabled, setIsDissabled] = useState(false);
+  const [calculationError, setCalculationError] = useState<string | null>(null);
   const isStripeInitiationLocked = useRef(false);
   const { mutateAsync: calculateShipping } = useCalculateShipping();
   const { mutateAsync: initiateStripeOrder, isPending: isStripePending } = useInitiateStripeOrder();
@@ -124,12 +126,7 @@ export default function CheckoutPage() {
       }
     } catch (error: unknown) {
       console.error('Error creating checkout session', error);
-      toast.error('Възникна грешка', {
-        description: getErrorMessage(
-          error,
-          'Изглежда имаме проблем с плащането, моля изберете друг метод.',
-        ),
-      });
+      setCalculationError(getErrorMessage(error, 'Изглежда имаме проблем с плащането, моля изберете друг метод.'));
     } finally {
       isStripeInitiationLocked.current = false;
     }
@@ -181,12 +178,7 @@ export default function CheckoutPage() {
 
     } catch (error: unknown) {
       console.error('Shipping calculation error:', error);
-      toast.error('Грешка при изчисляване на доставката', {
-        description: getErrorMessage(
-          error,
-          'Моля, уверете се, че сте попълнили коректно всички данни за доставка.',
-        ),
-      });
+      setCalculationError(getErrorMessage(error, 'Моля, уверете се, че сте попълнили коректно всички данни за доставка.'));
       throw error;
     } finally {
       setDeliveryCostFlag(false);
@@ -286,7 +278,11 @@ export default function CheckoutPage() {
       <div className="flex-[0.75]">
         <OrderSummery />
       </div>
-
+      <ProviderErrorModal 
+        error={calculationError}
+        onClose={() => setCalculationError(null)}
+        title="Възникна проблем"
+      />
     </section>
   );
 }

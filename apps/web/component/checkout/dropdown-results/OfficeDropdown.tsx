@@ -80,19 +80,19 @@ export const OfficeDropdown = ({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              'w-full justify-between min-h-[2.85rem] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring font-montserrat px-[8px] [&_svg]:size-[unset]',
+              'input_styles flex w-full justify-between items-center h-auto rounded-md border border-input text-neutral-700 shadow-sm transition-colors text-[1.4rem] font-montserrat font-normal hover:bg-[var(--green-0)]',
               className,
             )}
             disabled={disabled || !selectedCity}>
             {selectedOffice ? (
-              <p className="flex gap-2 text-foreground">
+              <p className="flex gap-2 text-neutral-800 text-[1.4rem]">
                 <span>{selectedOffice.name}</span>
-                <span>({selectedOffice.id})</span>
+                <span className="text-muted-foreground">({selectedOffice.id})</span>
               </p>
             ) : (
-              <p className="text-muted-foreground">{placeholder}</p>
+              <p className="text-muted-foreground text-[1.4rem]">{placeholder}</p>
             )}
-            <ChevronDown size={20} className="shrink-0 " />
+            <ChevronDown size={20} className="shrink-0 text-muted-foreground opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent

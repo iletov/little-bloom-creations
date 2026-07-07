@@ -16,8 +16,12 @@ import { createReceiptFromItems } from '@/lib/utils/createReceiptFromItems';
 import { createPackingListFromItems } from '@/lib/utils/createPackingListFromItems';
 import { usePlaceCashOrder } from '@/hooks/api/orders/orders-actions.hook';
 
+import { ProviderErrorModal } from '@/component/modals/ProviderErrorModal';
+
 const getErrorMessage = (error: unknown, fallback: string): string =>
   error instanceof Error ? error.message : fallback;
+
+
 
 export const PaymentCash = ({
   isDissabled,
@@ -53,6 +57,7 @@ export const PaymentCash = ({
     success: false,
     order_number: '',
   });
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const { mutateAsync: placeCashOrder, isPending: isCashPending } = usePlaceCashOrder();
 
@@ -131,12 +136,11 @@ export const PaymentCash = ({
       });
     } catch (error: unknown) {
       console.error('Error submiting cash order', error);
-      toast.error('Възникна грешка', {
-        description: getErrorMessage(
-          error,
-          'Възникна неочаквана грешка при запазване на поръчката.',
-        ),
-      });
+      const rawError = getErrorMessage(
+        error,
+        'Възникна неочаквана грешка при запазване на поръчката.',
+      );
+      setCheckoutError(rawError);
     }
   };
 
@@ -162,6 +166,11 @@ export const PaymentCash = ({
           `Поръчай`
         )}
       </Button>
+
+      <ProviderErrorModal 
+        error={checkoutError}
+        onClose={() => setCheckoutError(null)}
+      />
     </section>
   );
 };
