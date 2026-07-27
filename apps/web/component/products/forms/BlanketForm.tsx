@@ -319,20 +319,20 @@ const BlanketForm = ({
           animate={{ scale: 1 }}
           whileTap={{ scale: 0.96 }}
           transition={{ duration: 0.2 }}
-          className=" w-fit flex justify-center items-center">
+          className=" md:w-fit flex justify-center items-center">
           {isEditMode ? (
             <Button
               variant="default"
               type="submit"
               disabled={!hasChanges}
-              className={`text-green-dark w-auto flex items-center justify-center hover:opacity-[unset]`}>
+              className={`text-green-dark w-full md:w-auto flex items-center justify-center hover:opacity-[unset]`}>
               Запази Промените
             </Button>
           ) : (
             <Button
               variant="default"
               type="submit"
-              className={`text-green-dark w-auto flex items-center justify-center hover:opacity-[unset]`}>
+              className={`text-green-dark w-full md:w-auto flex items-center justify-center hover:opacity-[unset]`}>
               Добави в Количката
             </Button>
           )}

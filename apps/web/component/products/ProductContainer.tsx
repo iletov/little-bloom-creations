@@ -55,14 +55,33 @@ const ProductContainer = ({ data }: ProductContainerProps) => {
   const displayName = product?.variant_name || data?.name;
   const displayImages = product?.images?.length ? product.images : data?.images;
   const finalPrice = product?.price ?? data?.price;
+  const variantsPicker = !isAcrylic ? (
+    <div className="flex flex-col gap-3">
+      <p>Select a variant</p>
+      <div className="flex gap-4">
+        {variantsArray.map((variant: Variant, index: number) => (
+          <ProductVariants
+            variant={variant}
+            key={variant?.id || variant?.sku || index}
+          />
+        ))}
+      </div>
+    </div>
+  ) : null;
 
 
   return (
     <>
+      {/* Updated for mobile/tablet responsive support on 2026-07-27. */}
       {/* 1.2fr означава, че лявата е малко по-голяма от дясната (1fr). други варианти напр. 60%_40% или 1.5fr_1fr */}
       <section className="grid md:grid-cols-[1.1fr_1fr] lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-16 pb-24 lg:pb-40">
         <div className="flex flex-col gap-6 w-full mx-auto md:mx-0">
           <ProductImageCarousel images={displayImages || []} alt={displayName || ''} />
+          {variantsPicker && (
+            <div className="md:hidden bg-white rounded-[2rem] p-5 shadow-sm">
+              {variantsPicker}
+            </div>
+          )}
           <ProductFeatureIcons features={data?.featureIcons} />
           <PresentationGallery images={data?.presentationGallery} />
         </div>
@@ -83,13 +102,8 @@ const ProductContainer = ({ data }: ProductContainerProps) => {
               )}
             </div>
             {!isAcrylic && (
-              <div className="flex-1">
-                <p>Select a variant</p>
-                <div className="flex gap-4">
-                  {variantsArray.map((variant: Variant, index: number) => (
-                    <ProductVariants variant={variant} key={variant?.id || variant?.sku || index} />
-                  ))}
-                </div>
+              <div className="hidden md:block flex-1">
+                {variantsPicker}
               </div>
             )}
           </div>

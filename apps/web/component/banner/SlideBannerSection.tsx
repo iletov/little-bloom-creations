@@ -91,7 +91,7 @@ const SlideBannerSection = ({ data }: SlideBannerSectionProps) => {
                     height={600}
                     src={urlFor(imageSrc).url()}
                     alt={imageSrc?.alt ?? ''}
-                    className="slide-image rounded-[1rem]"
+                    className="slide-image "
                   />
                     {/* Gradient Overlay */}
                 <GradientOverlay className="rounded-[1rem] opacity-90 z-0" /> 

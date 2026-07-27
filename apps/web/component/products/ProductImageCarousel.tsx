@@ -20,6 +20,7 @@ export const ProductImageCarousel = ({ images, alt }: ProductImageCarouselProps)
 
   return (
     <div className="w-full relative group">
+      {/* Updated for mobile/tablet responsive support on 2026-07-27. */}
       <Carousel
         opts={{
           align: 'start',
@@ -27,11 +28,11 @@ export const ProductImageCarousel = ({ images, alt }: ProductImageCarouselProps)
         }}
         className="w-full"
       >
-        <div className="rounded-[2rem] overflow-hidden bg-[#f4f4f6]">
+        <div className="overflow-hidden bg-[#f4f4f6]">
           <CarouselContent className="ml-0">
             {images.map((img: any, index: number) => (
               <CarouselItem key={img?._key || index} className="pl-0 basis-full">
-                <div className="aspect-square lg:aspect-auto lg:h-[73vh] lg:max-h-[650px] w-full relative">
+                <div className="aspect-square lg:aspect-auto lg:h-[73vh] lg:max-h-[650px] w-full relative rounded-[2rem] overflow-hidden">
                   <Image
                     src={urlFor(img).width(1200).height(1200).url()}
                     alt={img?.alt ?? `${alt} - изображение ${index + 1}`}

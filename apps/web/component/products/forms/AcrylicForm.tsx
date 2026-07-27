@@ -1027,13 +1027,13 @@ const AcrylicForm = ({
           animate={{ scale: 1 }}
           whileTap={{ scale: 0.96 }}
           transition={{ duration: 0.2 }}
-          className="w-fit flex justify-center items-center pt-6"
+          className="w-full md:w-fit flex justify-center items-center pt-6"
         >
           <Button
             variant="default"
             type="submit"
             disabled={isEditMode ? !hasChanges : false}
-            className={`text-green-dark w-auto flex items-center justify-center hover:opacity-[unset]`}
+            className={`text-green-dark w-full md:w-auto flex items-center justify-center hover:opacity-[unset]`}
           >
             {isEditMode ? 'Запази Промените' : 'Добави в Количката'}
           </Button>
