@@ -85,7 +85,7 @@ export const cartSlice = createSlice({
         // cartId: crypto.randomUUID(),
         product: product as Product,
         personalisation: { productId: crypto.randomUUID(), ...personalisation },
-        quantity: 1,
+        quantity: Number(product.quantity || 1),
         // totalWeight: product?.weight || 0,
       });
     },
@@ -106,6 +106,7 @@ export const cartSlice = createSlice({
       if (item) {
         if (product) {
           item.product = product;
+          item.quantity = Number(product.quantity || item.quantity || 1);
           // item.totalWeight = product.weight * item.quantity || 0;
         }
 

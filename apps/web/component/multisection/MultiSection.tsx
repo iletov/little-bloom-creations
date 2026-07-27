@@ -83,7 +83,7 @@ const MultiSection = ({ data }: MultiSectionProps) => {
               'flex flex-col justify-center items-center text-center m-auto text-green-dark',
               isOdd 
                 ? 'lg:order-1 py-16 px-8 md:py-[8rem] md:px-[4rem] max-w-full md:max-w-[80%]' 
-                : 'lg:order-2 bg-white rounded-[2rem] shadow-sm border border-green-900/5 h-fit my-12 mx-4 p-10 md:my-[8rem] md:p-[6rem] max-w-[95%] md:max-w-[80%]',
+                : 'lg:order-2 bg-white rounded-[2rem] shadow-sm border border-green-900/120 h-fit my-12 m-auto p-10 md:my-[8rem] md:p-[6rem] max-w-[95%] md:max-w-[80%]',
             )}
             variants={childVariants}>
             <HighlightedHeading

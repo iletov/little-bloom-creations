@@ -24,6 +24,17 @@ type ItemsListProps = {
       addonPrice?: number;
       personalizationType?: string;
       embroideryImage?: { alt?: string; [key: string]: any };
+      // Acrylic fields
+      inscription?: string;
+      inscriptionMode?: 'single' | 'per-item';
+      inscriptions?: string[];
+      inscriptionColor?: 'gold' | 'silver' | 'white' | 'black';
+      colorOption?: 'single' | 'multiple' | 'gradient';
+      singleColor?: string;
+      multipleColors?: string[];
+      gradientColor?: { start: string; end: string };
+      balloonCount?: number;
+      elementImage?: { alt?: string; [key: string]: any };
     };
   };
   checkout?: boolean;
@@ -135,11 +146,74 @@ export const ItemsList = ({ group, checkout }: ItemsListProps) => {
             )}
 
             {/* Embroidery (Blanket) */}
-            {group?.personalisation?.embroideryImage?.alt && (
+            {group?.personalisation?.embroideryImage?.alt && group?.product?.category?.slug?.current === 'blankets' && (
               <span className="flex justify-between sm:justify-start items-start gap-4 sm:gap-0 w-full">
                 <span className="text-slate-400 font-medium sm:w-[140px] shrink-0">Бродерия:</span>
                 <span className="font-medium text-green-dark break-words text-right sm:text-left">
                   {group?.personalisation?.embroideryImage.alt}
+                </span>
+              </span>
+            )}
+
+            {/* Acrylic Customizations */}
+            {group?.personalisation?.inscription &&
+              group?.personalisation?.inscriptionMode !== 'per-item' && (
+              <span className="flex justify-between sm:justify-start items-start gap-4 sm:gap-0 w-full">
+                <span className="text-slate-400 font-medium sm:w-[140px] shrink-0">Надпис:</span>
+                <span className="font-medium text-slate-800 break-words text-right sm:text-left">
+                  {group?.personalisation?.inscription}
+                </span>
+              </span>
+            )}
+            {group?.personalisation?.inscriptionMode === 'per-item' &&
+              group?.personalisation?.inscriptions?.length ? (
+                <span className="flex justify-between sm:justify-start items-start gap-4 sm:gap-0 w-full">
+                  <span className="text-slate-400 font-medium sm:w-[140px] shrink-0">Надписи:</span>
+                  <span className="font-medium text-slate-800 break-words text-right sm:text-left flex flex-col gap-1">
+                    {group.personalisation.inscriptions.map((inscription, index) => (
+                      <span key={`${inscription}-${index}`}>
+                        #{index + 1}: {inscription}
+                      </span>
+                    ))}
+                  </span>
+                </span>
+              ) : null}
+            {group?.personalisation?.inscriptionColor && (
+              <span className="flex justify-between sm:justify-start items-center gap-4 sm:gap-0 w-full">
+                <span className="text-slate-400 font-medium sm:w-[140px] shrink-0">Цвят на надписа:</span>
+                <span className="capitalize font-medium text-slate-800 text-right sm:text-left">
+                  {group?.personalisation?.inscriptionColor === 'gold' ? 'Златен' : 
+                   group?.personalisation?.inscriptionColor === 'silver' ? 'Сребърен' :
+                   group?.personalisation?.inscriptionColor === 'white' ? 'Бял' : 'Черен'}
+                </span>
+              </span>
+            )}
+            {group?.personalisation?.colorOption && (
+              <span className="flex justify-between sm:justify-start items-start gap-4 sm:gap-0 w-full">
+                <span className="text-slate-400 font-medium sm:w-[140px] shrink-0">Цветове:</span>
+                <span className="font-medium text-slate-800 break-words text-right sm:text-left flex flex-col gap-1">
+                  {group?.personalisation?.colorOption === 'single' && (
+                    <span>Едноцветен ({group?.personalisation?.singleColor}) - {group?.personalisation?.balloonCount} бр.</span>
+                  )}
+                  {group?.personalisation?.colorOption === 'multiple' && (
+                    <span>
+                      Пъстър - {group?.personalisation?.balloonCount} бр. 
+                      <span className="text-[1.2rem] text-gray-500 block mt-1">({(group?.personalisation?.multipleColors as string[])?.filter(Boolean).join(', ')})</span>
+                    </span>
+                  )}
+                  {group?.personalisation?.colorOption === 'gradient' && (
+                    <span className="flex items-center gap-2 flex-wrap justify-end sm:justify-start">
+                      Градиент ({group?.personalisation?.balloonCount} бр.)
+                    </span>
+                  )}
+                </span>
+              </span>
+            )}
+            {group?.personalisation?.elementImage?.alt && group?.product?.category?.slug?.current !== 'blankets' && (
+              <span className="flex justify-between sm:justify-start items-start gap-4 sm:gap-0 w-full">
+                <span className="text-slate-400 font-medium sm:w-[140px] shrink-0">Елемент:</span>
+                <span className="font-medium text-green-dark break-words text-right sm:text-left">
+                  {group?.personalisation?.elementImage.alt}
                 </span>
               </span>
             )}

@@ -9,7 +9,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primery: 'text-primary-foreground shadow hover:opacity-80 rounded-full',
+        primery: 'text-primary-foreground bg-white hover:bg-green-5 shadow hover:opacity-80 rounded-full',
         default:
           'bg-white text-black hover:text-black shadow-md rounded-full font-bold',
         pink: 'bg-pink-9 text-pink-1 shadow  hover:ring-1 hover:ring-pink-9 hover:ring-offset-1 hover:ring-offset-pink-1 rounded-full font-medium',

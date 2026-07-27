@@ -119,3 +119,61 @@ export const blanketFormSchema = z
   });
 
 export type BlanketFormDataType = z.infer<typeof blanketFormSchema>;
+
+export const acrylicFormSchema = z
+  .object({
+    colorOption: z.enum(['single', 'multiple', 'gradient']),
+    singleColor: z.string().optional(),
+    multipleColors: z.array(z.string()).optional(),
+    gradientColor: z
+      .object({
+        start: z.string(),
+        end: z.string(),
+      })
+      .optional(),
+    balloonCount: z.number().min(1).max(12).default(12),
+    inscriptionMode: z.enum(['single', 'per-item']).default('single'),
+    inscriptions: z.array(z.string()).optional(),
+    inscription: z
+      .string({ required_error: 'Моля, въведете надпис' })
+      .trim()
+      .nonempty('Моля, въведете надпис'),
+      // .regex(/^[\u0400-\u04FF\s-]+$/, 'Използвайте само български букви'), // Optional: if we want to enforce Cyrillic
+    inscriptionColor: z.enum(['gold', 'silver', 'white', 'black'], {
+      errorMap: () => ({ message: 'Моля, изберете цвят на надписа' }),
+    }),
+    elementImage: z.any().optional(), // Can store the image object or identifier
+  })
+  .superRefine((data, ctx) => {
+    if (data.colorOption === 'single' && !data.singleColor) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Моля, изберете цвят',
+        path: ['singleColor'],
+      });
+    }
+    if (data.colorOption === 'multiple') {
+      if (
+        !data.multipleColors ||
+        data.multipleColors.length < data.balloonCount
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Моля, изберете цвят за всяко балонче',
+          path: ['multipleColors'],
+        });
+      }
+    }
+    if (data.colorOption === 'gradient') {
+      if (!data.gradientColor?.start || !data.gradientColor?.end) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Моля, изберете начален и краен цвят за градиента',
+          path: ['gradientColor'],
+        });
+      }
+    }
+
+  });
+
+export type AcrylicFormDataType = z.infer<typeof acrylicFormSchema>;

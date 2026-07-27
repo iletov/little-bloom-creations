@@ -61,7 +61,7 @@ const Dropdown = ({ data, openDropdown, index }: DropDownProps) => {
             {isMegaMenu ? (
               <div className="section_wrapper flex min-h-[360px]">
                 {/* Left Column: Categories */}
-                <div className="w-[25%] p-8 lg:py-8 lg:px-12 border-r border-slate-100 bg-white">
+                <div className="w-[15%] p-8 lg:py-8 lg:px-12 border-r border-slate-100 bg-white">
                   <h3 className="text-[1.3rem] font-bold text-gray-400 uppercase tracking-wider mb-5 px-4">
                     Категории
                   </h3>
@@ -72,9 +72,9 @@ const Dropdown = ({ data, openDropdown, index }: DropDownProps) => {
                           href={`/${data.href}/${subItem.href}`}
                           onMouseEnter={() => setActiveCategory(subItem.href)}
                           className={cn(
-                            "block px-4 py-3 rounded-xl transition-all duration-300",
+                            "block px-4 py-3 rounded-xl transition-all duration-100",
                             activeCategory === subItem.href
-                              ? "bg-slate-50 text-green-dark font-semibold shadow-sm"
+                              ? "bg-slate-50 text-white font-semibold shadow-sm bg-green-5"
                               : "text-slate-600 hover:text-green-dark hover:bg-slate-50 font-medium"
                           )}
                         >

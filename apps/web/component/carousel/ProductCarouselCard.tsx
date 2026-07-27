@@ -37,7 +37,7 @@ export const ProductCarouselCard = ({ product, hideVariants = false }: { product
   const href = `/categories/${product.category?.slug?.current || 'all'}/${product.slug?.current}`;
 
   return (
-    <article className="group flex flex-col gap-4 bg-green-0 shadow-sm rounded-[1.6rem] h-full">
+    <article className="group flex flex-col gap-4 bg-stone-50 shadow-sm rounded-[1.6rem] h-full">
       <Link href={href} className="block relative aspect-[4/5] rounded-t-[1.6rem] overflow-hidden bg-gray-50 mb-2">
          {displayImage ? (
             <Image

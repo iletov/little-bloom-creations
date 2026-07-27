@@ -20,6 +20,9 @@ interface ProductContainerProps {
 const ProductContainer = ({ data }: ProductContainerProps) => {
   const { variants } = useCart();
   const [addonPrice, setAddonPrice] = useState(0);
+  const isAcrylic =
+    data.category?.slug?.current === 'acrylic' ||
+    data.category?.slug?.current === 'acrylic-products';
 
   // console.log('ProductContainer DATA:', JSON.stringify(data, null, 2));
 
@@ -79,14 +82,16 @@ const ProductContainer = ({ data }: ProductContainerProps) => {
                 <span className="text-[2rem] text-gray-500 font-medium ml-3">(+ {addonPrice} €)</span>
               )}
             </div>
-            <div className="flex-1">
-              <p>Select a variant</p>
-              <div className="flex gap-4">
-                {variantsArray.map((variant: Variant, index: number) => (
-                  <ProductVariants variant={variant} key={variant?.id || variant?.sku || index} />
-                ))}
+            {!isAcrylic && (
+              <div className="flex-1">
+                <p>Select a variant</p>
+                <div className="flex gap-4">
+                  {variantsArray.map((variant: Variant, index: number) => (
+                    <ProductVariants variant={variant} key={variant?.id || variant?.sku || index} />
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <Suspense fallback={<div>Loading form...</div>}>

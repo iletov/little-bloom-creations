@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ProviderErrorModal } from '@/component/modals/ProviderErrorModal';
+import { getAcrylicColorHex } from '@/lib/acrylic-colors';
 
 const SingleOrderContainer = ({ data }: { data: Order }) => {
   const [isOpen, setIsOpen] = useState<string[]>([]);
@@ -372,6 +373,75 @@ const SingleOrderContainer = ({ data }: { data: Order }) => {
                                 </div>
                               </div>
                             )}
+                            {item.personalization.inscription &&
+                              item.personalization.inscriptionMode !== 'per-item' && (
+                              <div className="flex justify-between items-center text-[1.4rem]">
+                                <span className="text-slate-400">Inscription:</span>
+                                <span className="font-medium text-white">{item.personalization.inscription}</span>
+                              </div>
+                            )}
+                            {item.personalization.inscriptionMode === 'per-item' &&
+                              Array.isArray(item.personalization.inscriptions) && (
+                                <div className="flex justify-between items-start gap-4 text-[1.4rem]">
+                                  <span className="text-slate-400">Inscriptions:</span>
+                                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-right">
+                                    {item.personalization.inscriptions.map((inscription: string, inscriptionIndex: number) => (
+                                      <span
+                                        key={`${inscription}-${inscriptionIndex}`}
+                                        className="rounded-md border border-slate-600 bg-slate-700/40 px-2 py-1 font-medium text-white"
+                                      >
+                                        #{inscriptionIndex + 1}: {inscription}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            {item.personalization.inscriptionColor && (
+                              <div className="flex justify-between items-center text-[1.4rem]">
+                                <span className="text-slate-400">Inscription Color:</span>
+                                <span className="font-medium text-white capitalize">{item.personalization.inscriptionColor}</span>
+                              </div>
+                            )}
+                            {item.personalization.balloonCount && (
+                              <div className="flex justify-between items-center text-[1.4rem]">
+                                <span className="text-slate-400">Balloons:</span>
+                                <span className="font-medium text-white">{item.personalization.balloonCount}</span>
+                              </div>
+                            )}
+                            {item.personalization.colorOption && (
+                              <div className="flex justify-between items-start gap-4 text-[1.4rem]">
+                                <span className="text-slate-400">Acrylic Colors:</span>
+                                <AcrylicColorsPreview
+                                  colorOption={item.personalization.colorOption}
+                                  singleColor={item.personalization.singleColor}
+                                  singleColorHex={item.personalization.singleColorHex}
+                                  multipleColors={item.personalization.multipleColors}
+                                  multipleColorHexes={item.personalization.multipleColorHexes}
+                                  gradientColor={item.personalization.gradientColor}
+                                />
+                              </div>
+                            )}
+                            {item.personalization.elementImage?.alt && (
+                              <div className="flex justify-between items-center text-[1.4rem]">
+                                <span className="text-slate-400">Element:</span>
+                                <div className="flex items-center gap-3">
+                                  {item.personalization.elementImage.asset?.url ? (
+                                    <img
+                                      src={item.personalization.elementImage.asset.url}
+                                      alt={item.personalization.elementImage.alt}
+                                      className="w-24 h-24 object-contain bg-slate-700/50 rounded-md border border-slate-600 p-1"
+                                    />
+                                  ) : item.personalization.elementImage.url ? (
+                                    <img
+                                      src={item.personalization.elementImage.url}
+                                      alt={item.personalization.elementImage.alt}
+                                      className="w-12 h-12 object-contain bg-slate-700/50 rounded-md border border-slate-600 p-1"
+                                    />
+                                  ) : null}
+                                  <span className="font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-md">{item.personalization.elementImage.alt}</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
@@ -442,6 +512,154 @@ const CopyButton = ({ textToCopy, size = 16, className }: { textToCopy: string, 
     </button>
   );
 };
+
+type AcrylicColorsPreviewProps = {
+  colorOption?: string;
+  singleColor?: string;
+  singleColorHex?: string | null;
+  multipleColors?: unknown;
+  multipleColorHexes?: unknown;
+  gradientColor?: {
+    start?: string;
+    end?: string;
+  };
+};
+
+const AcrylicColorsPreview = ({
+  colorOption,
+  singleColor,
+  singleColorHex,
+  multipleColors,
+  multipleColorHexes,
+  gradientColor,
+}: AcrylicColorsPreviewProps) => {
+  if (colorOption === 'single' && singleColor) {
+    return (
+      <div className="flex justify-end w-full">
+        <ColorValue colorName={singleColor} savedHex={singleColorHex} size="lg" />
+      </div>
+    );
+  }
+
+  if (colorOption === 'multiple' && Array.isArray(multipleColors)) {
+    const selectedColors = multipleColors.filter(
+      (color): color is string => typeof color === 'string' && color.length > 0,
+    );
+
+    return (
+      <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 justify-items-end max-w-[280px]">
+        {selectedColors.map((colorName, index) => (
+          <div key={`${colorName}-${index}`} className="flex flex-col items-center gap-1">
+            <span className="text-[1.1rem] text-slate-400">#{index + 1}</span>
+            <ColorValue
+              colorName={colorName}
+              savedHex={getSavedMultipleColorHex(multipleColorHexes, colorName)}
+              compact={true}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (colorOption === 'gradient' && gradientColor?.start && gradientColor.end) {
+    return (
+      <div className="flex flex-col items-end gap-2 min-w-[220px]">
+        <div
+          className="h-14 w-full rounded-xl border border-slate-500 shadow-inner"
+          style={{
+            background: `linear-gradient(90deg, ${gradientColor.start} 0%, ${gradientColor.end} 100%)`,
+          }}
+        />
+        <div className="flex flex-col items-end gap-1">
+          <HexValue label="Start" hex={gradientColor.start} />
+          <HexValue label="End" hex={gradientColor.end} />
+        </div>
+      </div>
+    );
+  }
+
+  return <span className="font-medium text-white text-right">{colorOption}</span>;
+};
+
+const getSavedMultipleColorHex = (
+  multipleColorHexes: unknown,
+  colorName: string,
+): string | null => {
+  if (!Array.isArray(multipleColorHexes)) {
+    return null;
+  }
+
+  const matchingColor = multipleColorHexes.find((color) => {
+    if (typeof color !== 'object' || color === null) {
+      return false;
+    }
+
+    const candidate = color as { name?: unknown; hex?: unknown };
+
+    return (
+      typeof candidate.name === 'string' &&
+      candidate.name === colorName &&
+      (typeof candidate.hex === 'string' || candidate.hex === null)
+    );
+  }) as { name: string; hex: string | null } | undefined;
+
+  return matchingColor?.hex ?? null;
+};
+
+const ColorValue = ({
+  colorName,
+  savedHex,
+  compact = false,
+  size = 'md',
+}: {
+  colorName: string;
+  savedHex?: string | null;
+  compact?: boolean;
+  size?: 'md' | 'lg';
+}) => {
+  const hex = savedHex ?? getAcrylicColorHex(colorName);
+
+  if (compact) {
+    return (
+      <span className="flex flex-col items-center gap-1 text-center">
+        {hex && <ColorSwatch hex={hex} size="lg" />}
+        <span className="text-[1.1rem] leading-tight font-medium text-white max-w-[72px] break-words">
+          {colorName}
+        </span>
+        {hex && <span className="text-[1rem] leading-none text-slate-400">{hex}</span>}
+      </span>
+    );
+  }
+
+  return (
+    <span className="font-medium text-white text-right flex items-center justify-end gap-3">
+      {hex && <ColorSwatch hex={hex} size={size} />}
+      <span className="flex flex-col items-end">
+        <span>{colorName}</span>
+        {hex && <span className="text-slate-400 text-[1.2rem]">{hex}</span>}
+      </span>
+    </span>
+  );
+};
+
+const HexValue = ({ label, hex }: { label: string; hex: string }) => (
+  <span className="font-medium text-white text-right flex items-center justify-end gap-2">
+    <span className="text-slate-400">{label}:</span>
+    <ColorSwatch hex={hex} />
+    <span>{hex}</span>
+  </span>
+);
+
+const ColorSwatch = ({ hex, size = 'md' }: { hex: string; size?: 'md' | 'lg' }) => (
+  <span
+    className={cn(
+      'rounded-full border border-slate-500 shrink-0 shadow-sm',
+      size === 'lg' ? 'h-10 w-10' : 'h-5 w-5',
+    )}
+    style={{ backgroundColor: hex }}
+  />
+);
 
 // Simple read-only row
 const DetailRow = ({
